@@ -1,0 +1,50 @@
+/* SuperAdminPanel.module.css */
+.sidebar {
+  background-color: #001529;
+  color: white;
+}
+
+.logo {
+  color: white;
+  font-size: 1.25rem;
+  padding: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.menu {
+  background-color: transparent;
+  color: white;
+}
+
+.content {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 1rem;
+    padding: 12px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo {
+    font-size: 0.9rem;
+  }
+
+  .menu {
+    font-size: 0.9rem;
+  }
+
+  .content {
+    padding: 12px;
+  }
+}
