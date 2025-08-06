@@ -2,37 +2,36 @@ import { Button, Form, Input, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
+
 import type { LoginFormValues } from "../types";
 import { LoginSchema } from "../validation";
+import { login } from "../api/authApi.ts";
 import styles from "../../../styles/Login.module.css";
 
 export const Login = () => {
   const navigate = useNavigate();
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: login,
+    onSuccess: (response) => {
+      const { access_token, user } = response.data;
+
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      toast.success("Login successful");
+
+      navigate("/superadmin/tenants");
+    },
+    onError: () => {
+      toast.error("Invalid credentials");
+    },
+  });
+
   const initialValues: LoginFormValues = {
     email: "",
     passwordHash: "",
-  };
-
-  //   Email: superadmin@adwar.com
-  // Password: 12341234
-
-  const onSubmit = (values: LoginFormValues) => {
-    const { email } = values;
-    const role = email.includes("super")
-      ? "superadmin"
-      : email.includes("tenant")
-      ? "tenant"
-      : "customer";
-
-    localStorage.setItem("token", "123456");
-    localStorage.setItem("user", JSON.stringify({ role, email }));
-
-    toast.success("Login successful");
-
-    if (role === "superadmin") navigate("/superadmin/tenants");
-    else if (role === "tenant") navigate("/tenant/dashboard");
-    else navigate("/customer/orders");
   };
 
   return (
@@ -41,7 +40,9 @@ export const Login = () => {
       <Formik
         initialValues={initialValues}
         validationSchema={LoginSchema}
-        onSubmit={onSubmit}
+        onSubmit={({ email, passwordHash }) =>
+          mutate({ email, password: passwordHash })
+        }
       >
         {({ values, handleChange, handleSubmit, errors, touched }) => (
           <Form layout="vertical" onFinish={handleSubmit}>
@@ -71,7 +72,7 @@ export const Login = () => {
               />
             </Form.Item>
 
-            <Button type="primary" htmlType="submit" block>
+            <Button type="primary" htmlType="submit" block loading={isPending}>
               Login
             </Button>
           </Form>

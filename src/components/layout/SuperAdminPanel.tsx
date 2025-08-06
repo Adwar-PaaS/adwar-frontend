@@ -1,29 +1,30 @@
-import { Layout, Menu } from 'antd'
-import { Link, Outlet, useLocation } from 'react-router-dom'
-import styles from './SuperAdminPanel.module.css'
+import { Layout, Menu } from "antd";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import styles from "./SuperAdminPanel.module.css";
 
-const { Sider, Content } = Layout
+const { Sider, Content } = Layout;
 
 export const SuperAdminPanel = () => {
-  const location = useLocation()
-  const selectedKey = location.pathname.split('/').pop() || ''
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
     {
-      key: 'tenants',
+      key: "/superadmin/tenants",
       label: <Link to="/superadmin/tenants">Tenants</Link>,
-    }
-  ]
+    },
+  ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Sider className={styles.sidebar} width={200}>
         <div className={styles.logo}>Super Admin</div>
         <Menu
           mode="inline"
-          selectedKeys={[selectedKey]}
+          selectedKeys={[location.pathname]}
           items={menuItems}
           className={styles.menu}
+          onClick={({ key }) => navigate(key)}
         />
       </Sider>
       <Layout>
@@ -32,5 +33,5 @@ export const SuperAdminPanel = () => {
         </Content>
       </Layout>
     </Layout>
-  )
-}
+  );
+};

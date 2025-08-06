@@ -1,18 +1,17 @@
-import type { JSX } from 'react'
-import { Navigate } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
-const getUser = () => {
-  try {
-    const token = localStorage.getItem('token')
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    return token && user.role ? user : null
-  } catch {
-    return null
-  }
-}
+export const ProtectedRoute = () => {
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-export const ProtectedRoute = ({ children, role }: { children: JSX.Element; role: string }) => {
-  const user = getUser()
-  if (!user || user.role !== role) return <Navigate to="/login" />
-  return children
-}
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+    setIsAuthChecked(true);
+  }, []);
+
+  if (!isAuthChecked) return null;
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+};
