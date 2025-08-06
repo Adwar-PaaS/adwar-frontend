@@ -22,6 +22,15 @@
   min-height: 100vh;
 }
 
+.logoutIcon :global(svg) {
+  color: white ;
+  fill: white ;
+}
+
+.logoutText {
+  color: white;
+}
+
 @media (max-width: 768px) {
   .logo {
     font-size: 1rem;

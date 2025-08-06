@@ -1,5 +1,7 @@
 import { Layout, Menu } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { handleLogout } from "../../utils/logout";
+import { LogoutOutlined, TeamOutlined } from "@ant-design/icons";
 import styles from "./SuperAdminPanel.module.css";
 
 const { Sider, Content } = Layout;
@@ -13,6 +15,11 @@ export const SuperAdminPanel = () => {
       key: "/superadmin/tenants",
       label: <Link to="/superadmin/tenants">Tenants</Link>,
     },
+    {
+      key: "logout",
+      icon: <span className={styles.logoutIcon}><LogoutOutlined /></span>,
+      label: <span className={styles.logoutText}>Logout</span>,
+    },
   ];
 
   return (
@@ -24,7 +31,13 @@ export const SuperAdminPanel = () => {
           selectedKeys={[location.pathname]}
           items={menuItems}
           className={styles.menu}
-          onClick={({ key }) => navigate(key)}
+          onClick={({ key }) => {
+            if (key === "logout") {
+              handleLogout();
+            } else {
+              navigate(key);
+            }
+          }}
         />
       </Sider>
       <Layout>
