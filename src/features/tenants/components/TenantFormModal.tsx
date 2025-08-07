@@ -25,7 +25,7 @@ export const TenantFormModal = ({
     name: "",
     email: "",
     phone: "",
-    status: "active",
+    status: "",
     address: "",
     logoUrl: "",
   };
@@ -51,7 +51,10 @@ export const TenantFormModal = ({
         initialValues={defaultValues}
         validationSchema={TenantSchema}
         onSubmit={(values) => {
-          onSubmit(values);
+          const formattedStatus =
+            values.status.toLocaleLowerCase();
+
+          onSubmit({ ...values, status: formattedStatus });
           toast.success(isEdit ? "Tenant updated" : "Tenant added");
           onClose();
         }}
@@ -106,8 +109,8 @@ export const TenantFormModal = ({
                 value={values.status}
                 onChange={(val) => setFieldValue("status", val)}
               >
-                <Select.Option value="active">Active</Select.Option>
-                <Select.Option value="inactive">Inactive</Select.Option>
+                <Select.Option value="activate">Activate</Select.Option>
+                <Select.Option value="deactivate">Deactivate</Select.Option>
               </Select>
             </Form.Item>
 

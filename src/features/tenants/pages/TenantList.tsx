@@ -19,8 +19,8 @@ export const TenantList = () => {
     try {
       setLoading(true);
       const response = await getTenants();
-      setTenants(response.data.data.data);
-      console.log( response.data);
+      setTenants(response.data.data);
+      console.log(response.data);
     } catch (error) {
       toast.error("Failed to fetch tenants");
     } finally {
@@ -46,10 +46,13 @@ export const TenantList = () => {
     try {
       if (editingTenant) {
         setTenants((prev) =>
-          prev.map((tenant) =>
-            tenant.email === editingTenant.email ? values : tenant
-          )
-        );
+  prev.map((tenant) =>
+    tenant.id === editingTenant.id
+      ? { ...tenant, ...values }
+      : tenant
+  )
+);
+
       } else {
         await createTenant(values);
         toast.success("Tenant created successfully");
@@ -73,17 +76,30 @@ export const TenantList = () => {
       render: (url: string) =>
         url ? <img src={url} alt="logo" width={40} height={40} /> : "N/A",
     },
-    { title: "Created At", dataIndex: "createdAt", key: "createdAt", render: (date: string) => dayjs(date).format("YYYY-MM-DD"), },
-    { title: "Created By", dataIndex: "createdBy", key: "createdBy", },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
+    },
+    {
+      title: "Created By",
+      dataIndex: "creator",
+      key: "createdBy",
+      render: (creator: { fullName: string }) => creator?.fullName,
+    },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <Tag color={status === "active" ? "green" : "red"}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
+      render: (status: string) => {
+        const isActive = status === "activate";
+        return (
+          <Tag color={isActive ? "green" : "red"}>
+            {isActive ? "ACTIVATE" : "DEACTIVATE"}
+          </Tag>
+        );
+      },
     },
     {
       title: "Actions",
