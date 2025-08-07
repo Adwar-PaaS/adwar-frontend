@@ -35,49 +35,64 @@ export const Login = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <Typography.Title level={3}>Login</Typography.Title>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={LoginSchema}
-        onSubmit={({ email, passwordHash }) =>
-          mutate({ email, password: passwordHash })
-        }
-      >
-        {({ values, handleChange, handleSubmit, errors, touched }) => (
-          <Form layout="vertical" onFinish={handleSubmit}>
-            <Form.Item
-              label="Email"
-              validateStatus={touched.email && errors.email ? "error" : ""}
-              help={touched.email && errors.email}
-            >
-              <Input
-                name="email"
-                value={values.email}
-                onChange={handleChange}
-              />
-            </Form.Item>
+    <div className={styles.loginContainer}>
+      <div className={styles.imageSection}>
+        <img
+          src="/login-illustration.jpeg"
+          alt="Login Visual"
+          className={styles.loginImage}
+        />
+      </div>
 
-            <Form.Item
-              label="Password"
-              validateStatus={
-                touched.passwordHash && errors.passwordHash ? "error" : ""
-              }
-              help={touched.passwordHash && errors.passwordHash}
-            >
-              <Input.Password
-                name="passwordHash"
-                value={values.passwordHash}
-                onChange={handleChange}
-              />
-            </Form.Item>
+      <div className={styles.formSection}>
+        <Typography.Title level={3}>Login</Typography.Title>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={LoginSchema}
+          onSubmit={({ email, passwordHash }) =>
+            mutate({ email, password: passwordHash })
+          }
+        >
+          {({ values, handleChange, handleSubmit, errors, touched }) => (
+            <Form layout="vertical" onFinish={handleSubmit}>
+              <Form.Item
+                label="Email"
+                validateStatus={touched.email && errors.email ? "error" : ""}
+                help={touched.email && errors.email}
+              >
+                <Input
+                  name="email"
+                  value={values.email}
+                  onChange={handleChange}
+                />
+              </Form.Item>
 
-            <Button type="primary" htmlType="submit" block loading={isPending}>
-              Login
-            </Button>
-          </Form>
-        )}
-      </Formik>
+              <Form.Item
+                label="Password"
+                validateStatus={
+                  touched.passwordHash && errors.passwordHash ? "error" : ""
+                }
+                help={touched.passwordHash && errors.passwordHash}
+              >
+                <Input.Password
+                  name="passwordHash"
+                  value={values.passwordHash}
+                  onChange={handleChange}
+                />
+              </Form.Item>
+
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                loading={isPending}
+              >
+                Login
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 };

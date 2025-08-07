@@ -5,6 +5,4 @@ export interface TenantFormValues {
   status: "active" | "inactive";
   address: string;
   logoUrl: string;
-  createdAt: string;
-  createdBy: string;
 }

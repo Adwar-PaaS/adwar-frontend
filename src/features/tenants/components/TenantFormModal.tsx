@@ -28,8 +28,6 @@ export const TenantFormModal = ({
     status: "active",
     address: "",
     logoUrl: "",
-    createdAt: "",
-    createdBy: "",
   };
 
   const getBase64 = (file: File): Promise<string> =>
@@ -46,7 +44,7 @@ export const TenantFormModal = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnHidden={true}
+      destroyOnClose
       centered={true}
     >
       <Formik
@@ -135,31 +133,34 @@ export const TenantFormModal = ({
               </Upload>
 
               {values.logoUrl && (
-                <img
-                  src={values.logoUrl}
-                  alt="Tenant Logo"
-                  style={{ marginTop: 10, width: 80, height: 80, objectFit: "contain" }}
-                />
+                <div style={{ marginTop: 10 }}>
+                  <img
+                    src={values.logoUrl}
+                    alt="Tenant Logo"
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "contain",
+                      marginBottom: 8,
+                    }}
+                  />
+                  <Button
+                    danger
+                    size="small"
+                    onClick={() => setFieldValue("logoUrl", "")}
+                  >
+                    Remove Logo
+                  </Button>
+                </div>
               )}
             </Form.Item>
 
-            <Form.Item label="Created At">
-              <Input
-                name="createdAt"
-                value={values.createdAt}
-                onChange={handleChange}
-              />
-            </Form.Item>
-
-            <Form.Item label="Created By">
-              <Input
-                name="createdBy"
-                value={values.createdBy}
-                onChange={handleChange}
-              />
-            </Form.Item>
-
-            <Button type="primary" htmlType="submit" block className={styles.submitButton}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              className={styles.submitButton}
+            >
               {isEdit ? "Update" : "Add"} Tenant
             </Button>
           </Form>
