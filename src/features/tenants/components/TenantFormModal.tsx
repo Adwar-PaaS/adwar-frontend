@@ -25,9 +25,9 @@ export const TenantFormModal = ({
     name: "",
     email: "",
     phone: "",
-    status: "",
+    status: "Activate",
     address: "",
-    logoUrl: "",
+    logoUrl: null,
   };
 
   const getBase64 = (file: File): Promise<string> =>
@@ -51,10 +51,7 @@ export const TenantFormModal = ({
         initialValues={defaultValues}
         validationSchema={TenantSchema}
         onSubmit={(values) => {
-          const formattedStatus =
-            values.status.toLocaleLowerCase();
-
-          onSubmit({ ...values, status: formattedStatus });
+          onSubmit(values);
           toast.success(isEdit ? "Tenant updated" : "Tenant added");
           onClose();
         }}
@@ -109,8 +106,8 @@ export const TenantFormModal = ({
                 value={values.status}
                 onChange={(val) => setFieldValue("status", val)}
               >
-                <Select.Option value="activate">Activate</Select.Option>
-                <Select.Option value="deactivate">Deactivate</Select.Option>
+                <Select.Option value="Activate">Activate</Select.Option>
+                <Select.Option value="Deactivate">Deactivate</Select.Option>
               </Select>
             </Form.Item>
 

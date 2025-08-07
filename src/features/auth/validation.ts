@@ -11,5 +11,5 @@ export const TenantSchema = Yup.object().shape({
   name: Yup.string().required("Required"),
   email: Yup.string().email("Invalid email").required("Required"),
   phone: Yup.string().required("Required"),
-  status: Yup.string().oneOf(["activate", "deactivate"]).required("Required"),
+  status: Yup.string().oneOf(["Activate", "Deactivate"]).required("Required"),
 });

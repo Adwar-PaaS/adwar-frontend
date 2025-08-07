@@ -1,7 +1,7 @@
 import { Table, Tag, Button, Space } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
-import type { TenantFormValues } from "../tenants.types";
+import type { TenantFormValues, CreateTenantPayload } from "../tenants.types";
 import styles from "./TenantList.module.css";
 import { createTenant, getTenants } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
@@ -44,21 +44,33 @@ export const TenantList = () => {
 
   const handleSubmit = async (values: TenantFormValues) => {
     try {
+      console.log("Submitting tenant with values:", values);
+      
       if (editingTenant) {
         setTenants((prev) =>
-  prev.map((tenant) =>
-    tenant.id === editingTenant.id
-      ? { ...tenant, ...values }
-      : tenant
-  )
-);
-
+          prev.map((tenant) =>
+            tenant.id === editingTenant.id ? { ...tenant, ...values } : tenant
+          )
+        );
       } else {
-        await createTenant(values);
+        // Transform the payload to match backend expectations
+        const payload: CreateTenantPayload = {
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          status: values.status,
+          address: values.address,
+          logo: values.logoUrl, // Backend expects 'logo' field
+        };
+        
+        console.log("Transformed payload:", payload);
+        const response = await createTenant(payload);
+        console.log("Create tenant response:", response);
         toast.success("Tenant created successfully");
         fetchTenants();
       }
     } catch (error) {
+      console.error("Error creating tenant:", error);
       toast.error("Failed to create tenant");
     }
   };
@@ -93,10 +105,10 @@ export const TenantList = () => {
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
-        const isActive = status === "activate";
+        const isActive = status === "Activate";
         return (
           <Tag color={isActive ? "green" : "red"}>
-            {isActive ? "ACTIVATE" : "DEACTIVATE"}
+            {isActive ? "ACTIVE" : "INACTIVE"}
           </Tag>
         );
       },
