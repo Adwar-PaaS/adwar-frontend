@@ -9,20 +9,24 @@ const initialTenants: TenantFormValues[] = [
     name: "Acme Corp",
     email: "admin@acme.com",
     phone: "+1234567890",
-    status: "active",
+
+    address: "123 Main St",
+    logoUrl: "https://www.adwar.com.sa/uploads/1656262965.png",
+    createdAt: "2025-08-01",
+    createdBy: "Admin",
+        status: "active",
   },
   {
     name: "Beta Logistics",
     email: "contact@beta.com",
     phone: "+9876543210",
-    status: "inactive",
+ 
+    address: "456 Beta Ave",
+    logoUrl: "https://www.adwar.com.sa/uploads/1656262965.png",
+    createdAt: "2025-07-15",
+    createdBy: "SuperAdmin",
+       status: "inactive",
   },
-  {
-    name: "Corp",
-    email: "add@acme.com",
-    phone: "+1234167890",
-    status: "active",
-  }
 ];
 
 export const TenantList = () => {
@@ -56,6 +60,17 @@ export const TenantList = () => {
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
+    
+    { title: "Address", dataIndex: "address", key: "address" },
+    {
+      title: "Logo",
+      dataIndex: "logoUrl",
+      key: "logoUrl",
+      render: (url: string) =>
+        url ? <img src={url} alt="logo" width={40} height={40} /> : "N/A",
+    },
+    { title: "Created At", dataIndex: "createdAt", key: "createdAt" },
+    { title: "Created By", dataIndex: "createdBy", key: "createdBy" },
     {
       title: "Status",
       dataIndex: "status",

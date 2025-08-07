@@ -3,4 +3,8 @@ export interface TenantFormValues {
   email: string;
   phone: string;
   status: "active" | "inactive";
+  address: string;
+  logoUrl: string;
+  createdAt: string;
+  createdBy: string;
 }

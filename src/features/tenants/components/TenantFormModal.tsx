@@ -1,4 +1,5 @@
-import { Modal, Form, Input, Select, Button } from "antd";
+import { Modal, Form, Input, Select, Button, Upload, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { TenantSchema } from "../../auth/validation";
@@ -25,7 +26,19 @@ export const TenantFormModal = ({
     email: "",
     phone: "",
     status: "active",
+    address: "",
+    logoUrl: "",
+    createdAt: "",
+    createdBy: "",
   };
+
+  const getBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
 
   return (
     <Modal
@@ -100,12 +113,53 @@ export const TenantFormModal = ({
               </Select>
             </Form.Item>
 
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              className={styles.submitButton}
-            >
+            <Form.Item label="Address">
+              <Input
+                name="address"
+                value={values.address}
+                onChange={handleChange}
+              />
+            </Form.Item>
+
+            <Form.Item label="Logo">
+              <Upload
+                beforeUpload={async (file) => {
+                  const base64 = await getBase64(file);
+                  setFieldValue("logoUrl", base64);
+                  message.success("Image uploaded");
+                  return false; // Prevent automatic upload
+                }}
+                showUploadList={false}
+              >
+                <Button icon={<UploadOutlined />}>Upload Logo</Button>
+              </Upload>
+
+              {values.logoUrl && (
+                <img
+                  src={values.logoUrl}
+                  alt="Tenant Logo"
+                  style={{ marginTop: 10, width: 80, height: 80, objectFit: "contain" }}
+                />
+              )}
+            </Form.Item>
+
+            <Form.Item label="Created At">
+              <Input
+                name="createdAt"
+                value={values.createdAt}
+                onChange={handleChange}
+              />
+            </Form.Item>
+
+            <Form.Item label="Created By">
+              <Input
+                name="createdBy"
+                value={values.createdBy}
+                onChange={handleChange}
+              />
+            </Form.Item>
+
+            <Button type="primary" htmlType="submit" block className={styles.submitButton}>
               {isEdit ? "Update" : "Add"} Tenant
             </Button>
           </Form>
