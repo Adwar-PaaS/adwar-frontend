@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
 import styles from "./TenantList.module.css";
-import { createTenant, getTenants } from "../../auth/api/tenantApi";
+import {
+  createTenant,
+  getTenants,
+  updateTenant,
+} from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 
@@ -42,47 +46,34 @@ export const TenantList = () => {
     setModalOpen(true);
   };
 
-  // Added file parameter to handle File object from form
-  // This matches the updated TenantFormModal interface
   const handleSubmit = async (values: TenantFormValues, file?: File | null) => {
     try {
       console.log("Submitting tenant with values:", values);
       console.log("Submitting tenant with file:", file);
-      
-      if (editingTenant) {
-        setTenants((prev) =>
-          prev.map((tenant) =>
-            tenant.id === editingTenant.id ? { ...tenant, ...values } : tenant
-          )
-        );
-      } else {
-        // Backend expects multipart/form-data with FileInterceptor('logo')
-        const formData = new FormData();
-        formData.append('name', values.name);
-        formData.append('email', values.email);
-        formData.append('phone', values.phone);
-        formData.append('status', values.status);
-        formData.append('address', values.address);
-        
-        // ADDED: Append file only if present
-        // Backend uses @UploadedFile() to receive this
-        if (file) {
-          formData.append('logo', file);
-        }
-        
-        console.log("FormData entries:");
-        for (const pair of formData.entries()) {
-          console.log(pair[0], pair[1]);
-        }
-        
-        const response = await createTenant(formData);
-        console.log("Create tenant response:", response);
-        toast.success("Tenant created successfully");
-        fetchTenants();
+
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("email", values.email);
+      formData.append("phone", values.phone);
+      formData.append("status", values.status);
+      formData.append("address", values.address);
+
+      if (file) {
+        formData.append("logo", file);
       }
+
+      if (editingTenant) {
+        await updateTenant(editingTenant.id!, formData);
+        toast.success("Tenant updated successfully");
+      } else {
+        await createTenant(formData);
+        toast.success("Tenant created successfully");
+      }
+
+      await fetchTenants();
     } catch (error) {
-      console.error("Error creating tenant:", error);
-      toast.error("Failed to create tenant");
+      console.error("Error saving tenant:", error);
+      toast.error("Failed to save tenant");
     }
   };
 
