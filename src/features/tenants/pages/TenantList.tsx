@@ -63,14 +63,26 @@ export const TenantList = () => {
       }
 
       if (editingTenant) {
-        await updateTenant(editingTenant.id!, formData);
+        // Update existing tenant - maintain position in the list
+        const response = await updateTenant(editingTenant.id!, formData);
+        const updatedTenant = response.data.data;
+        
+        // Update the tenant in the current state without changing order
+        setTenants((prev) =>
+          prev.map((tenant) =>
+            tenant.id === editingTenant.id ? updatedTenant : tenant
+          )
+        );
         toast.success("Tenant updated successfully");
       } else {
-        await createTenant(formData);
+        // Create new tenant - add to the list
+        const response = await createTenant(formData);
+        const newTenant = response.data.data;
+        
+        // Add new tenant to the end of the current list
+        setTenants((prev) => [...prev, newTenant]);
         toast.success("Tenant created successfully");
       }
-
-      await fetchTenants();
     } catch (error) {
       console.error("Error saving tenant:", error);
       toast.error("Failed to save tenant");
