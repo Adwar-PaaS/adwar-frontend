@@ -1,7 +1,7 @@
 import { Table, Tag, Button, Space } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
-import type { TenantFormValues, CreateTenantPayload } from "../tenants.types";
+import type { TenantFormValues } from "../tenants.types";
 import styles from "./TenantList.module.css";
 import { createTenant, getTenants } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
@@ -42,9 +42,12 @@ export const TenantList = () => {
     setModalOpen(true);
   };
 
-  const handleSubmit = async (values: TenantFormValues) => {
+  // Added file parameter to handle File object from form
+  // This matches the updated TenantFormModal interface
+  const handleSubmit = async (values: TenantFormValues, file?: File | null) => {
     try {
       console.log("Submitting tenant with values:", values);
+      console.log("Submitting tenant with file:", file);
       
       if (editingTenant) {
         setTenants((prev) =>
@@ -53,18 +56,26 @@ export const TenantList = () => {
           )
         );
       } else {
-        // Transform the payload to match backend expectations
-        const payload: CreateTenantPayload = {
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-          status: values.status,
-          address: values.address,
-          logo: values.logoUrl, // Backend expects 'logo' field
-        };
+        // Backend expects multipart/form-data with FileInterceptor('logo')
+        const formData = new FormData();
+        formData.append('name', values.name);
+        formData.append('email', values.email);
+        formData.append('phone', values.phone);
+        formData.append('status', values.status);
+        formData.append('address', values.address);
         
-        console.log("Transformed payload:", payload);
-        const response = await createTenant(payload);
+        // ADDED: Append file only if present
+        // Backend uses @UploadedFile() to receive this
+        if (file) {
+          formData.append('logo', file);
+        }
+        
+        console.log("FormData entries:");
+        for (const pair of formData.entries()) {
+          console.log(pair[0], pair[1]);
+        }
+        
+        const response = await createTenant(formData);
         console.log("Create tenant response:", response);
         toast.success("Tenant created successfully");
         fetchTenants();

@@ -2,6 +2,7 @@ import { Modal, Form, Input, Select, Button, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
+import { useState } from "react";
 import { TenantSchema } from "../../auth/validation";
 import type { TenantFormValues } from "../tenants.types";
 import styles from "./TenantFormModal.module.css";
@@ -9,7 +10,9 @@ import styles from "./TenantFormModal.module.css";
 interface TenantModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: TenantFormValues) => void;
+  // Added file parameter to onSubmit to pass the actual File object
+  // instead of just base64 string for proper multipart/form-data upload
+  onSubmit: (values: TenantFormValues, file?: File | null) => void;
   initialValues?: TenantFormValues;
   isEdit?: boolean;
 }
@@ -21,12 +24,17 @@ export const TenantFormModal = ({
   initialValues,
   isEdit = false,
 }: TenantModalProps) => {
+  // State to store the actual File object for upload
+  // This is needed because backend expects multipart/form-data with actual file
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
   const defaultValues: TenantFormValues = initialValues || {
     name: "",
     email: "",
     phone: "",
     status: "Activate",
     address: "",
+    // Set to null instead of empty string to match type definition
     logoUrl: null,
   };
 
@@ -51,7 +59,9 @@ export const TenantFormModal = ({
         initialValues={defaultValues}
         validationSchema={TenantSchema}
         onSubmit={(values) => {
-          onSubmit(values);
+          // Pass both form values and the actual File object
+          // The backend needs the File object for multipart upload, not base64
+          onSubmit(values, selectedFile);
           toast.success(isEdit ? "Tenant updated" : "Tenant added");
           onClose();
         }}
@@ -122,6 +132,11 @@ export const TenantFormModal = ({
             <Form.Item label="Logo">
               <Upload
                 beforeUpload={async (file) => {
+                  // Store the actual File object for later upload
+                  // This is required for backend's FileInterceptor('logo')
+                  setSelectedFile(file);
+                  
+                  // Keep base64 conversion for preview display only
                   const base64 = await getBase64(file);
                   setFieldValue("logoUrl", base64);
                   message.success("Image uploaded");
@@ -147,7 +162,11 @@ export const TenantFormModal = ({
                   <Button
                     danger
                     size="small"
-                    onClick={() => setFieldValue("logoUrl", "")}
+                    onClick={() => {
+                      setFieldValue("logoUrl", null);
+                      // ADDED: Clear the selected file when removing logo
+                      setSelectedFile(null);
+                    }}
                   >
                     Remove Logo
                   </Button>
