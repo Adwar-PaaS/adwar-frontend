@@ -1,40 +1,69 @@
-import { Table, Tag, Button, Space } from "antd";
+import { Table, Tag, Button, Space, Spin, message } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
-import styles from "./TenantList.module.css";
 import {
   createTenant,
   getTenants,
   updateTenant,
 } from "../../auth/api/tenantApi";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { logout } from "../..//auth/authSlice";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import styles from "./TenantList.module.css";
 
 export const TenantList = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const [tenants, setTenants] = useState<TenantFormValues[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<TenantFormValues | null>(
     null
   );
   const [loading, setLoading] = useState(false);
-
-  const fetchTenants = async () => {
-    try {
-      setLoading(true);
-      const response = await getTenants();
-      setTenants(response.data.data);
-      console.log(response.data);
-    } catch (error) {
-      toast.error("Failed to fetch tenants");
-    } finally {
-      setLoading(false);
+    const dispatct = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+const fetchTenants = async () => {
+  try {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No token found");
     }
-  };
 
-  useEffect(() => {
-    fetchTenants();
-  }, []);
+    const response = await getTenants();
+    setTenants(response.data.data);
+  } catch (error: any) {
+    console.error("Fetch tenants error:", error);
+    if (error.response?.status === 401 || error.message === "No token found") {
+      message.warning("Session expired. Please login again.");
+    } else {
+      message.error("Failed to fetch tenants");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+ useEffect(() => {
+    if (isAuthenticated) {
+      fetchTenants();
+    } else {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login", { replace: true });
+      } else {
+        fetchTenants();
+      }
+    }
+  }, [isAuthenticated]);
+
+  if (loading) {
+    return <Spin size="large" fullscreen />;
+  }
 
   const openAddModal = () => {
     setEditingTenant(null);
@@ -63,11 +92,9 @@ export const TenantList = () => {
       }
 
       if (editingTenant) {
-        // Update existing tenant - maintain position in the list
         const response = await updateTenant(editingTenant.id!, formData);
         const updatedTenant = response.data.data;
-        
-        // Update the tenant in the current state without changing order
+
         setTenants((prev) =>
           prev.map((tenant) =>
             tenant.id === editingTenant.id ? updatedTenant : tenant
@@ -75,11 +102,9 @@ export const TenantList = () => {
         );
         toast.success("Tenant updated successfully");
       } else {
-        // Create new tenant - add to the list
         const response = await createTenant(formData);
         const newTenant = response.data.data;
-        
-        // Add new tenant to the end of the current list
+
         setTenants((prev) => [...prev, newTenant]);
         toast.success("Tenant created successfully");
       }

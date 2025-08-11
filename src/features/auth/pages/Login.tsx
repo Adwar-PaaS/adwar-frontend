@@ -3,31 +3,42 @@ import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
+import { loginSuccess, loginFailure } from "../authSlice.ts";
 
 import type { LoginFormValues } from "../types";
 import { LoginSchema } from "../validation";
 import { login } from "../api/authApi.ts";
 import styles from "../../../styles/Login.module.css";
+import { useDispatch } from "react-redux";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: login,
-    onSuccess: (response) => {
-      const { access_token, user } = response.data;
 
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("user", JSON.stringify(user));
+const { mutate, isPending } = useMutation({
+  mutationFn: login,
+  onSuccess: (response) => {
+  const { access_token, user } = response.data;
 
-      toast.success("Login successful");
+  localStorage.setItem("auth", JSON.stringify({
+    token: access_token,
+    user
+  }));
 
-      navigate("/superadmin/tenants");
-    },
-    onError: () => {
-      toast.error("Invalid credentials");
-    },
+  dispatch(loginSuccess(user)).then(() => {
+    requestAnimationFrame(() => {
+      navigate("/superadmin/tenants", { replace: true });
+    });
   });
+  
+  toast.success("Login successful");
+},
+  onError: (error: any) => {
+    dispatch(loginFailure(error.message));
+    toast.error(error.response?.data?.message || "Invalid credentials");
+  },
+});
 
   const initialValues: LoginFormValues = {
     email: "",
