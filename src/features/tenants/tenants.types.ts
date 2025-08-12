@@ -6,6 +6,10 @@ export interface TenantFormValues {
   status: "Activate" | "Deactivate";
   address: string;
   logoUrl: string | null;
+  createdAt?: string;
+  creator?: {
+    fullName: string;
+  };
 }
 
 export interface CreateTenantPayload {

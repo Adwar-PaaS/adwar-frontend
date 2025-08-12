@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { SuperAdminPanel } from "./components/layout/SuperAdminPanel";
 import { TenantList } from "./features/tenants/pages/TenantList";
+import { TenantDetails } from "./features/tenants/pages/TenantDetails";
 import { Login } from "./features/auth/pages/Login";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
