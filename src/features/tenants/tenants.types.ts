@@ -18,5 +18,5 @@ export interface CreateTenantPayload {
   phone: string;
   status: "Activate" | "Deactivate";
   address: string;
-  logo?: string | null;
+  logoUrl?: string | null;
 }

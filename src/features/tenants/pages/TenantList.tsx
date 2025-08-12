@@ -29,32 +29,7 @@ export const TenantList = () => {
     try {
       setLoading(true);
       const response = await getTenants();
-      //    const dummyData: TenantFormValues[] = [
-      //   {
-      //     id: "1",
-      //     name: "John Doe",
-      //     email: "john@example.com",
-      //     phone: "01012345678",
-      //     status: "Activate",
-      //     address: "123 Main St, Cairo",
-      //     logoUrl: "/login-illustration.jpeg",
-      //     createdAt: "2025-08-01T10:00:00Z",
-      //     creator: { fullName: "Admin User" }
-      //   },
-      //   {
-      //     id: "2",
-      //     name: "Jane Smith",
-      //     email: "jane@example.com",
-      //     phone: "01098765432",
-      //     status: "Deactivate",
-      //     address: "456 Elm St, Giza",
-      //     logoUrl: "/login-illustration.jpeg",
-      //     createdAt: "2025-08-05T14:30:00Z",
-      //     creator: { fullName: "Admin User" }
-      //   }
-      // ];
       setTenants(response.data.data);
-      // setTenants(dummyData);
     } catch (error) {
       toast.error("Failed to fetch tenants");
     } finally {
@@ -94,7 +69,7 @@ export const TenantList = () => {
       formData.append("address", values.address);
 
       if (file) {
-        formData.append("logo", file);
+        formData.append("logoUrl", file);
       }
 
       if (editingTenant) {
