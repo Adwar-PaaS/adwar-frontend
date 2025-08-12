@@ -28,33 +28,33 @@ export const TenantList = () => {
   const fetchTenants = async () => {
     try {
       setLoading(true);
-      // const response = await getTenants();
-       const dummyData: TenantFormValues[] = [
-      {
-        id: "1",
-        name: "John Doe",
-        email: "john@example.com",
-        phone: "01012345678",
-        status: "Activate",
-        address: "123 Main St, Cairo",
-        logoUrl: "/login-illustration.jpeg",
-        createdAt: "2025-08-01T10:00:00Z",
-        creator: { fullName: "Admin User" }
-      },
-      {
-        id: "2",
-        name: "Jane Smith",
-        email: "jane@example.com",
-        phone: "01098765432",
-        status: "Deactivate",
-        address: "456 Elm St, Giza",
-        logoUrl: "/login-illustration.jpeg",
-        createdAt: "2025-08-05T14:30:00Z",
-        creator: { fullName: "Admin User" }
-      }
-    ];
-      // setTenants(response.data.data);
-      setTenants(dummyData);
+      const response = await getTenants();
+      //    const dummyData: TenantFormValues[] = [
+      //   {
+      //     id: "1",
+      //     name: "John Doe",
+      //     email: "john@example.com",
+      //     phone: "01012345678",
+      //     status: "Activate",
+      //     address: "123 Main St, Cairo",
+      //     logoUrl: "/login-illustration.jpeg",
+      //     createdAt: "2025-08-01T10:00:00Z",
+      //     creator: { fullName: "Admin User" }
+      //   },
+      //   {
+      //     id: "2",
+      //     name: "Jane Smith",
+      //     email: "jane@example.com",
+      //     phone: "01098765432",
+      //     status: "Deactivate",
+      //     address: "456 Elm St, Giza",
+      //     logoUrl: "/login-illustration.jpeg",
+      //     createdAt: "2025-08-05T14:30:00Z",
+      //     creator: { fullName: "Admin User" }
+      //   }
+      // ];
+      setTenants(response.data.data);
+      // setTenants(dummyData);
     } catch (error) {
       toast.error("Failed to fetch tenants");
     } finally {
@@ -121,13 +121,13 @@ export const TenantList = () => {
 
   const columns = [
     {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text: string, record: TenantFormValues) => (
-      <Link to={`/tenants/${record.id}`}>{text}</Link>
-    ),
-  },
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text: string, record: TenantFormValues) => (
+        <Link to={`/tenants/${record.id}`}>{text}</Link>
+      ),
+    },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
 
@@ -176,8 +176,12 @@ export const TenantList = () => {
       ),
     },
   ];
-  if(loading) {
-    return <div><Spin /></div>;
+  if (loading) {
+    return (
+      <div>
+        <Spin />
+      </div>
+    );
   }
 
   return (
