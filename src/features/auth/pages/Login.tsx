@@ -3,46 +3,62 @@ import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
-import { loginSuccess, loginFailure } from "../authSlice.ts";
 
 import type { LoginFormValues } from "../types";
 import { LoginSchema } from "../validation";
-import { login } from "../api/authApi.ts";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { setUser, setLoading, setError, clearError } from "../../../store/slices/authSlice";
+import { authAPI } from "../api/authApi";
+import { getRoleBasedRoute } from "../../../utils/roleUtils";
 import styles from "../../../styles/Login.module.css";
 import { useDispatch } from "react-redux";
 
 export const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: login,
+    onSuccess: (response) => {
+      const { access_token, user } = response.data;
 
-const { mutate, isPending } = useMutation({
-  mutationFn: login,
-  onSuccess: (response) => {
-  const { access_token, user } = response.data;
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-  localStorage.setItem("auth", JSON.stringify({
-    token: access_token,
-    user
-  }));
+      toast.success("Login successful");
 
-  dispatch(loginSuccess(user)).then(() => {
-    requestAnimationFrame(() => {
-      navigate("/superadmin/tenants", { replace: true });
-    });
+      navigate("/superadmin/tenants");
+    },
+    onError: () => {
+      toast.error("Invalid credentials");
+    },
   });
-  
-  toast.success("Login successful");
-},
-  onError: (error: any) => {
-    dispatch(loginFailure(error.message));
-    toast.error(error.response?.data?.message || "Invalid credentials");
-  },
-});
 
   const initialValues: LoginFormValues = {
     email: "",
     passwordHash: "",
+  };
+
+  const handleSubmit = async ({ email, passwordHash }: LoginFormValues) => {
+    try {
+      dispatch(setLoading(true));
+      dispatch(clearError());
+      
+      const response = await authAPI.login({ email, password: passwordHash });
+      const user = response.data.user;
+      dispatch(setUser(user));
+      
+      toast.success("Login successful");
+      
+      // Navigate based on user role
+      const dashboardRoute = getRoleBasedRoute(user);
+      navigate(dashboardRoute, { replace: true });
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      dispatch(setError(errorMessage));
+      toast.error(errorMessage);
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (
@@ -60,9 +76,7 @@ const { mutate, isPending } = useMutation({
         <Formik
           initialValues={initialValues}
           validationSchema={LoginSchema}
-          onSubmit={({ email, passwordHash }) =>
-            mutate({ email, password: passwordHash })
-          }
+          onSubmit={handleSubmit}
         >
           {({ values, handleChange, handleSubmit, errors, touched }) => (
             <Form layout="vertical" onFinish={handleSubmit}>
@@ -96,7 +110,7 @@ const { mutate, isPending } = useMutation({
                 type="primary"
                 htmlType="submit"
                 block
-                loading={isPending}
+                loading={isLoading}
               >
                 Login
               </Button>

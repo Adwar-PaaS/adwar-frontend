@@ -1,4 +1,4 @@
-import { Table, Tag, Button, Space, Spin, message } from "antd";
+import { Table, Tag, Button, Space } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
@@ -24,29 +24,19 @@ export const TenantList = () => {
     null
   );
   const [loading, setLoading] = useState(false);
-    const dispatct = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-const fetchTenants = async () => {
-  try {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("No token found");
-    }
 
-    const response = await getTenants();
-    setTenants(response.data.data);
-  } catch (error: any) {
-    console.error("Fetch tenants error:", error);
-    if (error.response?.status === 401 || error.message === "No token found") {
-      message.warning("Session expired. Please login again.");
-    } else {
-      message.error("Failed to fetch tenants");
+  const fetchTenants = async () => {
+    try {
+      setLoading(true);
+      const response = await getTenants();
+      setTenants(response.data.data);
+      console.log(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch tenants");
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
  useEffect(() => {
     if (isAuthenticated) {
@@ -77,9 +67,6 @@ const fetchTenants = async () => {
 
   const handleSubmit = async (values: TenantFormValues, file?: File | null) => {
     try {
-      console.log("Submitting tenant with values:", values);
-      console.log("Submitting tenant with file:", file);
-
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("email", values.email);
@@ -109,7 +96,6 @@ const fetchTenants = async () => {
         toast.success("Tenant created successfully");
       }
     } catch (error) {
-      console.error("Error saving tenant:", error);
       toast.error("Failed to save tenant");
     }
   };
@@ -164,6 +150,9 @@ const fetchTenants = async () => {
       ),
     },
   ];
+  if(loading) {
+    return <div><Spin /></div>;
+  }
 
   return (
     <div className={styles.container}>

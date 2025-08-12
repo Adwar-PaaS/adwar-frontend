@@ -1,7 +1,7 @@
 import { Layout, Menu } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-// import { handleLogout } from "../../utils/logout";
-import { LogoutOutlined } from "@ant-design/icons";
+import { handleLogout } from "../../utils/logout";
+import { LogoutOutlined, TeamOutlined } from "@ant-design/icons";
 import styles from "./SuperAdminPanel.module.css";
 import { useAppDispatch } from "../../app/hooks";
 import { logout } from "../../features/auth/authSlice";
@@ -11,15 +11,6 @@ const { Sider, Content } = Layout;
 export const SuperAdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
-   const dispatch = useAppDispatch();
-
-    const handleLogout = () => {
-    dispatch(logout());
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
-
 
   const menuItems = [
     {
@@ -36,7 +27,14 @@ export const SuperAdminPanel = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider className={styles.sidebar} width={200}>
-        <div className={styles.logo}>Super Admin</div>
+        <div className={styles.logo}>
+          Super Admin
+          {user && (
+            <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
+              {user.fullName}
+            </div>
+          )}
+        </div>
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
@@ -44,7 +42,7 @@ export const SuperAdminPanel = () => {
           className={styles.menu}
           onClick={({ key }) => {
             if (key === "logout") {
-              handleLogout();
+              logout();
             } else {
               navigate(key);
             }

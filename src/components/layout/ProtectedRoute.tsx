@@ -1,28 +1,19 @@
-import { useAppSelector } from '../../app/hooks';
-import { Navigate, Outlet } from 'react-router-dom';
-import { Spin } from "antd";
 import { useEffect, useState } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = () => {
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
-  const [isHydrated, setIsHydrated] = useState(false);
+export const ProtectedRoute = () => {
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-   useEffect(() => {
-    if (!loading) {
-      setIsHydrated(true);
-    }
-  }, [loading]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+    setIsAuthChecked(true);
+  }, []);
 
-  if (!isHydrated) {
-    return <Spin size="large" fullscreen />;
-  }
+  if (!isAuthChecked) return null;
 
-  const token = localStorage.getItem("token");
-  if (!isAuthenticated || !token) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
-
-  return <Outlet />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

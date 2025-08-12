@@ -1,18 +1,21 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://adwar-backend-project.onrender.com",
+  baseURL: import.meta.env.DEV ? "/api" : "https://adwar-backend-project.onrender.com",
+  withCredentials: true, // Important for cookies
 });
 
 instance.interceptors.request.use((config) => {
-  const authData = localStorage.getItem("auth");
-  if (authData) {
-    try {
-      const { token } = JSON.parse(authData);
-      config.headers.Authorization = `Bearer ${token}`;
-    } catch {
-      localStorage.removeItem("auth");
-    }
+  const token = localStorage.getItem("token");
+
+  // Don't set Content-Type for FormData - browser handles this automatically
+  // FormData needs multipart/form-data with boundary, not application/json
+  if (!(config.data instanceof FormData)) {
+    config.headers["Content-Type"] = "application/json";
+  }
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

@@ -1,36 +1,55 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { SuperAdminPanel } from "./components/layout/SuperAdminPanel";
 import { TenantList } from "./features/tenants/pages/TenantList";
 import { Login } from "./features/auth/pages/Login";
-import { initializeAuth, setUser } from './features/auth/authSlice';
-import { SuperAdminPanel } from "./components/layout/SuperAdminPanel";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
-import { useEffect } from 'react';
-import { useAppDispatch } from './app/hooks';
+import { ProtectedRoute } from "./components/layout/ProtectedRoute";
+
 import "./App.css";
-import AuthStabilizer from "./components/AuthStabilizer";
 
 function App() {
-   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(initializeAuth());
-  }, [dispatch]);
-
   return (
+    <>
       <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route element={<ProtectedRoute />}>
-        <Route element={(
-          <>
-            <AuthStabilizer />
-            <SuperAdminPanel />
-          </>
-        )}>
-          <Route path="/superadmin/tenants" element={<TenantList />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* SUPERADMIN Routes - Not tenant-specific */}
+        <Route element={<ProtectedRoute requiredRoles={['SUPERADMIN']} />}>
+          <Route element={<SuperAdminPanel />}>
+            <Route path="/superadmin/dashboard" element={<TenantList />} />
+          </Route>
         </Route>
-      </Route>
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+
+        {/* Tenant-specific Routes */}
+        <Route path="/tenant/:tenantId/*" element={<ProtectedRoute requireTenantAccess={true} />}>
+          {/* Tenant Admin Routes */}
+          <Route path="admin/*" element={<ProtectedRoute requiredRoles={['ADMIN']} requireTenantAccess={true} />}>
+            <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
+          </Route>
+          
+          {/* Tenant Operations Routes */}
+          <Route path="operations/*" element={<ProtectedRoute requiredRoles={['OPERATIONS']} requireTenantAccess={true} />}>
+            <Route path="dashboard" element={<div>Tenant Operations Dashboard</div>} />
+          </Route>
+          
+          {/* Tenant Driver Routes */}
+          <Route path="driver/*" element={<ProtectedRoute requiredRoles={['DRIVER']} requireTenantAccess={true} />}>
+            <Route path="dashboard" element={<div>Tenant Driver Dashboard</div>} />
+          </Route>
+          
+          {/* Tenant Picker Routes */}
+          <Route path="picker/*" element={<ProtectedRoute requiredRoles={['PICKER']} requireTenantAccess={true} />}>
+            <Route path="dashboard" element={<div>Tenant Picker Dashboard</div>} />
+          </Route>
+          
+          {/* Tenant User Routes */}
+          <Route path="user/*" element={<ProtectedRoute requiredRoles={['USER']} requireTenantAccess={true} />}>
+            <Route path="dashboard" element={<div>Tenant User Dashboard</div>} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </>
   );
 }
 
