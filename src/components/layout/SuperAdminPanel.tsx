@@ -1,16 +1,16 @@
 import { Layout, Menu } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { handleLogout } from "../../utils/logout";
-import { LogoutOutlined, TeamOutlined } from "@ant-design/icons";
+import { LogoutOutlined } from "@ant-design/icons";
 import styles from "./SuperAdminPanel.module.css";
-import { useAppDispatch } from "../../app/hooks";
-import { logout } from "../../features/auth/authSlice";
+import { useAppSelector } from "../../store/hooks";
 
 const { Sider, Content } = Layout;
 
 export const SuperAdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAppSelector((state) => state.auth);
 
   const menuItems = [
     {
@@ -42,7 +42,7 @@ export const SuperAdminPanel = () => {
           className={styles.menu}
           onClick={({ key }) => {
             if (key === "logout") {
-              logout();
+              handleLogout();
             } else {
               navigate(key);
             }

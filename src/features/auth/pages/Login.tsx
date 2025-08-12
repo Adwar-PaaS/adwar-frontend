@@ -2,7 +2,7 @@ import { Button, Form, Input, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
-import { useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import type { LoginFormValues } from "../types";
 import { LoginSchema } from "../validation";
@@ -11,27 +11,27 @@ import { setUser, setLoading, setError, clearError } from "../../../store/slices
 import { authAPI } from "../api/authApi";
 import { getRoleBasedRoute } from "../../../utils/roleUtils";
 import styles from "../../../styles/Login.module.css";
-import { useDispatch } from "react-redux";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isLoading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: login,
-    onSuccess: (response) => {
-      const { access_token, user } = response.data;
+  // Only redirect if already authenticated (on page load)
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboardRoute = getRoleBasedRoute(user);
+      navigate(dashboardRoute, { replace: true });
+    }
+  }, []); // Run only once on mount
 
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      toast.success("Login successful");
-
-      navigate("/superadmin/tenants");
-    },
-    onError: () => {
-      toast.error("Invalid credentials");
-    },
-  });
+  useEffect(() => {
+    // Show error toast if login fails
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const initialValues: LoginFormValues = {
     email: "",

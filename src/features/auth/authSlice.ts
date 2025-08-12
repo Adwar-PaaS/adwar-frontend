@@ -51,35 +51,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.loading = false;
     },
-    initializeAuth: (state) => {
-      const token = localStorage.getItem("token");
-      const user = localStorage.getItem("user");
-      if (token && user) {
-        try {
-          state.user = JSON.parse(user);
-          state.isAuthenticated = true;
-        } catch {
-          state.user = null;
-          state.isAuthenticated = false;
-        }
-      }
-      state.loading = false;
-    },
-    stabilizeAuth: (state) => {
-      const token = localStorage.getItem("token");
-      const user = localStorage.getItem("user");
-
-      if (token && user) {
-        try {
-          state.user = JSON.parse(user);
-          state.isAuthenticated = true;
-        } catch {
-          state.user = null;
-          state.isAuthenticated = false;
-        }
-      }
-      state.loading = false;
-    },
+   
   },
 });
 
@@ -89,7 +61,5 @@ export const {
   loginFailure,
   logout,
   setUser,
-  initializeAuth,
-  stabilizeAuth,
 } = authSlice.actions;
 export default authSlice.reducer;

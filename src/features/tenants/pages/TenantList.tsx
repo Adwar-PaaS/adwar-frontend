@@ -1,4 +1,4 @@
-import { Table, Tag, Button, Space } from "antd";
+import { Table, Tag, Button, Space, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
@@ -8,15 +8,14 @@ import {
   updateTenant,
 } from "../../auth/api/tenantApi";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { logout } from "../..//auth/authSlice";
+import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import styles from "./TenantList.module.css";
 
 export const TenantList = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [tenants, setTenants] = useState<TenantFormValues[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,16 +37,11 @@ export const TenantList = () => {
     }
   };
 
- useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       fetchTenants();
     } else {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login", { replace: true });
-      } else {
-        fetchTenants();
-      }
+      navigate("/login", { replace: true });
     }
   }, [isAuthenticated]);
 
