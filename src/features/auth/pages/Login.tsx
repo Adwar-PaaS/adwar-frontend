@@ -23,7 +23,7 @@ export const Login = () => {
       const dashboardRoute = getRoleBasedRoute(user);
       navigate(dashboardRoute, { replace: true });
     }
-  }, []); // Run only once on mount
+  }, [isAuthenticated, navigate]); // Run only once on mount
 
   useEffect(() => {
     // Show error toast if login fails
