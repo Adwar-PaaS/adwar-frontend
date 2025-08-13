@@ -20,3 +20,12 @@ export interface CreateTenantPayload {
   address: string;
   logoUrl?: string | null;
 }
+
+export interface createTenantUserPayload {
+  email: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  role: string;
+  tenantId: string;
+}

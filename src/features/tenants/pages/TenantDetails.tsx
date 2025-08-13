@@ -1,29 +1,63 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getTenantById } from "../../auth/api/tenantApi";
+import {
+  createTenantUser,
+  getTenantById,
+  getUsersByTenantId,
+} from "../../auth/api/tenantApi";
 import { Button, Col, Tag, Row, Spin, Table, Typography } from "antd";
 import styles from "./TenantDetails.module.css";
 import { TenantUserFormModal } from "../components/TenantUserFormModal";
+import { toast } from "react-toastify";
 
 export const TenantDetails = () => {
   const { id } = useParams();
   const [tenant, setTenant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [userModalOpen, setUserModalOpen] = useState(false);
+  const [tenantUsers, setTenantUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchTenant = async () => {
+    const fetchTenantAndUsers = async () => {
       try {
-        const response = await getTenantById(id!);
-        setTenant(response.data.data);
+        const tenantRes = await getTenantById(id!);
+        setTenant(tenantRes.data.data.tenant);
+
+        const usersRes = await getUsersByTenantId(id!);
+        // setTenantUsers(Array.isArray(usersRes.data.data) ? usersRes.data.data : []);
+        setTenantUsers(
+          Array.isArray(usersRes.data.data?.users)
+            ? usersRes.data.data.users
+            : []
+        );
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    if (id) fetchTenant();
+
+    if (id) fetchTenantAndUsers();
   }, [id]);
+
+  const handleCreateTenantAdmin = async (values: any) => {
+    try {
+      await createTenantUser(values);
+      toast.success("Tenant user created successfully");
+
+      // Refresh list
+      const usersRes = await getUsersByTenantId(id!);
+      // setTenantUsers(usersRes.data.data || []);
+      setTenantUsers(
+      Array.isArray(usersRes.data.data?.users)
+        ? usersRes.data.data.users
+        : []
+    );
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create tenant user");
+    }
+  };
 
   if (loading) return <Spin />;
   if (!tenant) return <div>Tenant not found</div>;
@@ -92,10 +126,29 @@ export const TenantDetails = () => {
         </Button>
       </Row>
 
+      <Typography.Title level={4} style={{ marginTop: "32px" }}>
+        Tenant Users
+      </Typography.Title>
+
+      <Table
+        rowKey="id"
+        columns={[
+          { title: "Full Name", dataIndex: "fullName" },
+          { title: "Email", dataIndex: "email" },
+          { title: "Phone", dataIndex: "phone" },
+          { title: "Role", dataIndex: "role" },
+        ]}
+        dataSource={tenantUsers}
+        pagination={false}
+        bordered
+        style={{ marginTop: "16px" }}
+      />
+
       <TenantUserFormModal
         open={userModalOpen}
         onClose={() => setUserModalOpen(false)}
-        onSubmit={() => {}}
+        onSubmit={handleCreateTenantAdmin}
+        tenantId={tenant.id}
       />
     </div>
   );

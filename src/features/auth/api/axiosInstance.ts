@@ -53,7 +53,8 @@ instance.interceptors.response.use(
       originalRequest._retry = true;
 
       // Check if we have cookies before attempting refresh
-      const hasCookies = document.cookie.includes('access') || document.cookie.includes('session');
+      const hasCookies =  document.cookie.includes('session');
+      // document.cookie.includes('access') ||
 
       if (!hasCookies) {
         // Import store dynamically to avoid circular dependency

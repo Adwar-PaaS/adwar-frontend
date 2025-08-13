@@ -29,7 +29,8 @@ export const TenantList = () => {
     try {
       setLoading(true);
       const response = await getTenants();
-      setTenants(response.data.data);
+      setTenants(response.data.data.tenants);
+      // console.log(response.data);
     } catch (error) {
       toast.error("Failed to fetch tenants");
     } finally {
@@ -85,8 +86,10 @@ export const TenantList = () => {
       } else {
         const response = await createTenant(formData);
         const newTenant = response.data.data;
+        console.log(response.data);
 
-        setTenants((prev) => [...prev, newTenant]);
+        // setTenants((prev) => [...prev, newTenant]);
+        setTenants(Array.isArray(response.data.data) ? response.data.data : []);
         toast.success("Tenant created successfully");
       }
     } catch (error) {
@@ -171,7 +174,8 @@ export const TenantList = () => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={tenants}
+        // dataSource={tenants}
+        dataSource={Array.isArray(tenants) ? tenants : []}
         pagination={{ pageSize: 5 }}
       />
 

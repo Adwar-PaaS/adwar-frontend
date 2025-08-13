@@ -7,25 +7,31 @@ interface TenantUserValues {
   fullName: string;
   email: string;
   password: string;
+  phone: string;
   role: string;
+  tenantId: string;
 }
 
 interface TenantUserFormModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: TenantUserValues) => void;
+  tenantId: string;
 }
 
 export const TenantUserFormModal = ({
   open,
   onClose,
   onSubmit,
+  tenantId,
 }: TenantUserFormModalProps) => {
   const defaultValues: TenantUserValues = {
     fullName: "",
     email: "",
     password: "",
-    role: "TenantAdmin",
+    phone: "",
+    role: "",
+    tenantId,
   };
 
   return (
@@ -46,7 +52,12 @@ export const TenantUserFormModal = ({
         }}
       >
         {({ values, handleChange, handleSubmit, setFieldValue }) => (
-          <Form layout="vertical" onFinish={handleSubmit}>
+          <Form
+            layout="vertical"
+            onFinish={handleSubmit}
+            autoComplete="off"
+            name="tenantUserForm"
+          >
             <Form.Item label="Full Name" required>
               <Input
                 name="fullName"
@@ -75,15 +86,26 @@ export const TenantUserFormModal = ({
               />
             </Form.Item>
 
+            <Form.Item label="Phone" required>
+              <Input
+                name="phone"
+                value={values.phone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+              />
+            </Form.Item>
+
             <Form.Item label="Role" required>
               <Select
                 value={values.role}
                 onChange={(val) => setFieldValue("role", val)}
               >
-                <Select.Option value="TenantAdmin">Tenant Admin</Select.Option>
-                <Select.Option value="TenantManager">
-                  Tenant Manager
-                </Select.Option>
+                <Select.Option value="SUPERADMIN">SUPERADMIN</Select.Option>
+                <Select.Option value="ADMIN">ADMIN</Select.Option>
+                <Select.Option value="DRIVER">DRIVER</Select.Option>
+                <Select.Option value="PICKER">PICKER</Select.Option>
+                <Select.Option value="OPERATION">OPERATION</Select.Option>
+                <Select.Option value="CUSTOMER">CUSTOMER</Select.Option>
               </Select>
             </Form.Item>
 

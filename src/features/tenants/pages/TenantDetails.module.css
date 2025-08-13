@@ -2,7 +2,7 @@
   background: #fff;
   padding: var(--space-lg);
   border-radius: var(--border-radius);
-  height: calc(90vh - 2.5rem);
+  /* height: calc(90vh - 2.5rem); */
 }
 
 .headerRow {
