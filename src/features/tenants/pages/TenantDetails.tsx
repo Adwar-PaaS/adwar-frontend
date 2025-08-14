@@ -9,59 +9,52 @@ import { Button, Col, Tag, Row, Spin, Table, Typography } from "antd";
 import styles from "./TenantDetails.module.css";
 import { TenantUserFormModal } from "../components/TenantUserFormModal";
 import { toast } from "react-toastify";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const TenantDetails = () => {
   const { id } = useParams();
-  const [tenant, setTenant] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [userModalOpen, setUserModalOpen] = useState(false);
-  const [tenantUsers, setTenantUsers] = useState<any[]>([]);
+  const queryClient = useQueryClient();
+  const userModalOpen = useState(false);
+  const [isUserModalOpen, setUserModalOpen] = userModalOpen;
 
-  useEffect(() => {
-    const fetchTenantAndUsers = async () => {
-      try {
-        const tenantRes = await getTenantById(id!);
-        setTenant(tenantRes.data.data.tenant);
+  // Fetch tenant + users in one query
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["tenant-details", id],
+    queryFn: async () => {
+      const [tenantRes, usersRes] = await Promise.all([
+        getTenantById(id!),
+        getUsersByTenantId(id!),
+      ]);
+      return {
+        tenant: tenantRes.data.data.tenant,
+        users: Array.isArray(usersRes.data.data?.users)
+          ? usersRes.data.data.users
+          : [],
+      };
+    },
+    enabled: !!id,
+  });
 
-        const usersRes = await getUsersByTenantId(id!);
-        // setTenantUsers(Array.isArray(usersRes.data.data) ? usersRes.data.data : []);
-        setTenantUsers(
-          Array.isArray(usersRes.data.data?.users)
-            ? usersRes.data.data.users
-            : []
-        );
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) fetchTenantAndUsers();
-  }, [id]);
+  // Mutation for creating tenant user
+  const createUserMutation = useMutation({
+    mutationFn: createTenantUser,
+    onSuccess: () => {
+      toast.success("Tenant user created successfully");
+      queryClient.invalidateQueries({ queryKey: ["tenant-details", id] }); // Refetch data
+    },
+    onError: () => {
+      toast.error("Failed to create tenant user");
+    },
+  });
 
   const handleCreateTenantAdmin = async (values: any) => {
-    try {
-      await createTenantUser(values);
-      toast.success("Tenant user created successfully");
-
-      // Refresh list
-      const usersRes = await getUsersByTenantId(id!);
-      // setTenantUsers(usersRes.data.data || []);
-      setTenantUsers(
-      Array.isArray(usersRes.data.data?.users)
-        ? usersRes.data.data.users
-        : []
-    );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create tenant user");
-    }
+    createUserMutation.mutate(values);
   };
 
-  if (loading) return <Spin />;
-  if (!tenant) return <div>Tenant not found</div>;
+  if (isLoading) return <Spin />;
+  if (isError || !data?.tenant) return <div>Tenant not found</div>;
 
+  const { tenant, users } = data;
   const isActive = tenant.status === "Activate";
 
   const detailsData = [
@@ -138,14 +131,14 @@ export const TenantDetails = () => {
           { title: "Phone", dataIndex: "phone" },
           { title: "Role", dataIndex: "role" },
         ]}
-        dataSource={tenantUsers}
+        dataSource={users}
         pagination={false}
         bordered
         style={{ marginTop: "16px" }}
       />
 
       <TenantUserFormModal
-        open={userModalOpen}
+        open={isUserModalOpen}
         onClose={() => setUserModalOpen(false)}
         onSubmit={handleCreateTenantAdmin}
         tenantId={tenant.id}

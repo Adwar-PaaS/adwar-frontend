@@ -1,7 +1,12 @@
-import React, { type ReactNode, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setUser, clearUser, setInitialized } from '../../store/slices/authSlice';
-import { authAPI } from '../../features/auth/api/authApi';
+import React, { type ReactNode, useEffect, useRef, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  setUser,
+  clearUser,
+  setInitialized,
+} from "../../store/slices/authSlice";
+import { authAPI } from "../../features/auth/api/authApi";
+import { Spin } from "antd";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -9,26 +14,28 @@ interface AuthProviderProps {
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useAppDispatch();
-  const { initialized } = useAppSelector((state) => state.auth);
+  // const { initialized } = useAppSelector((state) => state.auth);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Check authentication status on app startup
     const checkAuthStatus = async () => {
-      if (initialized) return; // Already checked
-
       try {
         const response = await authAPI.checkAuth();
         dispatch(setUser(response.data.user));
-      } catch (error) {
-        // User not authenticated
+      } catch {
         dispatch(clearUser());
       } finally {
         dispatch(setInitialized());
+        setChecking(false);
       }
     };
 
     checkAuthStatus();
-  }, [dispatch, initialized]);
+  }, [dispatch]);
+
+  if (checking) {
+    return <Spin size="large" fullscreen />;
+  }
 
   return <>{children}</>;
 };

@@ -14,12 +14,16 @@ export const SuperAdminPanel = () => {
 
   const menuItems = [
     {
-      key: "/superadmin/tenants",
-      label: <Link to="/superadmin/tenants">Tenants</Link>,
+      key: "/superadmin/dashboard",
+      label: <Link to="/superadmin/dashboard">Tenants</Link>,
     },
     {
       key: "logout",
-      icon: <span className={styles.logoutIcon}><LogoutOutlined /></span>,
+      icon: (
+        <span className={styles.logoutIcon}>
+          <LogoutOutlined />
+        </span>
+      ),
       label: <span className={styles.logoutText}>Logout</span>,
     },
   ];
@@ -30,7 +34,7 @@ export const SuperAdminPanel = () => {
         <div className={styles.logo}>
           Super Admin
           {user && (
-            <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
+            <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
               {user.fullName}
             </div>
           )}
