@@ -23,7 +23,7 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true, // Start with loading to check auth on app start
+  isLoading: false, // start false so no spinner initially
   error: null,
   initialized: false,
 };
