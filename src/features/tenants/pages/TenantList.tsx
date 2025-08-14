@@ -30,7 +30,6 @@ export const TenantList = () => {
       setLoading(true);
       const response = await getTenants();
       setTenants(response.data.data.tenants);
-      // console.log(response.data);
     } catch (error) {
       toast.error("Failed to fetch tenants");
     } finally {
@@ -60,42 +59,32 @@ export const TenantList = () => {
     setModalOpen(true);
   };
 
-  const handleSubmit = async (values: TenantFormValues, file?: File | null) => {
-    try {
-      const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("email", values.email);
-      formData.append("phone", values.phone);
-      formData.append("status", values.status);
-      formData.append("address", values.address);
+const handleSubmit = async (values: TenantFormValues, file?: File | null) => {
+  try {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("email", values.email);
+    formData.append("phone", values.phone);
+    formData.append("status", values.status);
+    formData.append("address", values.address);
 
-      if (file) {
-        formData.append("logoUrl", file);
-      }
-
-      if (editingTenant) {
-        const response = await updateTenant(editingTenant.id!, formData);
-        const updatedTenant = response.data.data;
-
-        setTenants((prev) =>
-          prev.map((tenant) =>
-            tenant.id === editingTenant.id ? updatedTenant : tenant
-          )
-        );
-        toast.success("Tenant updated successfully");
-      } else {
-        const response = await createTenant(formData);
-        const newTenant = response.data.data;
-        console.log(response.data);
-
-        // setTenants((prev) => [...prev, newTenant]);
-        setTenants(Array.isArray(response.data.data) ? response.data.data : []);
-        toast.success("Tenant created successfully");
-      }
-    } catch (error) {
-      toast.error("Failed to save tenant");
+    if (file) {
+      formData.append("logoUrl", file);
     }
-  };
+
+    if (editingTenant) {
+      await updateTenant(editingTenant.id!, formData);
+      toast.success("Tenant updated successfully");
+    } else {
+      await createTenant(formData);
+      toast.success("Tenant created successfully");
+    }
+    fetchTenants();
+  } catch (error) {
+    toast.error("Failed to save tenant");
+  }
+};
+
 
   const columns = [
     {
@@ -174,7 +163,6 @@ export const TenantList = () => {
       <Table
         rowKey="id"
         columns={columns}
-        // dataSource={tenants}
         dataSource={Array.isArray(tenants) ? tenants : []}
         pagination={{ pageSize: 5 }}
       />
