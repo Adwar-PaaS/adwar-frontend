@@ -19,11 +19,17 @@
   --font-md: 1rem;     /* 16px */
   --font-lg: 1.25rem;  /* 20px */
 
-  /* Colors */
+  /* Sidebar Colors */
   --sidebar-bg: #001529;
   --sidebar-text: #fff;
+  --sidebar-item: #ffffff;        
+  --sidebar-item-hover: #40a9ff; 
+  --sidebar-item-active: #1890ff;
+
+  /* Table */
   --table-header-bg: #fafafa;
 }
+
 
 * {
   box-sizing: border-box;

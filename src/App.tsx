@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { SuperAdminPanel } from "./components/layout/SuperAdminPanel";
 import { TenantList } from "./features/tenants/pages/TenantList";
 import { TenantDetails } from "./features/tenants/pages/TenantDetails";
+import { TenantAdminPanel } from "./components/layout/TenantAdminPanel";
+import { TenantUsersPage } from "./features/tenants/pages/TenantUsersPage";
 import { Login } from "./features/auth/pages/Login";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
@@ -36,10 +38,12 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Admin Dashboard</div>}
-            />
+            <Route element={<TenantAdminPanel />}>
+    <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
+    <Route path="users" element={<TenantUsersPage />} />
+    <Route path="orders" element={<div>Orders Coming Soon</div>} />
+    <Route path="warehouses" element={<div>Warehouses Coming Soon</div>} />
+  </Route>
           </Route>
 
           {/* Tenant Operations Routes */}
