@@ -1,7 +1,7 @@
 import { Button, Table, Space } from "antd";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsersByTenantId, createTenantUser } from "../../auth/api/tenantApi";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getTenantUsers, createTenantUser } from "../../auth/api/tenantApi";
 import { useParams } from "react-router-dom";
 import { TenantUserModal } from "./TenantUserModal";
 import { toast } from "react-toastify";
@@ -11,58 +11,49 @@ export const TenantUsersPage = () => {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data: users = [], isLoading } = useQuery({
+  // Fetch only tenant users for this tenant
+  const { data, isLoading } = useQuery({
     queryKey: ["tenantUsers", tenantId],
-    queryFn: async () => {
-      const res = await getUsersByTenantId(tenantId!);
-      return res.data.data.users;
-    },
+    queryFn: () => getTenantUsers(tenantId!),
     enabled: !!tenantId,
   });
 
-  const handleCreateUser = async (values: any) => {
-    try {
-      await createTenantUser({ ...values, tenantId });
+  const users = data?.data?.data?.users || [];
+
+  const createUserMutation = useMutation({
+    mutationFn: createTenantUser,
+    onSuccess: () => {
       toast.success("User created successfully");
       queryClient.invalidateQueries({ queryKey: ["tenantUsers", tenantId] });
       setModalOpen(false);
-    } catch (error) {
-      toast.error("Failed to create user");
-    }
+    },
+    onError: (error: any) => {
+      const msg = error.response?.data?.message || "Failed to create user";
+      toast.error(msg);
+    },
+  });
+
+  const handleCreateUser = (values: any) => {
+    if (!tenantId) return;
+
+    const payload = {
+      email: values.email,
+      password: values.password || "mypassword123",
+      fullName: values.name,
+      phone: values.phone,
+      role: values.role,
+      tenantId: tenantId,
+    };
+
+    console.log("Submitting payload:", { ...values, tenantId });
+    createUserMutation.mutate(payload);
   };
 
   const columns = [
-    { title: "Full Name", dataIndex: "name" },
+    { title: "Full Name", dataIndex: "fullName" },
     { title: "Email", dataIndex: "email" },
+    { title: "Phone", dataIndex: "phone" },
     { title: "Role", dataIndex: "role" },
-    {
-      title: "Warehouse",
-      dataIndex: "warehouse",
-      render: (warehouse: any) => warehouse?.name || "-",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (status: string) => (
-        <span style={{ color: status === "ACTIVE" ? "green" : "red" }}>
-          {status}
-        </span>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_: any, record: any) => (
-        <Space>
-          <Button type="link" onClick={() => console.log("Edit", record)}>
-            Edit
-          </Button>
-          <Button type="link" danger onClick={() => console.log("Delete", record)}>
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
   ];
 
   return (
