@@ -8,6 +8,7 @@ import { Login } from "./features/auth/pages/Login";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
 import "./App.css";
+import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 
 function App() {
   return (
@@ -39,11 +40,18 @@ function App() {
             }
           >
             <Route element={<TenantAdminPanel />}>
-    <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
-    <Route path="users" element={<TenantUsersPage />} />
-    <Route path="orders" element={<div>Orders Coming Soon</div>} />
-    <Route path="warehouses" element={<div>Warehouses Coming Soon</div>} />
-  </Route>
+              <Route
+                path="dashboard"
+                element={<div>Tenant Admin Dashboard</div>}
+              />
+              <Route path="users" element={<TenantUsersPage />} />
+              <Route path="orders" element={<div>Orders Coming Soon</div>} />
+              <Route
+                path="warehouses"
+                element={<div>Warehouses Coming Soon</div>}
+              />
+              <Route path="roles" element={<TenantRolesPage />} />
+            </Route>
           </Route>
 
           {/* Tenant Operations Routes */}
