@@ -30,6 +30,7 @@ export const updateTenant = (
   });
 
 // SUPERADMIN: create users in system while logged in as superadmin
+// ADMIN: create users in system while logged in as tenant admin
 export const createTenantUser = (data: createTenantUserPayload) =>
   instance.post("/users", data);
 
@@ -38,12 +39,14 @@ export const getUsersByTenantId = (tenantId: string) => {
   return instance.get(`/users?tenantId=${tenantId}`);
 };
 
-// ADMIN: create users in tenant admin dashboard while logged in as admin
-// export const createTenantAdminUser = (
-//   tenantId: string,
-//   data: Omit<createTenantUserPayload, "tenantId">
-// ) => instance.post(`/tenants/${tenantId}/users`, data);
-
 // ADMIN: fetch users in tenant admin dashboard while logged in as admin
 export const getTenantUsers = (tenantId: string) =>
   instance.get(`/tenants/${tenantId}/users`);
+
+export const updateTenantUser = (id: string, data: any) =>
+  instance.put(`/users/${id}`, data);
+
+// ADMIN: update user status
+export const updateUserStatus = async (id: string, status: string) => {
+  return instance.patch(`/users/${id}/status`, { status });
+};

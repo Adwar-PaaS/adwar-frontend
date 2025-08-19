@@ -1,0 +1,26 @@
+.container {
+  background: #fff;
+  padding: var(--space-lg);
+  border-radius: var(--border-radius);
+}
+
+.headerRow {
+  margin-bottom: var(--space-lg);
+}
+
+.name {
+  margin: 0;
+}
+
+.detailsTable {
+  background: #fff;
+}
+
+.labelColumn {
+  font-weight: 600;
+  background-color: var(--table-header-bg);
+}
+
+.valueColumn {
+  color: #000;
+}
