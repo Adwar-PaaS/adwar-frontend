@@ -8,6 +8,7 @@ import { Login } from "./features/auth/pages/Login";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
 import "./App.css";
+import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
                 path="warehouses"
                 element={<div>Warehouses Coming Soon</div>}
               />
+              <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>
 

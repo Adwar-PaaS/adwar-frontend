@@ -6,6 +6,7 @@ import {
   HomeOutlined,
   DatabaseOutlined,
   LogoutOutlined,
+  HighlightOutlined,
 } from "@ant-design/icons";
 import styles from "./TenantAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
@@ -39,6 +40,11 @@ export const TenantAdminPanel = () => {
       key: `/tenant/${tenantId}/admin/users`,
       icon: <UserOutlined />,
       label: "Users",
+    },
+    {
+      key: `/tenant/${tenantId}/admin/roles`,
+      icon: <HighlightOutlined />,
+      label: "Roles",
     },
     {
       key: "logout",

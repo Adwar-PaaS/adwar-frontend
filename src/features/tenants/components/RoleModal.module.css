@@ -1,0 +1,31 @@
+.customCollapse {
+  border: none !important;
+  background: transparent;
+}
+
+.customCollapse .ant-collapse-item {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #d9d9d9;
+  border-radius: 0 !important;
+  padding-bottom: 8px;
+}
+
+.customCollapse .ant-collapse-header {
+  font-weight: 500;
+  font-size: 14px;
+  background: transparent !important;
+  padding-left: 0 !important;
+}
+
+.customCollapse .ant-collapse-content {
+  border: none !important;
+  background: transparent !important;
+  padding: 8px 0 0 0 !important;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+  padding: 4px 0;
+}
