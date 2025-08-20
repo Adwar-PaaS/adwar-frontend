@@ -1,17 +1,22 @@
-import { Table, Tag, Button, Space } from "antd";
+import { Table, Tag, Button, Space, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
-import styles from "./TenantList.module.css";
 import {
   createTenant,
   getTenants,
   updateTenant,
 } from "../../auth/api/tenantApi";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import styles from "./TenantList.module.css";
 
 export const TenantList = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
   const [tenants, setTenants] = useState<TenantFormValues[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<TenantFormValues | null>(
@@ -23,18 +28,29 @@ export const TenantList = () => {
     try {
       setLoading(true);
       const response = await getTenants();
-      setTenants(response.data.data);
-      console.log(response.data);
+      console.log('Full response:', response.data);
+      console.log('Tenants data:', response.data.data.tenants);
+      setTenants(response.data.data.tenants || []); // Use tenants array and fallback to empty array
     } catch (error) {
+      console.error('Error fetching tenants:', error);
       toast.error("Failed to fetch tenants");
+      setTenants([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTenants();
-  }, []);
+    if (isAuthenticated) {
+      fetchTenants();
+    } else {
+      navigate("/login", { replace: true });
+    }
+  }, [isAuthenticated]);
+
+  if (loading) {
+    return <Spin size="large" fullscreen />;
+  }
 
   const openAddModal = () => {
     setEditingTenant(null);
@@ -48,9 +64,6 @@ export const TenantList = () => {
 
   const handleSubmit = async (values: TenantFormValues, file?: File | null) => {
     try {
-      console.log("Submitting tenant with values:", values);
-      console.log("Submitting tenant with file:", file);
-
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("email", values.email);
@@ -59,15 +72,13 @@ export const TenantList = () => {
       formData.append("address", values.address);
 
       if (file) {
-        formData.append("logo", file);
+        formData.append("logoUrl", file);
       }
 
       if (editingTenant) {
-        // Update existing tenant - maintain position in the list
         const response = await updateTenant(editingTenant.id!, formData);
         const updatedTenant = response.data.data;
-        
-        // Update the tenant in the current state without changing order
+
         setTenants((prev) =>
           prev.map((tenant) =>
             tenant.id === editingTenant.id ? updatedTenant : tenant
@@ -75,16 +86,13 @@ export const TenantList = () => {
         );
         toast.success("Tenant updated successfully");
       } else {
-        // Create new tenant - add to the list
         const response = await createTenant(formData);
         const newTenant = response.data.data;
-        
-        // Add new tenant to the end of the current list
+
         setTenants((prev) => [...prev, newTenant]);
         toast.success("Tenant created successfully");
       }
     } catch (error) {
-      console.error("Error saving tenant:", error);
       toast.error("Failed to save tenant");
     }
   };
@@ -119,7 +127,7 @@ export const TenantList = () => {
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
-        const isActive = status === "Activate";
+        const isActive = status === "ACTIVE";
         return (
           <Tag color={isActive ? "green" : "red"}>
             {isActive ? "ACTIVE" : "INACTIVE"}
@@ -139,6 +147,9 @@ export const TenantList = () => {
       ),
     },
   ];
+  if(loading) {
+    return <div><Spin /></div>;
+  }
 
   return (
     <div className={styles.container}>
@@ -152,7 +163,7 @@ export const TenantList = () => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={tenants}
+        dataSource={Array.isArray(tenants) ? tenants : []} // Ensure it's always an array
         pagination={{ pageSize: 5 }}
       />
 

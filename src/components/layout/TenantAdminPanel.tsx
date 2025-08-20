@@ -1,21 +1,44 @@
 import { Layout, Menu } from "antd";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { handleLogout } from "../../utils/logout";
-import { LogoutOutlined } from "@ant-design/icons";
-import styles from "./SuperAdminPanel.module.css";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  UserOutlined,
+  ShoppingCartOutlined,
+  HomeOutlined,
+  DatabaseOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
+import styles from "./TenantAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
+import { handleLogout } from "../../utils/logout";
 
 const { Sider, Content } = Layout;
 
-export const SuperAdminPanel = () => {
+export const TenantAdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { tenantId } = useParams();
   const { user } = useAppSelector((state) => state.auth);
 
   const menuItems = [
     {
-      key: "/superadmin/dashboard",
-      label: <Link to="/superadmin/dashboard">Tenants</Link>,
+      key: `/tenant/${tenantId}/admin/dashboard`,
+      icon: <HomeOutlined />,
+      label: "Dashboard",
+    },
+    {
+      key: `/tenant/${tenantId}/admin/orders`,
+      icon: <ShoppingCartOutlined />,
+      label: "Orders",
+    },
+    {
+      key: `/tenant/${tenantId}/admin/warehouses`,
+      icon: <DatabaseOutlined />,
+      label: "Warehouses",
+    },
+    {
+      key: `/tenant/${tenantId}/admin/users`,
+      icon: <UserOutlined />,
+      label: "Users",
     },
     {
       key: "logout",
@@ -32,7 +55,7 @@ export const SuperAdminPanel = () => {
     <Layout style={{ minHeight: "100vh" }}>
       <Sider className={styles.sidebar} width={200}>
         <div className={styles.logo}>
-          Super Admin
+          Tenant Admin
           {user && (
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
               {user.fullName}

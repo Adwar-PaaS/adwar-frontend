@@ -3,16 +3,29 @@ export interface TenantFormValues {
   name: string;
   email: string;
   phone: string;
-  status: "Activate" | "Deactivate";
+  status: "ACTIVE" | "INACTIVE";
   address: string;
   logoUrl: string | null;
+  createdAt?: string;
+  creator?: {
+    fullName: string;
+  };
 }
 
 export interface CreateTenantPayload {
   name: string;
   email: string;
   phone: string;
-  status: "Activate" | "Deactivate";
+  status: "ACTIVE" | "INACTIVE";
   address: string;
-  logo?: string | null;
+  logoUrl?: string | null;
+}
+
+export interface createTenantUserPayload {
+  email: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  role: string;
+  tenantId: string;
 }

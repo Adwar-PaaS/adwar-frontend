@@ -10,31 +10,27 @@ import styles from "./TenantFormModal.module.css";
 interface TenantModalProps {
   open: boolean;
   onClose: () => void;
-  // Added file parameter to onSubmit to pass the actual File object
-  // instead of just base64 string for proper multipart/form-data upload
   onSubmit: (values: TenantFormValues, file?: File | null) => void;
   initialValues?: TenantFormValues;
   isEdit?: boolean;
 }
 
-export const TenantFormModal = ({
+export const TenantFormModal = ({ 
   open,
   onClose,
   onSubmit,
   initialValues,
   isEdit = false,
 }: TenantModalProps) => {
-  // State to store the actual File object for upload
-  // This is needed because backend expects multipart/form-data with actual file
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   const defaultValues: TenantFormValues = initialValues || {
     name: "",
     email: "",
     phone: "",
-    status: "Activate",
+    status: "ACTIVE",
     address: "",
-    // Set to null instead of empty string to match type definition
     logoUrl: null,
   };
 
@@ -59,8 +55,6 @@ export const TenantFormModal = ({
         initialValues={defaultValues}
         validationSchema={TenantSchema}
         onSubmit={(values) => {
-          // Pass both form values and the actual File object
-          // The backend needs the File object for multipart upload, not base64
           onSubmit(values, selectedFile);
           toast.success(isEdit ? "Tenant updated" : "Tenant added");
           onClose();
@@ -116,8 +110,8 @@ export const TenantFormModal = ({
                 value={values.status}
                 onChange={(val) => setFieldValue("status", val)}
               >
-                <Select.Option value="Activate">Activate</Select.Option>
-                <Select.Option value="Deactivate">Deactivate</Select.Option>
+                <Select.Option value="ACTIVE">Active</Select.Option>
+                <Select.Option value="INACTIVE">Inactive</Select.Option>
               </Select>
             </Form.Item>
 
@@ -132,15 +126,12 @@ export const TenantFormModal = ({
             <Form.Item label="Logo">
               <Upload
                 beforeUpload={async (file) => {
-                  // Store the actual File object for later upload
-                  // This is required for backend's FileInterceptor('logo')
                   setSelectedFile(file);
                   
-                  // Keep base64 conversion for preview display only
                   const base64 = await getBase64(file);
                   setFieldValue("logoUrl", base64);
                   message.success("Image uploaded");
-                  return false; // Prevent automatic upload
+                  return false; 
                 }}
                 showUploadList={false}
               >
@@ -164,7 +155,6 @@ export const TenantFormModal = ({
                     size="small"
                     onClick={() => {
                       setFieldValue("logoUrl", null);
-                      // ADDED: Clear the selected file when removing logo
                       setSelectedFile(null);
                     }}
                   >

@@ -44,7 +44,6 @@
 }
 
 @media (max-width: 48rem) {
-  /* 768px */
   .logo {
     font-size: var(--font-md);
     padding: var(--space-sm);
@@ -55,7 +54,6 @@
 }
 
 @media (max-width: 36rem) {
-  /* 576px */
   .logo {
     font-size: var(--font-sm);
   }
