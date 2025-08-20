@@ -1,7 +1,7 @@
 import type { User } from '../store/slices/authSlice';
 export const getRoleBasedRoute = (user: User): string => {
-  switch (user.role) {
-    case 'SUPERADMIN':
+  switch (user.role.name) {
+    case 'SUPER_ADMIN':
       return '/superadmin/dashboard';
     case 'ADMIN':
       return `/tenant/${user.tenantId}/admin/dashboard`;
@@ -32,7 +32,7 @@ export const hasRole = (
   if (!hasRequiredRole) return false;
   
   // SUPERADMIN only has access to superadmin routes (not tenant routes)
-  if (user.role === 'SUPERADMIN') {
+  if (user.role.name === 'SUPER_ADMIN') {
     // SUPERADMIN should only access routes that don't require a tenant
     return !requiredTenantId;
   }
@@ -48,7 +48,7 @@ export const hasRole = (
 
 
 export const isSuperAdmin = (user: User | null): boolean => {
-  return user?.role === 'SUPERADMIN';
+  return user?.role.name === 'SUPER_ADMIN';
 };
 
 /**
@@ -59,9 +59,9 @@ export const isAdminOrHigher = (user: User | null, tenantId?: string): boolean =
   if (!user) return false;
   
   // SUPERADMIN doesn't access tenant dashboards
-  if (user.role === 'SUPERADMIN') return false;
+  if (user.role.name === 'SUPER_ADMIN') return false;
   
-  const isAdminRole = ['ADMIN', 'OPERATIONS', 'DRIVER', 'PICKER'].includes(user.role);
+  const isAdminRole = ['ADMIN', 'OPERATIONS', 'DRIVER', 'PICKER'].includes(user.role.name);
   if (!isAdminRole) return false;
   
   // For tenant-specific admin roles, check tenant membership if specified
@@ -79,7 +79,7 @@ export const isAdminOrHigher = (user: User | null, tenantId?: string): boolean =
 export const belongsToTenant = (user: User | null, tenantId: string): boolean => {
   if (!user) return false;
   // SUPERADMIN doesn't belong to any tenant
-  if (user.role === 'SUPERADMIN') return false;
+  if (user.role.name === 'SUPER_ADMIN') return false;
   return user.tenantId === tenantId;
 };
 
@@ -95,7 +95,7 @@ export const canAccessTenant = (
   if (!user) return false;
   
   // SUPERADMIN cannot access tenant resources
-  if (user.role === 'SUPERADMIN') return false;
+  if (user.role.name === 'SUPER_ADMIN') return false;
   
   // Check if user belongs to the tenant
   if (user.tenantId !== tenantId) return false;
@@ -113,12 +113,14 @@ export const canAccessTenant = (
  */
 export const isTenantUser = (user: User | null): boolean => {
   if (!user) return false;
-  return user.role !== 'SUPERADMIN';
+  return user.role.name !== 'SUPER_ADMIN';
 };
 
 /**
  * Get tenant-specific roles (excluding SUPERADMIN)
  */
-export const getTenantRoles = (): User['role'][] => {
-  return ['ADMIN', 'OPERATIONS', 'DRIVER', 'PICKER', 'USER'];
+export const getTenantRoles = (): Array<
+  "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "USER"
+> => {
+  return ["ADMIN", "OPERATIONS", "DRIVER", "PICKER", "USER"];
 };

@@ -17,7 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* SUPERADMIN Routes - Not tenant-specific */}
-        <Route element={<ProtectedRoute requiredRoles={["SUPERADMIN"]} />}>
+        <Route element={<ProtectedRoute requiredRoles={[{ id: "any", name: "SUPER_ADMIN", permissions: [] }]} />}>
           <Route element={<SuperAdminPanel />}>
             <Route path="/superadmin/dashboard" element={<TenantList />} />
             <Route path="/tenants/:id" element={<TenantDetails />} />
@@ -34,7 +34,7 @@ function App() {
             path="admin/*"
             element={
               <ProtectedRoute
-                requiredRoles={["ADMIN"]}
+                requiredRoles={[{ id: "any", name: "ADMIN", permissions: [] }]}
                 requireTenantAccess={true}
               />
             }
@@ -59,7 +59,7 @@ function App() {
             path="operations/*"
             element={
               <ProtectedRoute
-                requiredRoles={["OPERATIONS"]}
+                requiredRoles={[{ id: "any", name: "OPERATIONS", permissions: [] }]}
                 requireTenantAccess={true}
               />
             }
@@ -75,7 +75,7 @@ function App() {
             path="driver/*"
             element={
               <ProtectedRoute
-                requiredRoles={["DRIVER"]}
+                requiredRoles={[{ id: "any", name: "DRIVER", permissions: [] }]}
                 requireTenantAccess={true}
               />
             }
@@ -91,7 +91,7 @@ function App() {
             path="picker/*"
             element={
               <ProtectedRoute
-                requiredRoles={["PICKER"]}
+                requiredRoles={[{ id: "any", name: "PICKER", permissions: [] }]}
                 requireTenantAccess={true}
               />
             }
@@ -107,7 +107,7 @@ function App() {
             path="user/*"
             element={
               <ProtectedRoute
-                requiredRoles={["USER"]}
+                requiredRoles={[{ id: "any", name: "USER", permissions: [] }]}
                 requireTenantAccess={true}
               />
             }
