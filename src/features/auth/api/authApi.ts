@@ -14,6 +14,12 @@ interface ApiResponse<T> {
   data: T;
 }
 
+export interface Role {
+  id: string;
+  name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
+  permissions: string[];
+}
+
 interface User {
   id: string;
   email: string;

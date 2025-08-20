@@ -24,7 +24,7 @@ instance.interceptors.request.use(
         config.headers["X-User-Role"] = user.role;
         
         // Also add tenant ID for tenant-specific roles
-        if (user.tenantId && user.role !== 'SUPERADMIN') {
+        if (user.tenantId && user.role.name !== 'SUPER_ADMIN') {
           config.headers["X-Tenant-ID"] = user.tenantId;
         }
       }
