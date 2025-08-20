@@ -11,7 +11,11 @@ export interface User {
   email: string;
   fullName: string;
   phone: string | null;
-  role: Role;
+   role: {
+    id: string;
+    name: "SUPER_ADMIN" | "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "USER";
+    permissions: string[];
+  };
   tenantId: string | null;
   createdAt: string;
   updatedAt: string;

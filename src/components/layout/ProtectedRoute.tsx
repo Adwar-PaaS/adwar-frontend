@@ -9,7 +9,7 @@ import type { User } from "../../store/slices/authSlice";
 import { Spin } from "antd";
 
 interface ProtectedRouteProps {
-  requiredRoles?: User["role"][];
+requiredRoles?: User["role"]["name"][];
   requireTenantAccess?: boolean;
   redirectTo?: string;
 }

@@ -17,7 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* SUPERADMIN Routes - Not tenant-specific */}
-        <Route element={<ProtectedRoute requiredRoles={[{ id: "any", name: "SUPER_ADMIN", permissions: [] }]} />}>
+        <Route element={<ProtectedRoute requiredRoles={["SUPER_ADMIN"]} />}>
           <Route element={<SuperAdminPanel />}>
             <Route path="/superadmin/dashboard" element={<TenantList />} />
             <Route path="/tenants/:id" element={<TenantDetails />} />
@@ -34,7 +34,7 @@ function App() {
             path="admin/*"
             element={
               <ProtectedRoute
-                requiredRoles={[{ id: "any", name: "ADMIN", permissions: [] }]}
+                requiredRoles={["ADMIN"]}
                 requireTenantAccess={true}
               />
             }
@@ -59,7 +59,7 @@ function App() {
             path="operations/*"
             element={
               <ProtectedRoute
-                requiredRoles={[{ id: "any", name: "OPERATIONS", permissions: [] }]}
+                requiredRoles={["OPERATIONS"]}
                 requireTenantAccess={true}
               />
             }
@@ -75,7 +75,7 @@ function App() {
             path="driver/*"
             element={
               <ProtectedRoute
-                requiredRoles={[{ id: "any", name: "DRIVER", permissions: [] }]}
+                requiredRoles={["DRIVER"]}
                 requireTenantAccess={true}
               />
             }
@@ -91,7 +91,7 @@ function App() {
             path="picker/*"
             element={
               <ProtectedRoute
-                requiredRoles={[{ id: "any", name: "PICKER", permissions: [] }]}
+                requiredRoles={["PICKER"]}
                 requireTenantAccess={true}
               />
             }
@@ -107,7 +107,7 @@ function App() {
             path="user/*"
             element={
               <ProtectedRoute
-                requiredRoles={[{ id: "any", name: "USER", permissions: [] }]}
+                requiredRoles={["USER"]}
                 requireTenantAccess={true}
               />
             }
