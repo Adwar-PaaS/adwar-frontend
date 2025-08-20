@@ -50,7 +50,6 @@ function App() {
                 path="warehouses"
                 element={<div>Warehouses Coming Soon</div>}
               />
-              <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>
 

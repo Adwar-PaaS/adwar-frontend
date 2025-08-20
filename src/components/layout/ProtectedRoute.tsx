@@ -5,11 +5,10 @@ import {
   getRoleBasedRoute,
   canAccessTenant,
 } from "../../utils/roleUtils";
-import type { User } from "../../store/slices/authSlice";
 import { Spin } from "antd";
 
 interface ProtectedRouteProps {
-requiredRoles?: User["role"]["name"][];
+  requiredRoles?: string[];
   requireTenantAccess?: boolean;
   redirectTo?: string;
 }

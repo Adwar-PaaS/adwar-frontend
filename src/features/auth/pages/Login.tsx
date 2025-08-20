@@ -44,7 +44,10 @@ export const Login = () => {
       dispatch(clearError());
       
       const response = await authAPI.login({ email, password: passwordHash });
-      const user = response.data.user;
+      const user = response.data.user; // Use directly without transformation
+      
+      console.log('User from server:', user); // Debug log
+      
       dispatch(setUser(user));
       
       toast.success("Login successful");

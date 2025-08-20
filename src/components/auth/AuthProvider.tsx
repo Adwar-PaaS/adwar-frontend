@@ -1,5 +1,5 @@
-import React, { type ReactNode, useEffect, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import React, { type ReactNode, useEffect, useState } from "react";
+import { useAppDispatch } from "../../store/hooks";
 import {
   setUser,
   clearUser,
