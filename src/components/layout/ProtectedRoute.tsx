@@ -8,7 +8,7 @@ import {
 import { Spin } from "antd";
 
 interface ProtectedRouteProps {
-  requiredRoles?: string[];
+requiredRoles?: User["role"]["name"][];
   requireTenantAccess?: boolean;
   redirectTo?: string;
 }

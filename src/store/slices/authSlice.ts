@@ -11,17 +11,11 @@ export interface User {
   email: string;
   fullName: string;
   phone: string | null;
-<<<<<<< HEAD
-  role: {
+   role: {
     id: string;
-    name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
-    permissions: any[];
+    name: "SUPER_ADMIN" | "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "USER";
+    permissions: string[];
   };
-  userTenants: Array<{
-    tenantId: string;
-  }>;
-=======
-  role: Role;
   tenantId: string | null;
 >>>>>>> a9c3449 (update role string in user interface to role object)
   createdAt: string;
