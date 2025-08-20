@@ -29,7 +29,7 @@ export const TenantFormModal = ({
     name: "",
     email: "",
     phone: "",
-    status: "Activate",
+    status: "ACTIVE",
     address: "",
     logoUrl: null,
   };
@@ -110,8 +110,8 @@ export const TenantFormModal = ({
                 value={values.status}
                 onChange={(val) => setFieldValue("status", val)}
               >
-                <Select.Option value="Activate">Activate</Select.Option>
-                <Select.Option value="Deactivate">Deactivate</Select.Option>
+                <Select.Option value="ACTIVE">Active</Select.Option>
+                <Select.Option value="INACTIVE">Inactive</Select.Option>
               </Select>
             </Form.Item>
 

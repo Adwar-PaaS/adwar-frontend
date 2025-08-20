@@ -3,7 +3,7 @@ export interface TenantFormValues {
   name: string;
   email: string;
   phone: string;
-  status: "Activate" | "Deactivate";
+  status: "ACTIVE" | "INACTIVE";
   address: string;
   logoUrl: string | null;
   createdAt?: string;
@@ -16,7 +16,7 @@ export interface CreateTenantPayload {
   name: string;
   email: string;
   phone: string;
-  status: "Activate" | "Deactivate";
+  status: "ACTIVE" | "INACTIVE";
   address: string;
   logoUrl?: string | null;
 }

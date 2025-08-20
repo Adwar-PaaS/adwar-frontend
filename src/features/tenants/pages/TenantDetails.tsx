@@ -55,7 +55,7 @@ export const TenantDetails = () => {
   if (isError || !data?.tenant) return <div>Tenant not found</div>;
 
   const { tenant, users } = data;
-  const isActive = tenant.status === "Activate";
+  const isActive = tenant.status === "ACTIVE";
 
   const detailsData = [
     { key: "1", label: "Email", value: tenant.email },

@@ -16,7 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* SUPERADMIN Routes - Not tenant-specific */}
-        <Route element={<ProtectedRoute requiredRoles={["SUPERADMIN"]} />}>
+        <Route element={<ProtectedRoute requiredRoles={["SUPER_ADMIN"]} />}>
           <Route element={<SuperAdminPanel />}>
             <Route path="/superadmin/dashboard" element={<TenantList />} />
             <Route path="/tenants/:id" element={<TenantDetails />} />
@@ -39,11 +39,17 @@ function App() {
             }
           >
             <Route element={<TenantAdminPanel />}>
-    <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
-    <Route path="users" element={<TenantUsersPage />} />
-    <Route path="orders" element={<div>Orders Coming Soon</div>} />
-    <Route path="warehouses" element={<div>Warehouses Coming Soon</div>} />
-  </Route>
+              <Route
+                path="dashboard"
+                element={<div>Tenant Admin Dashboard</div>}
+              />
+              <Route path="users" element={<TenantUsersPage />} />
+              <Route path="orders" element={<div>Orders Coming Soon</div>} />
+              <Route
+                path="warehouses"
+                element={<div>Warehouses Coming Soon</div>}
+              />
+            </Route>
           </Route>
 
           {/* Tenant Operations Routes */}

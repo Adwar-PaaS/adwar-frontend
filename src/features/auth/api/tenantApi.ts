@@ -39,10 +39,10 @@ export const getUsersByTenantId = (tenantId: string) => {
 };
 
 // ADMIN: create users in tenant admin dashboard while logged in as admin
-// export const createTenantAdminUser = (
-//   tenantId: string,
-//   data: Omit<createTenantUserPayload, "tenantId">
-// ) => instance.post(`/tenants/${tenantId}/users`, data);
+export const createTenantAdminUser = (
+  tenantId: string,
+  data: Omit<createTenantUserPayload, "tenantId">
+) => instance.post(`/tenants/${tenantId}/users`, data);
 
 // ADMIN: fetch users in tenant admin dashboard while logged in as admin
 export const getTenantUsers = (tenantId: string) =>

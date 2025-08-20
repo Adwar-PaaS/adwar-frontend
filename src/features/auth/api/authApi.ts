@@ -19,8 +19,14 @@ interface User {
   email: string;
   fullName: string;
   phone: string | null;
-  role: 'SUPERADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
-  tenantId: string | null;
+  role: {
+    id: string;
+    name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
+    permissions: any[];
+  };
+  userTenants: Array<{
+    tenantId: string;
+  }>;
   createdAt: string;
   updatedAt: string;
 }
