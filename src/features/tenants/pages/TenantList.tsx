@@ -28,13 +28,10 @@ export const TenantList = () => {
     try {
       setLoading(true);
       const response = await getTenants();
-      console.log('Full response:', response.data);
-      console.log('Tenants data:', response.data.data.tenants);
-      setTenants(response.data.data.tenants || []); // Use tenants array and fallback to empty array
+      setTenants(response.data.data.tenants || []);
     } catch (error) {
-      console.error('Error fetching tenants:', error);
       toast.error("Failed to fetch tenants");
-      setTenants([]); // Set empty array on error
+      setTenants([]);
     } finally {
       setLoading(false);
     }
@@ -92,6 +89,11 @@ export const TenantList = () => {
         setTenants((prev) => [...prev, newTenant]);
         toast.success("Tenant created successfully");
       }
+
+      fetchTenants();
+
+      setModalOpen(false);
+      setEditingTenant(null);
     } catch (error) {
       toast.error("Failed to save tenant");
     }
@@ -147,8 +149,12 @@ export const TenantList = () => {
       ),
     },
   ];
-  if(loading) {
-    return <div><Spin /></div>;
+  if (loading) {
+    return (
+      <div>
+        <Spin />
+      </div>
+    );
   }
 
   return (
@@ -163,7 +169,7 @@ export const TenantList = () => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={Array.isArray(tenants) ? tenants : []} // Ensure it's always an array
+        dataSource={Array.isArray(tenants) ? tenants : []}
         pagination={{ pageSize: 5 }}
       />
 
