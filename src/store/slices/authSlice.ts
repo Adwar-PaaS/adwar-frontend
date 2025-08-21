@@ -11,6 +11,10 @@ export interface User {
     permissions: string[];
   };
   tenantId: string | null;
+  userTenants: Array<{
+    tenantId: string;
+    isOwner: boolean;
+  }>;
   createdAt: string;
   updatedAt: string;
 }

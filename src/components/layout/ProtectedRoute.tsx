@@ -6,6 +6,7 @@ import {
   canAccessTenant,
 } from "../../utils/roleUtils";
 import { Spin } from "antd";
+import type { User } from "../../store/slices/authSlice";
 
 interface ProtectedRouteProps {
 requiredRoles?: User["role"]["name"][];

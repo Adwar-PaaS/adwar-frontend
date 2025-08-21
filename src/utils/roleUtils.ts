@@ -1,17 +1,18 @@
 import type { User } from "../store/slices/authSlice";
 
 export const getRoleBasedRoute = (user: User): string => {
+  const tenantId = user.userTenants?.[0]?.tenantId;
   switch (user.role.name) {
     case "SUPER_ADMIN":
       return "/superadmin/dashboard";
     case "ADMIN":
-      return `/tenant/${user.tenantId}/admin/dashboard`;
+      return `/tenant/${tenantId}/admin/dashboard`;
     case "OPERATIONS":
-      return `/tenant/${user.tenantId}/operations/dashboard`;
+      return `/tenant/${tenantId}/operations/dashboard`;
     case "DRIVER":
-      return `/tenant/${user.tenantId}/driver/dashboard`;
+      return `/tenant/${tenantId}/driver/dashboard`;
     case "PICKER":
-      return `/tenant/${user.tenantId}/picker/dashboard`;
+      return `/tenant/${tenantId}/picker/dashboard`;
     default:
       return "/login"; // fallback
   }
@@ -55,6 +56,7 @@ export const isAdminOrHigher = (user: User | null, tenantId?: string): boolean =
   const allowed = ["ADMIN", "OPERATIONS", "DRIVER", "PICKER"];
   if (!allowed.includes(user.role.name)) return false;
 
+  
   if (tenantId) return user.tenantId === tenantId;
   return true;
 };
