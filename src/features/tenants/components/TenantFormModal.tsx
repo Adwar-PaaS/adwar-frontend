@@ -48,7 +48,7 @@ export const TenantFormModal = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       centered={true}
     >
       <Formik

@@ -1,11 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-export interface Role {
-  id: string;
-  name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
-  permissions: string[];
-}
-
 export interface User {
   id: string;
   email: string;
@@ -17,7 +11,6 @@ export interface User {
     permissions: string[];
   };
   tenantId: string | null;
->>>>>>> a9c3449 (update role string in user interface to role object)
   createdAt: string;
   updatedAt: string;
 }

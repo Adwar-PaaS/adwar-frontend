@@ -1,15 +1,22 @@
-import { Modal, Form, Input, Select, Button } from "antd";
+import { Modal, Form, Input, Select, Button, Spin } from "antd";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { getRoles } from "../../auth/api/tenantApi";
 import styles from "./TenantFormModal.module.css";
+
+interface Role {
+  id: string;
+  name: string;
+  tenantId?: string | null;
+}
 
 interface TenantUserValues {
   fullName: string;
   email: string;
   password: string;
   phone: string;
-  role: string;
-  tenantId: string;
+  roleId: string;
 }
 
 interface TenantUserFormModalProps {
@@ -25,14 +32,28 @@ export const TenantUserFormModal = ({
   onSubmit,
   tenantId,
 }: TenantUserFormModalProps) => {
+  const [roles, setRoles] = useState<Role[]>([]);
+
   const defaultValues: TenantUserValues = {
     fullName: "",
     email: "",
     password: "",
     phone: "",
-    role: "",
-    tenantId,
+    roleId: "",
   };
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const res = await getRoles();
+        setRoles(res.data.data.roles || []);
+      } catch (error) {
+        toast.error("Failed to load roles");
+      } finally {
+      }
+    };
+    if (open) fetchRoles();
+  }, [open]);
 
   return (
     <Modal
@@ -40,13 +61,18 @@ export const TenantUserFormModal = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       centered
     >
       <Formik
         initialValues={defaultValues}
         onSubmit={(values) => {
-          onSubmit(values);
+          const payload = {
+            ...values,
+            roleId: values.roleId,
+            tenantId,
+          };
+          onSubmit(payload);
           toast.success("Tenant user created");
           onClose();
         }}
@@ -96,17 +122,19 @@ export const TenantUserFormModal = ({
             </Form.Item>
 
             <Form.Item label="Role" required>
-              <Select
-                value={values.role}
-                onChange={(val) => setFieldValue("role", val)}
-              >
-                <Select.Option value="SUPERADMIN">SUPERADMIN</Select.Option>
-                <Select.Option value="ADMIN">ADMIN</Select.Option>
-                <Select.Option value="DRIVER">DRIVER</Select.Option>
-                <Select.Option value="PICKER">PICKER</Select.Option>
-                <Select.Option value="OPERATION">OPERATION</Select.Option>
-                <Select.Option value="CUSTOMER">CUSTOMER</Select.Option>
-              </Select>
+              {
+                <Select
+                  value={values.roleId}
+                  onChange={(val) => setFieldValue("roleId", val)}
+                  placeholder="Select role"
+                >
+                  {roles.map((role) => (
+                    <Select.Option key={role.id} value={role.id}>
+                      {role.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              }
             </Form.Item>
 
             <Button

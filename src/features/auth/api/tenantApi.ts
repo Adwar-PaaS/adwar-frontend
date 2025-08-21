@@ -16,9 +16,6 @@ export const createTenant = (data: CreateTenantPayload | FormData) =>
 // SUPERADMIN: get all tenants
 export const getTenants = () => instance.get("/tenants");
 
-// SUPERADMIN: get one tenant by id 
-export const getTenantById = (id: string) => instance.get(`/tenants/${id}`);
-
 // SUPERADMIN: update any tenants
 export const updateTenant = (
   id: string,
@@ -29,15 +26,20 @@ export const updateTenant = (
       data instanceof FormData ? {} : { "Content-Type": "application/json" },
   });
 
-// SUPERADMIN: create users in system while logged in as superadmin
-// ADMIN: create users in system while logged in as tenant admin
-export const createTenantUser = (data: createTenantUserPayload) =>
-  instance.post("/users", data);
+// SUPERADMIN: get one tenant by id
+export const getTenantById = (id: string) => instance.get(`/tenants/${id}`);
 
 // SUPERADMIN: get all users in system while logged in as superadmin
 export const getUsersByTenantId = (tenantId: string) => {
-  return instance.get(`/users?tenantId=${tenantId}`);
+  return instance.get(`/tenants/${tenantId}/users`);
 };
+
+// SUPERADMIN: get all roles
+export const getRoles = () => instance.get("/roles");
+
+// ADMIN: create users in system while logged in as tenant admin
+export const createTenantUser = (data: createTenantUserPayload) =>
+  instance.post("/users/tenant", data);
 
 // ADMIN: fetch users in tenant admin dashboard while logged in as admin
 export const getTenantUsers = (tenantId: string) =>

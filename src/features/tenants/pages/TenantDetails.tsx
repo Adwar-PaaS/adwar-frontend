@@ -23,12 +23,20 @@ export const TenantDetails = () => {
     queryFn: async () => {
       const [tenantRes, usersRes] = await Promise.all([
         getTenantById(id!),
-        getUsersByTenantId(id!),
+        getUsersByTenantId(id!), // get users from API instead of tenant.users
       ]);
       return {
         tenant: tenantRes.data.data.tenant,
         users: Array.isArray(usersRes.data.data?.users)
-          ? usersRes.data.data.users
+          ? usersRes.data.data.users.map((u: any) => ({
+              id: u.user.id,
+              fullName: u.user.fullName,
+              email: u.user.email,
+              phone: u.user.phone,
+              status: u.user.status,
+              role: u.user.role?.name,
+              warehouse: u.warehouse,
+            }))
           : [],
       };
     },
@@ -115,7 +123,7 @@ export const TenantDetails = () => {
           style={{ marginTop: "24px" }}
           onClick={() => setUserModalOpen(true)}
         >
-          Create Tenant Admin
+          Create Tenant Users
         </Button>
       </Row>
 

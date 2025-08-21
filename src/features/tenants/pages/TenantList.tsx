@@ -100,7 +100,20 @@ export const TenantList = () => {
   };
 
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
+     {
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+    render: (_: string, record: TenantFormValues) => (
+      <Button
+        type="link"
+        onClick={() => navigate(`/tenants/${record.id}`)}
+        className={styles.tenantNameButton}
+      >
+        {record.name}
+      </Button>
+    ),
+  },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
 
