@@ -26,7 +26,7 @@ function App() {
 
         {/* Tenant-specific Routes */}
         <Route
-          path="/tenant/:tenantId/*"
+          path="/tenant/:tenantSlug/*"
           element={<ProtectedRoute requireTenantAccess={true} />}
         >
           {/* Tenant Admin Routes */}

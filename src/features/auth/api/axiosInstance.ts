@@ -21,11 +21,12 @@ instance.interceptors.request.use(
       const user = store.getState().auth.user;
       
       if (user && user.role) {
-        config.headers["X-User-Role"] = user.role;
+        config.headers["X-User-Role"] = user.role.name;
         
-        // Also add tenant ID for tenant-specific roles
-        if (user.tenantId && user.role.name !== 'SUPER_ADMIN') {
-          config.headers["X-Tenant-ID"] = user.tenantId;
+        // Also add tenant info for tenant-specific roles
+        if (user.tenant && user.role.name !== 'SUPER_ADMIN') {
+          config.headers["X-Tenant-ID"] = user.tenant.id;
+          config.headers["X-Tenant-Slug"] = user.tenant.slug;
         }
       }
     } catch (error) {

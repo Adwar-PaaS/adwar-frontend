@@ -1,18 +1,18 @@
 import type { User } from "../store/slices/authSlice";
 
 export const getRoleBasedRoute = (user: User): string => {
-  const tenantId = user.userTenants?.[0]?.tenantId;
+  const tenantSlug = user.tenant?.slug;
   switch (user.role.name) {
     case "SUPER_ADMIN":
       return "/superadmin/dashboard";
     case "ADMIN":
-      return `/tenant/${tenantId}/admin/dashboard`;
+      return `/tenant/${tenantSlug}/admin/dashboard`;
     case "OPERATIONS":
-      return `/tenant/${tenantId}/operations/dashboard`;
+      return `/tenant/${tenantSlug}/operations/dashboard`;
     case "DRIVER":
-      return `/tenant/${tenantId}/driver/dashboard`;
+      return `/tenant/${tenantSlug}/driver/dashboard`;
     case "PICKER":
-      return `/tenant/${tenantId}/picker/dashboard`;
+      return `/tenant/${tenantSlug}/picker/dashboard`;
     default:
       return "/login"; // fallback
   }
@@ -29,6 +29,25 @@ export const hasRole = (
 
 export const canAccessTenant = (
   user: User | null,
+  tenantSlug: string,
+  requiredRoles?: User["role"]["name"][]
+): boolean => {
+  if (!user) return false;
+
+  // SUPER_ADMIN cannot access tenant resources
+  if (user.role.name === "SUPER_ADMIN") return false;
+
+  // Must belong to tenant (using slug)
+  if (user.tenant?.slug !== tenantSlug) return false;
+
+  // Must have required role if specified
+  if (requiredRoles && !requiredRoles.includes(user.role.name)) return false;
+
+  return true;
+};
+
+export const canAccessTenantById = (
+  user: User | null,
   tenantId: string,
   requiredRoles?: User["role"]["name"][]
 ): boolean => {
@@ -37,8 +56,8 @@ export const canAccessTenant = (
   // SUPER_ADMIN cannot access tenant resources
   if (user.role.name === "SUPER_ADMIN") return false;
 
-  // Must belong to tenant
-  if (user.tenantId !== tenantId) return false;
+  // Must belong to tenant (using ID)
+  if (user.tenant?.id !== tenantId) return false;
 
   // Must have required role if specified
   if (requiredRoles && !requiredRoles.includes(user.role.name)) return false;
@@ -49,22 +68,27 @@ export const canAccessTenant = (
 export const isSuperAdmin = (user: User | null): boolean =>
   user?.role.name === "SUPER_ADMIN";
 
-export const isAdminOrHigher = (user: User | null, tenantId?: string): boolean => {
+export const isAdminOrHigher = (user: User | null, tenantSlug?: string): boolean => {
   if (!user) return false;
   if (user.role.name === "SUPER_ADMIN") return false;
 
   const allowed = ["ADMIN", "OPERATIONS", "DRIVER", "PICKER"];
   if (!allowed.includes(user.role.name)) return false;
 
-  
-  if (tenantId) return user.tenantId === tenantId;
+  if (tenantSlug) return user.tenant?.slug === tenantSlug;
   return true;
 };
 
-export const belongsToTenant = (user: User | null, tenantId: string): boolean => {
+export const belongsToTenant = (user: User | null, tenantSlug: string): boolean => {
   if (!user) return false;
   if (user.role.name === "SUPER_ADMIN") return false;
-  return user.tenantId === tenantId;
+  return user.tenant?.slug === tenantSlug;
+};
+
+export const belongsToTenantById = (user: User | null, tenantId: string): boolean => {
+  if (!user) return false;
+  if (user.role.name === "SUPER_ADMIN") return false;
+  return user.tenant?.id === tenantId;
 };
 
 export const isTenantUser = (user: User | null): boolean =>

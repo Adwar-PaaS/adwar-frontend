@@ -22,7 +22,7 @@ export const ProtectedRoute = ({
   const { isAuthenticated, initialized, user } = useAppSelector(
     (state) => state.auth
   );
-  const { tenantId } = useParams();
+  const { tenantSlug } = useParams();
   if (!initialized) {
     return (
       <div
@@ -43,8 +43,8 @@ export const ProtectedRoute = ({
   }
 
   // Check tenant-specific access
-  if (requireTenantAccess && tenantId) {
-    if (!canAccessTenant(user, tenantId, requiredRoles)) {
+  if (requireTenantAccess && tenantSlug) {
+    if (!canAccessTenant(user, tenantSlug, requiredRoles)) {
       const fallbackRoute = user ? getRoleBasedRoute(user) : "/login";
       return <Navigate to={redirectTo || fallbackRoute} replace />;
     }
