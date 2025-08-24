@@ -6,13 +6,19 @@ import {
   Collapse,
   Checkbox,
   Typography,
+  Select,
+  Spin,
 } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import styles from "./RoleModal.module.css";
+import { fetchRoles, fetchPermissions } from "../../auth/api/tenantApi";
 
 interface RoleFormValues {
   name: string;
+  roleId?: string;
   permissions: string[];
 }
 
@@ -26,6 +32,7 @@ interface RoleModalProps {
 
 const RoleSchema = Yup.object().shape({
   name: Yup.string().required("Role name is required"),
+  roleId: Yup.string().required("Please select a role"),
 });
 
 export const RoleModal = ({
@@ -37,43 +44,28 @@ export const RoleModal = ({
 }: RoleModalProps) => {
   const defaultValues: RoleFormValues = initialValues || {
     name: "",
+    roleId: "",
     permissions: [],
   };
 
-  const userPermissions = [
-    { label: "Create User", value: "create_user" },
-    { label: "Edit User", value: "edit_user" },
-    { label: "Delete User", value: "delete_user" },
-    { label: "View User", value: "view_user" },
-  ];
+  const [selectedRoleId, setSelectedRoleId] = useState(defaultValues.roleId);
 
-  const orderPermissions = [
-    { label: "Create Order", value: "create_order" },
-    { label: "Edit Order", value: "edit_order" },
-    { label: "Cancel Order", value: "cancel_order" },
-    { label: "View Order", value: "view_order" },
-  ];
+  // Fetch roles
+  const { data: rolesData, isLoading: loadingRoles } = useQuery({
+    queryKey: ["roles"],
+    queryFn: fetchRoles,
+  });
 
-  const warehousePermissions = [
-    { label: "Create Warehouse", value: "create_warehouse" },
-    { label: "Edit Warehouse", value: "edit_warehouse" },
-    { label: "Delete Warehouse", value: "delete_warehouse" },
-    { label: "View Warehouse", value: "view_warehouse" },
-  ];
+  // Fetch permissions
+  const { data: permissionsData, isLoading: loadingPermissions } = useQuery({
+    queryKey: ["permissions"],
+    queryFn: fetchPermissions,
+  });
 
-  const customerPermissions = [
-    { label: "Create Customer", value: "create_customer" },
-    { label: "Edit Customer", value: "edit_customer" },
-    { label: "Delete Customer", value: "delete_customer" },
-    { label: "View Customer", value: "view_customer" },
-  ];
+const roles = rolesData?.data?.data?.roles || [];
+const permissions = permissionsData?.data?.data?.permissions || [];
 
-  const tenantPermissions = [
-    { label: "Create Tenant", value: "create_tenant" },
-    { label: "Edit Tenant", value: "edit_tenant" },
-    { label: "Delete Tenant", value: "delete_tenant" },
-    { label: "View Tenant", value: "view_tenant" },
-  ];
+console.log(rolesData?.data.data.roles);
 
   return (
     <Modal
@@ -91,6 +83,7 @@ export const RoleModal = ({
           onSubmit(values);
           onClose();
         }}
+        enableReinitialize
       >
         {({
           values,
@@ -100,53 +93,73 @@ export const RoleModal = ({
           touched,
           setFieldValue,
         }) => {
-          const renderPanel = (
-            title: string,
-            permissions: { label: string; value: string }[]
-          ) => (
-            <Collapse.Panel header={title} key={title}>
-              <div className={styles.checkboxGrid}>
-                {permissions.map((perm) => (
-                  <Checkbox
-                    key={perm.value}
-                    checked={values.permissions.includes(perm.value)}
-                    onChange={(e) => {
-                      const newPerms = e.target.checked
-                        ? [...values.permissions, perm.value]
-                        : values.permissions.filter((p) => p !== perm.value);
-                      setFieldValue("permissions", newPerms);
-                    }}
-                  >
-                    {perm.label}
-                  </Checkbox>
-                ))}
-              </div>
-            </Collapse.Panel>
-          );
+          const handleCheckboxChange = (checked: boolean, perm: string) => {
+            const newPerms = checked
+              ? [...values.permissions, perm]
+              : values.permissions.filter((p) => p !== perm);
+            setFieldValue("permissions", newPerms);
+          };
 
           return (
             <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
+
+              {/* Role Name */}
               <Form.Item
-                label="Role Name"
-                validateStatus={touched.name && errors.name ? "error" : ""}
-                help={touched.name && errors.name}
+                label="Select Role"
+                validateStatus={touched.roleId && errors.roleId ? "error" : ""}
+                help={touched.roleId && errors.roleId}
               >
-                <Input
-                  name="name"
-                  value={values.name}
-                  onChange={handleChange}
-                  placeholder="Enter role name"
-                />
+                {loadingRoles ? (
+                  <Spin />
+                ) : (
+                  <Select
+                    placeholder="Select a role"
+                    value={values.roleId}
+                    onChange={(val) => {
+                      setSelectedRoleId(val);
+                      setFieldValue("roleId", val);
+                    }}
+                  >
+                    {roles?.map((role: any) => (
+                      <Select.Option key={role.id} value={role.id}>
+                        {role.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
               </Form.Item>
 
+              {/* Permissions */}
               <Typography.Title level={5}>Permissions</Typography.Title>
-              <Collapse accordion className={styles.customCollapse}>
-                {renderPanel("User Permissions", userPermissions)}
-                {renderPanel("Order Permissions", orderPermissions)}
-                {renderPanel("Warehouse Permissions", warehousePermissions)}
-                {renderPanel("Customer Permissions", customerPermissions)}
-                {renderPanel("Tenant Permissions", tenantPermissions)}
-              </Collapse>
+              {loadingPermissions ? (
+                <Spin />
+              ) : (
+                <Collapse accordion className={styles.customCollapse}>
+                  {permissions?.map((permGroup: any) => (
+                    <Collapse.Panel
+                      header={permGroup.entity}
+                      key={permGroup.entity}
+                    >
+                      <div className={styles.checkboxGrid}>
+                        {permGroup.actions.map((action: string) => {
+                          const value = `${permGroup.entity}:${action}`;
+                          return (
+                            <Checkbox
+                              key={value}
+                              checked={values.permissions.includes(value)}
+                              onChange={(e) =>
+                                handleCheckboxChange(e.target.checked, value)
+                              }
+                            >
+                              {action}
+                            </Checkbox>
+                          );
+                        })}
+                      </div>
+                    </Collapse.Panel>
+                  ))}
+                </Collapse>
+              )}
 
               <Button
                 type="primary"

@@ -52,3 +52,13 @@ export const updateTenantUser = (id: string, data: any) =>
 export const updateUserStatus = async (id: string, status: string) => {
   return instance.patch(`/users/${id}/status`, { status });
 };
+
+// Get all roles
+export const fetchRoles = async () => {
+  return instance.get("/roles");
+};
+
+// Get permissions for all roles
+export const fetchPermissions = async () => {
+  return instance.get("/users/role/permissions");
+};

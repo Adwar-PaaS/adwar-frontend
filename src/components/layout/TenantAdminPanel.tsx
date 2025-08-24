@@ -17,32 +17,34 @@ const { Sider, Content } = Layout;
 export const TenantAdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tenantId } = useParams();
+  const { tenantSlug } = useParams();
   const { user } = useAppSelector((state) => state.auth);
+
+  const basePath = `/tenant/${tenantSlug}/admin`;
 
   const menuItems = [
     {
-      key: `/tenant/${tenantId}/admin/dashboard`,
+      key: `${basePath}/dashboard`,
       icon: <HomeOutlined />,
       label: "Dashboard",
     },
     {
-      key: `/tenant/${tenantId}/admin/orders`,
+       key: `${basePath}/orders`,
       icon: <ShoppingCartOutlined />,
       label: "Orders",
     },
     {
-      key: `/tenant/${tenantId}/admin/warehouses`,
+     key: `${basePath}/warehouses`,
       icon: <DatabaseOutlined />,
       label: "Warehouses",
     },
     {
-      key: `/tenant/${tenantId}/admin/users`,
+      key: `${basePath}/users`,
       icon: <UserOutlined />,
       label: "Users",
     },
     {
-      key: `/tenant/${tenantId}/admin/roles`,
+      key: `${basePath}/roles`,
       icon: <HighlightOutlined />,
       label: "Roles",
     },
