@@ -62,10 +62,8 @@ export const RoleModal = ({
     queryFn: fetchPermissions,
   });
 
-const roles = rolesData?.data?.data?.roles || [];
-const permissions = permissionsData?.data?.data?.permissions || [];
-
-console.log(rolesData?.data.data.roles);
+  const roles = rolesData?.data?.data?.roles || [];
+  const permissions = permissionsData?.data?.data?.permissions || [];
 
   return (
     <Modal
@@ -102,7 +100,6 @@ console.log(rolesData?.data.data.roles);
 
           return (
             <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-
               {/* Role Name */}
               <Form.Item
                 label="Select Role"

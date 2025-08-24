@@ -46,13 +46,19 @@ export const createTenantUser = (data: createTenantUserPayload) =>
 export const getTenantUsers = (tenantId: string) =>
   instance.get(`/tenants/${tenantId}/users`);
 
+// ADMIN: fetch tenant id in tenant admin dashboard while logged in as admin
+export const getCurrentUser = async () => {
+  return instance.get("/auth/me");
+};
+
 export const updateTenantUser = (id: string, data: any) =>
   instance.put(`/users/${id}`, data);
 
 // ADMIN: update user status
-export const updateUserStatus = async (id: string, status: string) => {
+export const toggleUserStatus = (id: string, status: string) => {
   return instance.patch(`/users/${id}/status`, { status });
 };
+
 
 // Admin: Get all roles
 export const fetchRoles = async () => {

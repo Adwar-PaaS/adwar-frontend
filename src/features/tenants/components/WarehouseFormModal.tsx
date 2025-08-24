@@ -3,7 +3,6 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 
-
 interface WarehouseFormValues {
   name: string;
   location: string;
@@ -48,20 +47,27 @@ export const WarehouseFormModal = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       centered
     >
       <Formik
         initialValues={defaultValues}
         validationSchema={WarehouseSchema}
-         onSubmit={(values) => {
+        onSubmit={(values) => {
           const payload = { ...values, tenantId };
           onSubmit(payload);
           toast.success(isEdit ? "Warehouse updated" : "Warehouse created");
           onClose();
         }}
       >
-        {({ values, handleChange, handleSubmit, errors, touched, setFieldValue }) => (
+        {({
+          values,
+          handleChange,
+          handleSubmit,
+          errors,
+          touched,
+          setFieldValue,
+        }) => (
           <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
             <Form.Item
               label="Warehouse Name"
@@ -78,7 +84,9 @@ export const WarehouseFormModal = ({
 
             <Form.Item
               label="Location"
-              validateStatus={touched.location && errors.location ? "error" : ""}
+              validateStatus={
+                touched.location && errors.location ? "error" : ""
+              }
               help={touched.location && errors.location}
             >
               <Input
@@ -91,7 +99,9 @@ export const WarehouseFormModal = ({
 
             <Form.Item
               label="Capacity"
-              validateStatus={touched.capacity && errors.capacity ? "error" : ""}
+              validateStatus={
+                touched.capacity && errors.capacity ? "error" : ""
+              }
               help={touched.capacity && errors.capacity}
             >
               <InputNumber
@@ -104,11 +114,7 @@ export const WarehouseFormModal = ({
               />
             </Form.Item>
 
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-            >
+            <Button type="primary" htmlType="submit" block>
               {isEdit ? "Update Warehouse" : "Create Warehouse"}
             </Button>
           </Form>
