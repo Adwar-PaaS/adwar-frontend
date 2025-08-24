@@ -1,7 +1,6 @@
 import {
   Modal,
   Form,
-  Input,
   Button,
   Collapse,
   Checkbox,
@@ -18,7 +17,7 @@ import { fetchRoles, fetchPermissions } from "../../auth/api/tenantApi";
 
 interface RoleFormValues {
   name: string;
-  roleId?: string;
+  roleId: string;
   permissions: string[];
 }
 
@@ -78,6 +77,7 @@ export const RoleModal = ({
         initialValues={defaultValues}
         validationSchema={RoleSchema}
         onSubmit={(values) => {
+          console.log("Submitting values: ", values); // ✅ Debug log
           onSubmit(values);
           onClose();
         }}
@@ -85,11 +85,11 @@ export const RoleModal = ({
       >
         {({
           values,
-          handleChange,
           handleSubmit,
           errors,
           touched,
           setFieldValue,
+          submitForm,
         }) => {
           const handleCheckboxChange = (checked: boolean, perm: string) => {
             const newPerms = checked
@@ -99,8 +99,11 @@ export const RoleModal = ({
           };
 
           return (
-            <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-              {/* Role Name */}
+            <Form
+              layout="vertical"
+              autoComplete="off"
+              onFinish={() => submitForm()} 
+            >
               <Form.Item
                 label="Select Role"
                 validateStatus={touched.roleId && errors.roleId ? "error" : ""}
@@ -126,7 +129,6 @@ export const RoleModal = ({
                 )}
               </Form.Item>
 
-              {/* Permissions */}
               <Typography.Title level={5}>Permissions</Typography.Title>
               {loadingPermissions ? (
                 <Spin />

@@ -70,6 +70,19 @@ export const fetchPermissions = async () => {
   return instance.get("/users/role/permissions");
 };
 
+// Admin: Assign Permissions to Roles
+// Admin: Assign Permissions to Roles
+export const assignRolePermissions = async ({
+  roleId,
+  permissions,
+}: {
+  roleId: string;
+  permissions: string[];
+}) => {
+  return instance.post(`/roles/${roleId}/permissions`, { permissions });
+};
+
+
 // Admin: Get Warehouses
 export const getWarehouses = async () => {
   return instance.get("/warehouses");
@@ -81,4 +94,5 @@ export const createWarehouse = (data: createWarehousePayload | FormData) =>
     headers:
       data instanceof FormData ? {} : { "Content-Type": "application/json" },
   });
+
 

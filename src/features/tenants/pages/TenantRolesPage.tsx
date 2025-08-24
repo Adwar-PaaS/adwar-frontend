@@ -2,6 +2,11 @@ import { Button, Table, Space, Row, Col, Typography } from "antd";
 import { useState } from "react";
 import { RoleModal } from "../components/RoleModal";
 import styles from "./TenantRolesPage.module.css";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  assignRolePermissions,
+  fetchRoles,
+} from "../../auth/api/tenantApi";
 
 interface Role {
   id: string;
@@ -9,38 +14,45 @@ interface Role {
 }
 
 export const TenantRolesPage = () => {
-  const [roles, setRoles] = useState<Role[]>([
-  ]);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
 
-  const handleSave = (values: { name: string }) => {
-    if (editingRole) {
-      // update
-      setRoles((prev) =>
-        prev.map((role) =>
-          role.id === editingRole.id ? { ...role, ...values } : role
-        )
-      );
-    } else {
-      // create
-      setRoles((prev) => [
-        ...prev,
-        { id: Date.now().toString(), ...values },
-      ]);
-    }
-    setModalOpen(false);
-    setEditingRole(null);
-  };
+  const queryClient = useQueryClient();
 
-  const handleDelete = (id: string) => {
-    setRoles((prev) => prev.filter((role) => role.id !== id));
-  };
+  // Fetch roles
+  const { data: rolesData, isLoading } = useQuery({
+    queryKey: ["roles"],
+    queryFn: fetchRoles,
+  });
+
+  const roles = rolesData?.data?.roles || [];
+
+  const assignPermissionsMutation = useMutation({
+    mutationFn: assignRolePermissions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      setModalOpen(false);
+      setEditingRole(null);
+    },
+    onError: (error: any) => {
+      console.error(error);
+    },
+  });
+
+const handleSave = (values: {
+  name: string;
+  roleId: string;
+  permissions: string[];
+}) => {
+  assignPermissionsMutation.mutate({
+    roleId: values.roleId,
+    permissions: values.permissions,
+  });
+};
 
   const columns = [
     { title: "Role Name", dataIndex: "name" },
-    
+
     {
       title: "Actions",
       key: "actions",
@@ -54,9 +66,6 @@ export const TenantRolesPage = () => {
             }}
           >
             Edit
-          </Button>
-          <Button type="link" danger onClick={() => handleDelete(record.id)}>
-            Delete
           </Button>
         </Space>
       ),
