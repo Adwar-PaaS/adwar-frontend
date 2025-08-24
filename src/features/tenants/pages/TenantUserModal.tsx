@@ -3,6 +3,7 @@ import { Formik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import styles from "./TenantUserModal.module.css";
+import { createTenantUser } from "../../auth/api/tenantApi";
 
 interface TenantUserFormValues {
   name: string;

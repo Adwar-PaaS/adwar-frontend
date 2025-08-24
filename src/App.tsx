@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
 import "./App.css";
 import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
+import { WarehouseList } from "./features/tenants/pages/WarehouseList";
 
 function App() {
   return (
@@ -48,7 +49,7 @@ function App() {
               <Route path="orders" element={<div>Orders Coming Soon</div>} />
               <Route
                 path="warehouses"
-                element={<div>Warehouses Coming Soon</div>}
+                element={<WarehouseList/>}
               />
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>

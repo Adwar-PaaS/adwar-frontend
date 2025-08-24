@@ -2,6 +2,7 @@ import type {
   CreateTenantPayload,
   createTenantUserPayload,
 } from "../../tenants/tenants.types";
+import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
 
 // FormData is needed for file uploads to match backend's FileInterceptor
@@ -53,12 +54,25 @@ export const updateUserStatus = async (id: string, status: string) => {
   return instance.patch(`/users/${id}/status`, { status });
 };
 
-// Get all roles
+// Admin: Get all roles
 export const fetchRoles = async () => {
   return instance.get("/roles");
 };
 
-// Get permissions for all roles
+// Admin: Get permissions for all roles
 export const fetchPermissions = async () => {
   return instance.get("/users/role/permissions");
 };
+
+// Admin: Get Warehouses
+export const getWarehouses = async () => {
+  return instance.get("/warehouses");
+};
+
+// Admin: Create Warehouses
+export const createWarehouse = (data: createWarehousePayload | FormData) =>
+  instance.post("/warehouses", data, {
+    headers:
+      data instanceof FormData ? {} : { "Content-Type": "application/json" },
+  });
+
