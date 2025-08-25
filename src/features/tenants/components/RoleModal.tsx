@@ -30,7 +30,9 @@ interface RoleModalProps {
 
 const RoleSchema = Yup.object().shape({
   roleId: Yup.string().required("Please select a role"),
-   permissions: Yup.array().of(Yup.string()).min(1, "Select at least 1 permission"),
+  permissions: Yup.array()
+    .of(Yup.string())
+    .min(1, "Select at least 1 permission"),
 });
 
 export const RoleModal = ({
@@ -88,18 +90,59 @@ export const RoleModal = ({
           setFieldValue,
           submitForm,
         }) => {
-          const handleCheckboxChange = (checked: boolean, perm: string) => {
-            const newPerms = checked
-              ? [...values.permissions, perm]
-              : values.permissions.filter((p) => p !== perm);
-            setFieldValue("permissions", newPerms);
+          const handleCheckboxChange = (
+            checked: boolean,
+            permGroup: any,
+            action: string
+          ) => {
+            const allActions = permGroup.actions.filter((a: any) => a !== "All");
+            let newPerms = [...values.permissions];
+
+            if (action === "All") {
+              if (checked) {
+                //  Add all actions for this entity
+                newPerms = [
+                  ...newPerms,
+                  ...permGroup.actions.map((a: any) => `${permGroup.entity}:${a}`),
+                ];
+              } else {
+                //  Remove all actions for this entity
+                newPerms = newPerms.filter(
+                  (p) => !p.startsWith(`${permGroup.entity}:`)
+                );
+              }
+            } else {
+              const value = `${permGroup.entity}:${action}`;
+              if (checked) {
+                newPerms.push(value);
+              } else {
+                newPerms = newPerms.filter((p) => p !== value);
+              }
+
+              // Check if all individual actions are selected -> add "All"
+              const entityPerms = newPerms.filter((p) =>
+                p.startsWith(`${permGroup.entity}:`)
+              );
+              const allSelected = allActions.every((a: any) =>
+                entityPerms.includes(`${permGroup.entity}:${a}`)
+              );
+              const allValue = `${permGroup.entity}:All`;
+
+              if (allSelected && !entityPerms.includes(allValue)) {
+                newPerms.push(allValue);
+              } else if (!allSelected) {
+                newPerms = newPerms.filter((p) => p !== allValue);
+              }
+            }
+
+            setFieldValue("permissions", Array.from(new Set(newPerms)));
           };
 
           return (
             <Form
               layout="vertical"
               autoComplete="off"
-              onFinish={() => submitForm()} 
+              onFinish={() => submitForm()}
             >
               <Form.Item
                 label="Select Role"
@@ -139,12 +182,18 @@ export const RoleModal = ({
                       <div className={styles.checkboxGrid}>
                         {permGroup.actions.map((action: string) => {
                           const value = `${permGroup.entity}:${action}`;
+                          const checked = values.permissions.includes(value);
+
                           return (
                             <Checkbox
                               key={value}
-                              checked={values.permissions.includes(value)}
+                              checked={checked}
                               onChange={(e) =>
-                                handleCheckboxChange(e.target.checked, value)
+                                handleCheckboxChange(
+                                  e.target.checked,
+                                  permGroup,
+                                  action
+                                )
                               }
                             >
                               {action}

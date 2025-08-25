@@ -86,10 +86,7 @@ export const getWarehouses = async () => {
 };
 
 // Admin: Create Warehouses
-export const createWarehouse = (data: createWarehousePayload | FormData) =>
-  instance.post("/warehouses", data, {
-    headers:
-      data instanceof FormData ? {} : { "Content-Type": "application/json" },
-  });
-
+export const createWarehouse = async (data: any) => {
+  return instance.post("/warehouses", data);
+};
 

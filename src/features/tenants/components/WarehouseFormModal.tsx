@@ -54,8 +54,8 @@ export const WarehouseFormModal = ({
         initialValues={defaultValues}
         validationSchema={WarehouseSchema}
         onSubmit={(values) => {
-          const payload = { ...values, tenantId };
-          onSubmit(payload);
+         
+          onSubmit(values);
           toast.success(isEdit ? "Warehouse updated" : "Warehouse created");
           onClose();
         }}

@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import styles from "./WarehouseList.module.css";
 import { WarehouseFormModal } from "../components/WarehouseFormModal";
 import { createWarehouse } from "../../auth/api/tenantApi";
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 interface Warehouse {
   id: string;
@@ -23,9 +24,13 @@ interface Warehouse {
 
 export const WarehouseList = () => {
   const navigate = useNavigate();
-  const { tenantId } = useParams();
 
+  
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const { data: currentUserData, isLoading: authLoading } = useCurrentUser();
+    const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,7 +64,8 @@ export const WarehouseList = () => {
 
   const handleCreateWarehouse = async (values: any) => {
     try {
-      await createWarehouse(values);
+      const payload = { ...values, tenantId };
+      await createWarehouse(payload);
       toast.success("Warehouse created successfully");
       fetchWarehouses();
     } catch {
