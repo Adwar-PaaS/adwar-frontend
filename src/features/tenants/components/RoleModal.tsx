@@ -15,8 +15,7 @@ import { useState } from "react";
 import styles from "./RoleModal.module.css";
 import { fetchRoles, fetchPermissions } from "../../auth/api/tenantApi";
 
-interface RoleFormValues {
-  name: string;
+export interface RoleFormValues {
   roleId: string;
   permissions: string[];
 }
@@ -30,8 +29,8 @@ interface RoleModalProps {
 }
 
 const RoleSchema = Yup.object().shape({
-  name: Yup.string().required("Role name is required"),
   roleId: Yup.string().required("Please select a role"),
+   permissions: Yup.array().of(Yup.string()).min(1, "Select at least 1 permission"),
 });
 
 export const RoleModal = ({
@@ -42,7 +41,6 @@ export const RoleModal = ({
   isEdit = false,
 }: RoleModalProps) => {
   const defaultValues: RoleFormValues = initialValues || {
-    name: "",
     roleId: "",
     permissions: [],
   };
@@ -77,7 +75,6 @@ export const RoleModal = ({
         initialValues={defaultValues}
         validationSchema={RoleSchema}
         onSubmit={(values) => {
-          console.log("Submitting values: ", values); // ✅ Debug log
           onSubmit(values);
           onClose();
         }}

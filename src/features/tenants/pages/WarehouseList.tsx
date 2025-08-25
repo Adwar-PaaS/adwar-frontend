@@ -106,7 +106,7 @@ export const WarehouseList = () => {
       key: "actions",
       render: (_: any, record: Warehouse) => (
         <Space>
-          <Button type="link" onClick={() => console.log("Edit", record.id)}>
+          <Button type="link">
             Edit
           </Button>
         </Space>

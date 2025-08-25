@@ -1,6 +1,7 @@
 import type {
   CreateTenantPayload,
   createTenantUserPayload,
+  AssignPermissionsPayload
 } from "../../tenants/tenants.types";
 import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
@@ -71,14 +72,10 @@ export const fetchPermissions = async () => {
 };
 
 // Admin: Assign Permissions to Roles
-// Admin: Assign Permissions to Roles
 export const assignRolePermissions = async ({
   roleId,
   permissions,
-}: {
-  roleId: string;
-  permissions: string[];
-}) => {
+}: AssignPermissionsPayload) => {
   return instance.post(`/roles/${roleId}/permissions`, { permissions });
 };
 

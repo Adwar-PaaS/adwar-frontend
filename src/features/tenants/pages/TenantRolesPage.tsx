@@ -1,12 +1,12 @@
 import { Button, Table, Space, Row, Col, Typography } from "antd";
 import { useState } from "react";
 import { RoleModal } from "../components/RoleModal";
+import type { RoleFormValues } from "../components/RoleModal";
 import styles from "./TenantRolesPage.module.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  assignRolePermissions,
-  fetchRoles,
-} from "../../auth/api/tenantApi";
+import { assignRolePermissions, fetchRoles } from "../../auth/api/tenantApi";
+import { toPermissionPayload } from "../../../utils/permissions";
+import { toast } from "react-toastify";
 
 interface Role {
   id: string;
@@ -30,25 +30,24 @@ export const TenantRolesPage = () => {
   const assignPermissionsMutation = useMutation({
     mutationFn: assignRolePermissions,
     onSuccess: () => {
+      toast.success("Permissions assigned successfully");
       queryClient.invalidateQueries({ queryKey: ["roles"] });
       setModalOpen(false);
       setEditingRole(null);
     },
-    onError: (error: any) => {
-      console.error(error);
+    onError: () => {
+      toast.error("Failed to assign permissions");
     },
   });
 
-const handleSave = (values: {
-  name: string;
-  roleId: string;
-  permissions: string[];
-}) => {
-  assignPermissionsMutation.mutate({
-    roleId: values.roleId,
-    permissions: values.permissions,
-  });
-};
+  const handleSave = (values: RoleFormValues) => {
+    const payloadPermissions = toPermissionPayload(values.permissions);
+
+    assignPermissionsMutation.mutate({
+      roleId: values.roleId,
+      permissions: payloadPermissions,
+    });
+  };
 
   const columns = [
     { title: "Role Name", dataIndex: "name" },
