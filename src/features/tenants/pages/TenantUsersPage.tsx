@@ -1,4 +1,4 @@
-import { Button, Table, Space, Row, Col, Typography, Modal, Switch } from "antd";
+import { Button, Table, Space, Row, Col, Typography, Switch } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -11,6 +11,7 @@ import { TenantUserModal } from "./TenantUserModal";
 import { toast } from "react-toastify";
 import styles from "./TenantUsersPage.module.css";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
+import { EditOutlined } from "@ant-design/icons";
 
 export const TenantUsersPage = () => {
   const queryClient = useQueryClient();
@@ -70,17 +71,17 @@ export const TenantUsersPage = () => {
 
   // Update user status
   const updateStatusMutation = useMutation({
-  mutationFn: ({ id, status }: { id: string; status: string }) =>
-    toggleUserStatus(id, status),
-  onSuccess: () => {
-    toast.success("Status updated successfully");
-    queryClient.invalidateQueries({ queryKey: ["tenantUsers", tenantId] });
-  },
-  onError: (error: any) => {
-    const msg = error.response?.data?.message || "Failed to update status";
-    toast.error(msg);
-  },
-});
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      toggleUserStatus(id, status),
+    onSuccess: () => {
+      toast.success("Status updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["tenantUsers", tenantId] });
+    },
+    onError: (error: any) => {
+      const msg = error.response?.data?.message || "Failed to update status";
+      toast.error(msg);
+    },
+  });
 
   // Handle create/edit
   const handleSubmit = (values: any) => {
@@ -118,33 +119,33 @@ export const TenantUsersPage = () => {
     { title: "Email", dataIndex: "email" },
     { title: "Phone", dataIndex: "phone" },
     { title: "Role", dataIndex: "role" },
-   {
-    title: "Status",
-    dataIndex: "status",
-    render: (status: string, record: any) => {
-      const isActive = status === "ACTIVE";
+    {
+      title: "Status",
+      dataIndex: "status",
+      render: (status: string, record: any) => {
+        const isActive = status === "ACTIVE";
 
-      return (
-        <Switch
-          checked={isActive}
-          loading={loadingId === record.id} //
-          onChange={(checked) => {
-            const newStatus = checked ? "ACTIVE" : "INACTIVE";
-            setLoadingId(record.id);
+        return (
+          <Switch
+            checked={isActive}
+            loading={loadingId === record.id}
+            onChange={(checked) => {
+              const newStatus = checked ? "ACTIVE" : "INACTIVE";
+              setLoadingId(record.id);
 
-            updateStatusMutation.mutate(
-              { id: record.id, status: newStatus },
-              {
-                onSettled: () => setLoadingId(null),
-              }
-            );
-          }}
-          checkedChildren="Active"
-          unCheckedChildren="Inactive"
-        />
-      );
+              updateStatusMutation.mutate(
+                { id: record.id, status: newStatus },
+                {
+                  onSettled: () => setLoadingId(null),
+                }
+              );
+            }}
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+          />
+        );
+      },
     },
-  },
     {
       title: "Actions",
       key: "actions",
@@ -157,6 +158,7 @@ export const TenantUsersPage = () => {
               setModalOpen(true);
             }}
           >
+            <EditOutlined />
             Edit
           </Button>
         </Space>

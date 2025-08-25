@@ -12,6 +12,7 @@ import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import styles from "./TenantList.module.css";
+import { EditOutlined } from "@ant-design/icons";
 
 export const TenantList = () => {
   const navigate = useNavigate();
@@ -100,20 +101,20 @@ export const TenantList = () => {
   };
 
   const columns = [
-     {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (_: string, record: TenantFormValues) => (
-      <Button
-        type="link"
-        onClick={() => navigate(`/tenants/${record.id}`)}
-        className={styles.tenantNameButton}
-      >
-        {record.name}
-      </Button>
-    ),
-  },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (_: string, record: TenantFormValues) => (
+        <Button
+          type="link"
+          onClick={() => navigate(`/tenants/${record.id}`)}
+          className={styles.tenantNameButton}
+        >
+          {record.name}
+        </Button>
+      ),
+    },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
 
@@ -156,6 +157,7 @@ export const TenantList = () => {
       render: (_: any, record: TenantFormValues) => (
         <Space>
           <Button type="link" onClick={() => openEditModal(record)}>
+            <EditOutlined />
             Edit
           </Button>
         </Space>

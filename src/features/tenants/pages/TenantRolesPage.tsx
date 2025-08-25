@@ -7,6 +7,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { assignRolePermissions, fetchRoles } from "../../auth/api/tenantApi";
 import { toPermissionPayload } from "../../../utils/permissions";
 import { toast } from "react-toastify";
+import { EditOutlined } from "@ant-design/icons";
+
 
 interface Role {
   id: string;
@@ -64,6 +66,7 @@ export const TenantRolesPage = () => {
               setModalOpen(true);
             }}
           >
+            <EditOutlined />
             Edit
           </Button>
         </Space>

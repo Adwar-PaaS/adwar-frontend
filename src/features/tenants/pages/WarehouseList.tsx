@@ -1,6 +1,7 @@
 import { Table, Tag, Button, Space, Spin } from "antd";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { EditOutlined } from "@ant-design/icons";
 import { getWarehouses } from "../../auth/api/tenantApi";
 import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
@@ -25,12 +26,10 @@ interface Warehouse {
 export const WarehouseList = () => {
   const navigate = useNavigate();
 
-  
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const { data: currentUserData, isLoading: authLoading } = useCurrentUser();
-    const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
-
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -113,6 +112,7 @@ export const WarehouseList = () => {
       render: (_: any, record: Warehouse) => (
         <Space>
           <Button type="link">
+            <EditOutlined />
             Edit
           </Button>
         </Space>

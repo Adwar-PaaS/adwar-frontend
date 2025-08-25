@@ -95,7 +95,9 @@ export const RoleModal = ({
             permGroup: any,
             action: string
           ) => {
-            const allActions = permGroup.actions.filter((a: any) => a !== "All");
+            const allActions = permGroup.actions.filter(
+              (a: any) => a !== "All"
+            );
             let newPerms = [...values.permissions];
 
             if (action === "All") {
@@ -103,7 +105,9 @@ export const RoleModal = ({
                 //  Add all actions for this entity
                 newPerms = [
                   ...newPerms,
-                  ...permGroup.actions.map((a: any) => `${permGroup.entity}:${a}`),
+                  ...permGroup.actions.map(
+                    (a: any) => `${permGroup.entity}:${a}`
+                  ),
                 ];
               } else {
                 //  Remove all actions for this entity
@@ -160,9 +164,9 @@ export const RoleModal = ({
                       setFieldValue("roleId", val);
                     }}
                   >
-                    {roles?.map((role: any) => (
-                      <Select.Option key={role.id} value={role.id}>
-                        {role.name}
+                    {roles?.map((role: string) => (
+                      <Select.Option key={role} value={role}>
+                        {role}
                       </Select.Option>
                     ))}
                   </Select>
