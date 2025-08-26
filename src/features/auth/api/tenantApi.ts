@@ -3,7 +3,7 @@ import type {
   createTenantUserPayload,
   AssignPermissionsPayload
 } from "../../tenants/tenants.types";
-import type { createWarehousePayload } from "../../tenants/warehouses.types";
+// import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
 
 // FormData is needed for file uploads to match backend's FileInterceptor
@@ -91,3 +91,7 @@ export const createWarehouse = async (data: any) => {
   return instance.post("/warehouses", data);
 };
 
+// Admin: Update Warehouses
+export const updateWarehouse = async (warehouseId: string, data: any) => {
+  return instance.put(`/warehouses/${warehouseId}`, data);
+};

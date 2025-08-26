@@ -2,7 +2,7 @@ import { Table, Tag, Button, Space, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
-import { getWarehouses } from "../../auth/api/tenantApi";
+import { getWarehouses, updateWarehouse } from "../../auth/api/tenantApi";
 import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -28,13 +28,16 @@ export const WarehouseList = () => {
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
-  const { data: currentUserData, isLoading: authLoading } = useCurrentUser();
+  const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(
+    null
+  );
 
   const fetchWarehouses = async () => {
     try {
@@ -61,14 +64,22 @@ export const WarehouseList = () => {
     return <Spin size="large" fullscreen />;
   }
 
-  const handleCreateWarehouse = async (values: any) => {
+  const handleSubmit = async (values: any) => {
     try {
-      const payload = { ...values, tenantId };
-      await createWarehouse(payload);
-      toast.success("Warehouse created successfully");
+      const { name, location, capacity } = values;
+      if (editingWarehouse) {
+        await updateWarehouse(editingWarehouse.id, { name, location, capacity });
+        toast.success("Warehouse updated successfully");
+      } else {
+        await createWarehouse({ name, location, capacity, tenantId });
+        toast.success("Warehouse created successfully");
+      }
       fetchWarehouses();
     } catch {
-      toast.error("Failed to create warehouse");
+      toast.error(editingWarehouse ? "Failed to update" : "Failed to create");
+    } finally {
+      setModalOpen(false);
+      setEditingWarehouse(null);
     }
   };
 
@@ -111,7 +122,13 @@ export const WarehouseList = () => {
       key: "actions",
       render: (_: any, record: Warehouse) => (
         <Space>
-          <Button type="link">
+          <Button
+            type="link"
+            onClick={() => {
+              setEditingWarehouse(record);
+              setModalOpen(true);
+            }}
+          >
             <EditOutlined />
             Edit
           </Button>
@@ -132,15 +149,20 @@ export const WarehouseList = () => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={Array.isArray(warehouses) ? warehouses : []}
+        dataSource={warehouses}
         pagination={{ pageSize: 5 }}
       />
 
       <WarehouseFormModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleCreateWarehouse}
+        onClose={() => {
+          setModalOpen(false);
+          setEditingWarehouse(null);
+        }}
+        onSubmit={handleSubmit}
         tenantId={tenantId!}
+        initialValues={editingWarehouse || undefined}
+        isEdit={!!editingWarehouse}
       />
     </div>
   );

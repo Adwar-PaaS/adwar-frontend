@@ -22,14 +22,14 @@ export const TenantRolesPage = () => {
   const queryClient = useQueryClient();
 
   // Fetch roles
-  const { data: rolesData, isLoading } = useQuery({
+  const { data: rolesData } = useQuery({
     queryKey: ["roles"],
     queryFn: fetchRoles,
   });
 
   const roles = rolesData?.data?.roles || [];
 
-  const { data: currentUserData, isLoading: authLoading } = useCurrentUser();
+  const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
   const assignPermissionsMutation = useMutation({
