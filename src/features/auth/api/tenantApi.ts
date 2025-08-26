@@ -73,10 +73,11 @@ export const fetchPermissions = async () => {
 
 // Admin: Assign Permissions to Roles
 export const assignRolePermissions = async ({
-  roleId,
+  name,
   permissions,
+  tenantId
 }: AssignPermissionsPayload) => {
-  return instance.post(`/roles/${roleId}/permissions`, { permissions });
+  return instance.post(`/roles`, { tenantId, permissions, name });
 };
 
 

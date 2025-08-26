@@ -31,6 +31,7 @@ export interface createTenantUserPayload {
 }
 
 export interface AssignPermissionsPayload {
-  roleId: string;
+  name: string;
+  tenantId: string;
   permissions: Array<{ entityType: string; actionTypes: string[] }>;
 }

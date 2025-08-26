@@ -8,7 +8,7 @@ import { assignRolePermissions, fetchRoles } from "../../auth/api/tenantApi";
 import { toPermissionPayload } from "../../../utils/permissions";
 import { toast } from "react-toastify";
 import { EditOutlined } from "@ant-design/icons";
-
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 interface Role {
   id: string;
@@ -29,6 +29,9 @@ export const TenantRolesPage = () => {
 
   const roles = rolesData?.data?.roles || [];
 
+  const { data: currentUserData, isLoading: authLoading } = useCurrentUser();
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+
   const assignPermissionsMutation = useMutation({
     mutationFn: assignRolePermissions,
     onSuccess: () => {
@@ -43,11 +46,19 @@ export const TenantRolesPage = () => {
   });
 
   const handleSave = (values: RoleFormValues) => {
+    if (!tenantId) {
+      toast.error("Tenant ID not found");
+      return;
+    }
+
     const payloadPermissions = toPermissionPayload(values.permissions);
+     const selectedRoleName = roles.find((r: any) => r === values.roleId) || values.roleId;
+
 
     assignPermissionsMutation.mutate({
-      roleId: values.roleId,
+      name: selectedRoleName,
       permissions: payloadPermissions,
+      tenantId,
     });
   };
 
