@@ -1,9 +1,10 @@
-import { Modal, Form, Input, Select, Button } from "antd";
+import { Modal, Form, Input, Select, Button, Spin } from "antd";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import styles from "./TenantUserModal.module.css";
-import { createTenantUser } from "../../auth/api/tenantApi";
+import { fetchTenantWarehouses } from "../../auth/api/tenantApi";
+import { useQuery } from "@tanstack/react-query";
 
 interface TenantUserFormValues {
   name: string;
@@ -12,41 +13,59 @@ interface TenantUserFormValues {
   role: string;
   warehouseId?: string;
   status: string;
+  assignWarehouses?: string[];
 }
 
 interface TenantUserFormModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: TenantUserFormValues) => void;
-  warehouses?: { id: string; name: string }[];
+  tenantId: string;
   initialValues?: TenantUserFormValues;
   isEdit?: boolean;
 }
+
+
 
 const TenantUserSchema = Yup.object().shape({
   name: Yup.string().required("Full Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
   role: Yup.string().required("Role is required"),
   status: Yup.string().required("Status is required"),
+  assignWarehouses: Yup.array()
+    .of(Yup.string())
+    .min(1, "Select at least one warehouse"),
   phone: Yup.string().nullable(),
   warehouseId: Yup.string().nullable(),
 });
+
 
 export const TenantUserModal = ({
   open,
   onClose,
   onSubmit,
+  tenantId,
   initialValues,
   isEdit = false,
 }: TenantUserFormModalProps) => {
-  const defaultValues: TenantUserFormValues =
-    initialValues || {
-      name: "",
-      email: "",
-      phone: "",
-      role: "",
-      status: "ACTIVATE",
-    };
+  const defaultValues: TenantUserFormValues = initialValues || {
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
+    status: "Activate",
+    assignWarehouses: [],
+  };
+
+  const { data: warehouseData, isLoading: warehouseLoading } = useQuery({
+    queryKey: ["tenantWarehouses", tenantId],
+    queryFn: () => fetchTenantWarehouses(tenantId),
+    enabled: !!tenantId,
+  });
+  
+  
+
+  const warehouses = warehouseData?.data?.data?.warehouses || [];
 
   return (
     <Modal
@@ -75,7 +94,6 @@ export const TenantUserModal = ({
           setFieldValue,
         }) => (
           <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-           
             <Form.Item
               label="Full Name"
               validateStatus={touched.name && errors.name ? "error" : ""}
@@ -147,6 +165,33 @@ export const TenantUserModal = ({
                 <Select.Option value="Activate">Activate</Select.Option>
                 <Select.Option value="Deactivate">Deactivate</Select.Option>
               </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Assign Warehouses"
+              validateStatus={
+                touched.assignWarehouses && errors.assignWarehouses
+                  ? "error"
+                  : ""
+              }
+              help={touched.assignWarehouses && errors.assignWarehouses}
+            >
+              {warehouseLoading ? (
+                <Spin />
+              ) : (
+                <Select
+                  mode="multiple"
+                  placeholder="Select warehouses"
+                  value={values.assignWarehouses}
+                  onChange={(val) => setFieldValue("assignWarehouses", val)}
+                >
+                  {warehouses.map((wh: any) => (
+                    <Select.Option key={wh.id} value={wh.id}>
+                      {wh.name} - {wh.location}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
             </Form.Item>
 
             <Button

@@ -20,10 +20,9 @@ export const TenantUsersPage = () => {
   const [editingUser, setEditingUser] = useState<any | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const { data: currentUserData, isLoading: authLoading } = useCurrentUser();
+  const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
-  // Fetch tenant users
   const { data, isLoading } = useQuery({
     queryKey: ["tenantUsers", tenantId],
     queryFn: () => getTenantUsers(tenantId!),
@@ -39,9 +38,9 @@ export const TenantUsersPage = () => {
       status: item.user.status,
       role: item.user.role?.name || "N/A",
       warehouse: item.warehouse?.name || "N/A",
+      assignWarehouses: item.user.assignWarehouses || [],
     })) || [];
 
-  // Create user
   const createUserMutation = useMutation({
     mutationFn: createTenantUser,
     onSuccess: () => {
@@ -55,13 +54,13 @@ export const TenantUsersPage = () => {
     },
   });
 
-  // Update user
   const updateUserMutation = useMutation({
     mutationFn: ({ id, values }: { id: string; values: any }) =>
       updateTenantUser(id, values),
     onSuccess: () => {
       toast.success("User updated successfully");
       queryClient.invalidateQueries({ queryKey: ["tenantUsers", tenantId] });
+      setModalOpen(false);
     },
     onError: (error: any) => {
       const msg = error.response?.data?.message || "Failed to update user";
@@ -69,7 +68,6 @@ export const TenantUsersPage = () => {
     },
   });
 
-  // Update user status
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       toggleUserStatus(id, status),
@@ -83,34 +81,26 @@ export const TenantUsersPage = () => {
     },
   });
 
-  // Handle create/edit
   const handleSubmit = (values: any) => {
     if (!tenantId) return;
 
+    const payload = {
+      fullName: values.name,
+      email: values.email,
+      phone: values.phone,
+      role: values.role,
+      tenantId,
+      status: values.status,
+      assignWarehouses: values.assignWarehouses || [],
+    };
+
     if (editingUser) {
-      // Edit mode
-      updateUserMutation.mutate({
-        id: editingUser.id,
-        values: {
-          fullName: values.name,
-          email: values.email,
-          role: values.role,
-          phone: values.phone,
-          status: values.status,
-        },
-      });
+      updateUserMutation.mutate({ id: editingUser.id, values: payload });
     } else {
-      // Create mode
-      const payload = {
-        email: values.email,
+      createUserMutation.mutate({
+        ...payload,
         password: values.password || "mypassword123",
-        fullName: values.name,
-        phone: values.phone,
-        role: values.role,
-        tenantId: tenantId,
-        status: values.status,
-      };
-      createUserMutation.mutate(payload);
+      });
     }
   };
 
@@ -124,7 +114,6 @@ export const TenantUsersPage = () => {
       dataIndex: "status",
       render: (status: string, record: any) => {
         const isActive = status === "ACTIVE";
-
         return (
           <Switch
             checked={isActive}
@@ -132,12 +121,9 @@ export const TenantUsersPage = () => {
             onChange={(checked) => {
               const newStatus = checked ? "ACTIVE" : "INACTIVE";
               setLoadingId(record.id);
-
               updateStatusMutation.mutate(
                 { id: record.id, status: newStatus },
-                {
-                  onSettled: () => setLoadingId(null),
-                }
+                { onSettled: () => setLoadingId(null) }
               );
             }}
             checkedChildren="Active"
@@ -203,6 +189,7 @@ export const TenantUsersPage = () => {
           setEditingUser(null);
         }}
         onSubmit={handleSubmit}
+        tenantId={tenantId!}
         initialValues={
           editingUser
             ? {
@@ -211,6 +198,7 @@ export const TenantUsersPage = () => {
                 role: editingUser.role,
                 phone: editingUser.phone,
                 status: editingUser.status,
+                assignWarehouses: editingUser.assignWarehouses || [],
               }
             : undefined
         }

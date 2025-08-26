@@ -95,3 +95,8 @@ export const createWarehouse = async (data: any) => {
 export const updateWarehouse = async (warehouseId: string, data: any) => {
   return instance.put(`/warehouses/${warehouseId}`, data);
 };
+
+// Fetch all warehouses for a tenant
+export const fetchTenantWarehouses = async (tenantId: string) => {
+  return instance.get(`/tenants/${tenantId}/warehouses`);
+};
