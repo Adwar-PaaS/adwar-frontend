@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
 import { EditOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import styles from "./OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
 import { AssignModal } from "../components/AssignModal";
@@ -8,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "../../auth/api/tenantApi";
 
 interface Order {
+  id: string;
   sku: string;
   quantity: number;
   failedReason: string | null;
@@ -16,7 +18,7 @@ interface Order {
   description: string;
   customerName: string;
   customerPhone: string;
-  status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED";
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "APPROVED";
   warehouseId: string | null;
   deliveredAt: string | null;
   createdAt: string;
@@ -44,7 +46,16 @@ export const OrderListPage = () => {
   const drivers = ["Driver 1", "Driver 2", "Driver 3"];
 
   const columns = [
-    { title: "SKU", dataIndex: "sku", key: "sku" },
+    {
+      title: "SKU",
+      dataIndex: "sku",
+      key: "sku",
+      render: (sku: string, record: Order) => (
+        <Link to={`${record.id}`} style={{ color: "#1677ff" }}>
+          {sku}
+        </Link>
+      ),
+    },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
     { title: "Customer", dataIndex: "customerName", key: "customerName" },
     {
@@ -72,6 +83,7 @@ export const OrderListPage = () => {
         if (status === "COMPLETED") color = "green";
         if (status === "CANCELLED") color = "red";
         if (status === "PENDING") color = "orange";
+        if (status === "APPROVED") color = "blue";
         return <Tag color={color}>{status}</Tag>;
       },
     },
@@ -177,15 +189,6 @@ export const OrderListPage = () => {
         }}
         onSubmit={(values) => console.log("Save Order", values)}
         isEdit={!!editingOrder}
-        initialValues={
-          editingOrder
-            ? {
-                customerName: editingOrder.customerName,
-                status: editingOrder.status,
-                total: editingOrder.quantity,
-              }
-            : undefined
-        }
       />
 
       <AssignModal

@@ -11,6 +11,7 @@ import "./App.css";
 import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 import { WarehouseList } from "./features/tenants/pages/WarehouseList";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
+import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* SUPERADMIN Routes - Not tenant-specific */}
+        {/* SUPERADMIN Routes */}
         <Route element={<ProtectedRoute requiredRoles={["SUPER_ADMIN"]} />}>
           <Route element={<SuperAdminPanel />}>
             <Route path="/superadmin/dashboard" element={<TenantList />} />
@@ -42,16 +43,11 @@ function App() {
             }
           >
             <Route element={<TenantAdminPanel />}>
-              <Route
-                path="dashboard"
-                element={<div>Tenant Admin Dashboard</div>}
-              />
+              <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
-              <Route
-                path="warehouses"
-                element={<WarehouseList/>}
-              />
+              <Route path="orders/:orderId" element={<OrderDetailsPage />} />
+              <Route path="warehouses" element={<WarehouseList />} />
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>
@@ -66,10 +62,7 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Operations Dashboard</div>}
-            />
+            <Route path="dashboard" element={<div>Tenant Operations Dashboard</div>} />
           </Route>
 
           {/* Tenant Driver Routes */}
@@ -82,10 +75,7 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Driver Dashboard</div>}
-            />
+            <Route path="dashboard" element={<div>Tenant Driver Dashboard</div>} />
           </Route>
 
           {/* Tenant Picker Routes */}
@@ -98,10 +88,7 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Picker Dashboard</div>}
-            />
+            <Route path="dashboard" element={<div>Tenant Picker Dashboard</div>} />
           </Route>
 
           {/* Tenant User Routes */}
@@ -114,13 +101,11 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant User Dashboard</div>}
-            />
+            <Route path="dashboard" element={<div>Tenant User Dashboard</div>} />
           </Route>
         </Route>
 
+        {/* Catch-all Route */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </>

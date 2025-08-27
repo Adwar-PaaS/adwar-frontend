@@ -16,10 +16,10 @@ export const createTenant = (data: CreateTenantPayload | FormData) =>
       data instanceof FormData ? {} : { "Content-Type": "application/json" },
   });
 
-// SUPERADMIN: get all tenants
+// SUPERADMIN: Get all tenants
 export const getTenants = () => instance.get("/tenants");
 
-// SUPERADMIN: update any tenants
+// SUPERADMIN: Update any tenants
 export const updateTenant = (
   id: string,
   data: CreateTenantPayload | FormData
@@ -29,26 +29,26 @@ export const updateTenant = (
       data instanceof FormData ? {} : { "Content-Type": "application/json" },
   });
 
-// SUPERADMIN: get one tenant by id
+// SUPERADMIN: Get one tenant by id
 export const getTenantById = (id: string) => instance.get(`/tenants/${id}`);
 
-// SUPERADMIN: get all users in system while logged in as superadmin
+// SUPERADMIN: Get all users in system while logged in as superadmin
 export const getUsersByTenantId = (tenantId: string) => {
   return instance.get(`/tenants/${tenantId}/users`);
 };
 
-// SUPERADMIN: get all roles
+// SUPERADMIN: Get all roles
 export const getRoles = () => instance.get("/roles");
 
-// ADMIN: create users in system while logged in as tenant admin
+// ADMIN: Create users in system while logged in as tenant admin
 export const createTenantUser = (data: createTenantUserPayload) =>
   instance.post("/users/tenant", data);
 
-// ADMIN: fetch users in tenant admin dashboard while logged in as admin
+// ADMIN: Get users in tenant admin dashboard while logged in as admin
 export const getTenantUsers = (tenantId: string) =>
   instance.get(`/tenants/${tenantId}/users`);
 
-// ADMIN: fetch tenant id in tenant admin dashboard while logged in as admin
+// ADMIN: Get tenant id in tenant admin dashboard while logged in as admin
 export const getCurrentUser = async () => {
   return instance.get("/auth/me");
 };
@@ -56,7 +56,7 @@ export const getCurrentUser = async () => {
 export const updateTenantUser = (id: string, data: any) =>
   instance.put(`/users/${id}`, data);
 
-// ADMIN: update user status
+// ADMIN: Update user status
 export const toggleUserStatus = (id: string, status: string) => {
   return instance.patch(`/users/${id}/status`, { status });
 };
@@ -95,12 +95,12 @@ export const updateWarehouse = async (warehouseId: string, data: any) => {
   return instance.put(`/warehouses/${warehouseId}`, data);
 };
 
-// Admin: Fetch all warehouses for a tenant
+// Admin: Get all warehouses for a tenant
 export const fetchTenantWarehouses = async (tenantId: string) => {
   return instance.get(`/tenants/${tenantId}/warehouses`);
 };
 
-// Admin: fetch all orders
+// Admin: Get all orders
 export const fetchOrders = async (params?: {
   page?: number;
   limit?: number;
@@ -108,4 +108,10 @@ export const fetchOrders = async (params?: {
 }) => {
   const res = await instance.get("/orders", { params });
   return res.data;
+};
+
+// Admin: Get order details 
+export const fetchOrderById = async (orderId: string) => {
+  const res = await instance.get(`/orders/${orderId}`);
+  return res.data.data.order;
 };
