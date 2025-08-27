@@ -2,13 +2,12 @@ import { Table, Tag, Button, Space, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
-import { getWarehouses, updateWarehouse } from "../../auth/api/tenantApi";
+import { updateWarehouse, createWarehouse, fetchTenantWarehouses } from "../../auth/api/tenantApi";
 import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import styles from "./WarehouseList.module.css";
 import { WarehouseFormModal } from "../components/WarehouseFormModal";
-import { createWarehouse } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 interface Warehouse {
@@ -25,7 +24,6 @@ interface Warehouse {
 
 export const WarehouseList = () => {
   const navigate = useNavigate();
-
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const { data: currentUserData } = useCurrentUser();
@@ -33,16 +31,14 @@ export const WarehouseList = () => {
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(
-    null
-  );
+  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
 
   const fetchWarehouses = async () => {
+    if (!tenantId) return;
     try {
       setLoading(true);
-      const response = await getWarehouses();
+      const response = await fetchTenantWarehouses(tenantId);
       setWarehouses(response.data.data.warehouses || []);
     } catch (error) {
       toast.error("Failed to fetch warehouses");
@@ -58,7 +54,7 @@ export const WarehouseList = () => {
     } else {
       navigate("/login", { replace: true });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, tenantId]); 
 
   if (loading) {
     return <Spin size="large" fullscreen />;
