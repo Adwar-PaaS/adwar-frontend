@@ -26,12 +26,32 @@ export interface createTenantUserPayload {
   password: string;
   fullName: string;
   phone: string;
-  role: string;
+  roleId: string;
   tenantId: string;
+  status: "ACTIVE" | "INACTIVE";
+  assignWarehouses: string[];
 }
 
 export interface AssignPermissionsPayload {
   name: string;
   tenantId: string;
   permissions: Array<{ entityType: string; actionTypes: string[] }>;
+}
+
+export interface Order {
+  id: string;
+  sku: string;
+  quantity: number;
+  failedReason: string | null;
+  deliveryLocation: string;
+  merchantLocation: string;
+  description: string;
+  customerName: string;
+  customerPhone: string;
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED";
+  warehouseId: string | null;
+  deliveredAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }

@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 import "./App.css";
 import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 import { WarehouseList } from "./features/tenants/pages/WarehouseList";
+import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 
 function App() {
   return (
@@ -46,7 +47,7 @@ function App() {
                 element={<div>Tenant Admin Dashboard</div>}
               />
               <Route path="users" element={<TenantUsersPage />} />
-              <Route path="orders" element={<div>Orders Coming Soon</div>} />
+              <Route path="orders" element={<OrderListPage />} />
               <Route
                 path="warehouses"
                 element={<WarehouseList/>}

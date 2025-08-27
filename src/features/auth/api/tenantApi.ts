@@ -1,7 +1,8 @@
 import type {
   CreateTenantPayload,
   createTenantUserPayload,
-  AssignPermissionsPayload
+  AssignPermissionsPayload,
+  Order,
 } from "../../tenants/tenants.types";
 // import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
@@ -60,7 +61,6 @@ export const toggleUserStatus = (id: string, status: string) => {
   return instance.patch(`/users/${id}/status`, { status });
 };
 
-
 // Admin: Get all roles
 export const fetchRoles = async () => {
   return instance.get("/roles");
@@ -75,11 +75,10 @@ export const fetchPermissions = async () => {
 export const assignRolePermissions = async ({
   name,
   permissions,
-  tenantId
+  tenantId,
 }: AssignPermissionsPayload) => {
   return instance.post(`/roles`, { tenantId, permissions, name });
 };
-
 
 // Admin: Get Warehouses
 export const getWarehouses = async () => {
@@ -96,7 +95,17 @@ export const updateWarehouse = async (warehouseId: string, data: any) => {
   return instance.put(`/warehouses/${warehouseId}`, data);
 };
 
-// Fetch all warehouses for a tenant
+// Admin: Fetch all warehouses for a tenant
 export const fetchTenantWarehouses = async (tenantId: string) => {
   return instance.get(`/tenants/${tenantId}/warehouses`);
+};
+
+// Admin: fetch all orders
+export const fetchOrders = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+}) => {
+  const res = await instance.get("/orders", { params });
+  return res.data;
 };

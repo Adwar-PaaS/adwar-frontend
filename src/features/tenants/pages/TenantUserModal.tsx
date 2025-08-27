@@ -25,8 +25,6 @@ interface TenantUserFormModalProps {
   isEdit?: boolean;
 }
 
-
-
 const TenantUserSchema = Yup.object().shape({
   name: Yup.string().required("Full Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -38,7 +36,6 @@ const TenantUserSchema = Yup.object().shape({
   phone: Yup.string().nullable(),
   warehouseId: Yup.string().nullable(),
 });
-
 
 export const TenantUserModal = ({
   open,
@@ -53,7 +50,7 @@ export const TenantUserModal = ({
     email: "",
     phone: "",
     role: "",
-    status: "Activate",
+    status: "Active",
     assignWarehouses: [],
   };
 
@@ -62,8 +59,6 @@ export const TenantUserModal = ({
     queryFn: () => fetchTenantWarehouses(tenantId),
     enabled: !!tenantId,
   });
-  
-  
 
   const warehouses = warehouseData?.data?.data?.warehouses || [];
 
@@ -162,8 +157,8 @@ export const TenantUserModal = ({
                 onChange={(val) => setFieldValue("status", val)}
                 placeholder="Select status"
               >
-                <Select.Option value="Activate">Activate</Select.Option>
-                <Select.Option value="Deactivate">Deactivate</Select.Option>
+                <Select.Option value="Active">Active</Select.Option>
+                <Select.Option value="Inactive">Inactive</Select.Option>
               </Select>
             </Form.Item>
 

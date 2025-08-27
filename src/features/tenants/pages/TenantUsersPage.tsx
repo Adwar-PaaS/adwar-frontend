@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import styles from "./TenantUsersPage.module.css";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { EditOutlined } from "@ant-design/icons";
+import type { createTenantUserPayload } from "../tenants.types";
 
 export const TenantUsersPage = () => {
   const queryClient = useQueryClient();
@@ -84,23 +85,29 @@ export const TenantUsersPage = () => {
   const handleSubmit = (values: any) => {
     if (!tenantId) return;
 
-    const payload = {
+    const payload: createTenantUserPayload = {
       fullName: values.name,
       email: values.email,
       phone: values.phone,
-      role: values.role,
-      tenantId,
+      password: values.password || "mypassword123",
+      roleId: values.role,
+      tenantId: tenantId,
       status: values.status,
       assignWarehouses: values.assignWarehouses || [],
     };
 
     if (editingUser) {
-      updateUserMutation.mutate({ id: editingUser.id, values: payload });
-    } else {
-      createUserMutation.mutate({
-        ...payload,
-        password: values.password || "mypassword123",
+      updateUserMutation.mutate({
+        id: editingUser.id,
+        values: {
+          fullName: values.name,
+          email: values.email,
+          phone: values.phone,
+          roleId: values.role,
+        }, // ✅ only allowed fields
       });
+    } else {
+      createUserMutation.mutate(payload); // ✅ matches interface
     }
   };
 

@@ -84,7 +84,6 @@ export const RoleModal = ({
       >
         {({
           values,
-          handleSubmit,
           errors,
           touched,
           setFieldValue,
