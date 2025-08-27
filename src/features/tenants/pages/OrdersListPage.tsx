@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
-import { EditOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import styles from "./OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
 import { AssignModal } from "../components/AssignModal";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "../../auth/api/tenantApi";
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 interface Order {
   id: string;
@@ -26,7 +27,10 @@ interface Order {
 }
 
 export const OrderListPage = () => {
-  const { data, isLoading } = useQuery({
+  const { data: currentUserData } = useCurrentUser();
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["orders"],
     queryFn: () => fetchOrders({ page: 1, limit: 50 }),
   });
@@ -34,8 +38,6 @@ export const OrderListPage = () => {
   const orders = data?.data?.orders || [];
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [assignType, setAssignType] = useState<"warehouse" | "driver" | null>(
     null
@@ -58,21 +60,9 @@ export const OrderListPage = () => {
     },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
     { title: "Customer", dataIndex: "customerName", key: "customerName" },
-    {
-      title: "Customer Phone",
-      dataIndex: "customerPhone",
-      key: "customerPhone",
-    },
-    {
-      title: "Delivery Location",
-      dataIndex: "deliveryLocation",
-      key: "deliveryLocation",
-    },
-    {
-      title: "Merchant Location",
-      dataIndex: "merchantLocation",
-      key: "merchantLocation",
-    },
+    { title: "Customer Phone", dataIndex: "customerPhone", key: "customerPhone" },
+    { title: "Delivery Location", dataIndex: "deliveryLocation", key: "deliveryLocation" },
+    { title: "Merchant Location", dataIndex: "merchantLocation", key: "merchantLocation" },
     { title: "Description", dataIndex: "description", key: "description" },
     {
       title: "Status",
@@ -83,7 +73,6 @@ export const OrderListPage = () => {
         if (status === "COMPLETED") color = "green";
         if (status === "CANCELLED") color = "red";
         if (status === "PENDING") color = "orange";
-        if (status === "APPROVED") color = "blue";
         return <Tag color={color}>{status}</Tag>;
       },
     },
@@ -106,6 +95,12 @@ export const OrderListPage = () => {
         <Space>
           <Button
             type="link"
+            onClick={() => alert(`Viewing order: ${record.sku}`)}
+          >
+            <EyeOutlined /> View
+          </Button>
+          <Button
+            type="link"
             onClick={() => {
               setSelectedOrder(record);
               setAssignType("warehouse");
@@ -124,21 +119,6 @@ export const OrderListPage = () => {
           >
             Assign Driver
           </Button>
-          <Button
-            type="link"
-            onClick={() => alert(`Viewing order: ${record.sku}`)}
-          >
-            <EyeOutlined /> View
-          </Button>
-          <Button
-            type="link"
-            onClick={() => {
-              setEditingOrder(record);
-              setModalOpen(true);
-            }}
-          >
-            <EditOutlined /> Edit
-          </Button>
         </Space>
       ),
     },
@@ -156,10 +136,7 @@ export const OrderListPage = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingOrder(null);
-              setModalOpen(true);
-            }}
+            onClick={() => setModalOpen(true)}
           >
             Add Order
           </Button>
@@ -173,31 +150,26 @@ export const OrderListPage = () => {
           rowKey="id"
           columns={columns}
           dataSource={orders}
-          loading={isLoading}
           bordered
           style={{ marginTop: 16 }}
           scroll={{ x: "max-content" }}
         />
       )}
 
-      {/* Modals */}
       <OrderModal
         open={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setEditingOrder(null);
+        onClose={() => setModalOpen(false)}
+        tenantId={tenantId}
+        onSubmit={() => {
+          refetch(); 
         }}
-        onSubmit={(values) => console.log("Save Order", values)}
-        isEdit={!!editingOrder}
       />
 
       <AssignModal
         open={assignModalOpen}
         onClose={() => setAssignModalOpen(false)}
         onSave={(val) => console.log(`Assigned ${assignType}:`, val)}
-        title={
-          assignType === "warehouse" ? "Assign Warehouse" : "Assign Driver"
-        }
+        title={assignType === "warehouse" ? "Assign Warehouse" : "Assign Driver"}
         options={assignType === "warehouse" ? warehouses : drivers}
       />
     </div>

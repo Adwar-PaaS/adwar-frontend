@@ -115,3 +115,18 @@ export const fetchOrderById = async (orderId: string) => {
   const res = await instance.get(`/orders/${orderId}`);
   return res.data.data.order;
 };
+
+// Create a new order
+export const createOrder = async (orderData: {
+  sku: string;
+  quantity: number;
+  warehouseId: string;
+  deliveryLocation: string;
+  merchantLocation: string;
+  description: string;
+  customerName: string;
+  customerPhone: string;
+}) => {
+  const res = await instance.post("/orders", orderData);
+  return res.data;
+};
