@@ -90,10 +90,7 @@ export const TenantUsersPage = () => {
       email: values.email,
       phone: values.phone,
       password: values.password || "mypassword123",
-      roleId: values.role,
       tenantId: tenantId,
-      status: values.status,
-      assignWarehouses: values.assignWarehouses || [],
     };
 
     if (editingUser) {

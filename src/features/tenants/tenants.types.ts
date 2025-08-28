@@ -26,10 +26,7 @@ export interface createTenantUserPayload {
   password: string;
   fullName: string;
   phone: string;
-  roleId: string;
   tenantId: string;
-  status: "ACTIVE" | "INACTIVE";
-  assignWarehouses: string[];
 }
 
 export interface AssignPermissionsPayload {

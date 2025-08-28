@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
-import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import styles from "../../../styles/OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
@@ -9,6 +9,7 @@ import { fetchOrders } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { UpdateStatusModal } from "../components/UpdateOrderStatusModal";
 import { AssignWarehouseModal } from "../components/AssignWarehouseModal";
+import { AssignDriverModal } from "../components/AssignDriverModal";
 
 interface Order {
   id: string;
@@ -20,7 +21,13 @@ interface Order {
   description: string;
   customerName: string;
   customerPhone: string;
-  status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "APPROVED" | "FAILED";
+  status:
+    | "PENDING"
+    | "PROCESSING"
+    | "COMPLETED"
+    | "CANCELLED"
+    | "APPROVED"
+    | "FAILED";
   warehouseId: string | null;
   deliveredAt: string | null;
   createdAt: string;
@@ -43,6 +50,7 @@ export const OrderListPage = () => {
   const [statusOrderId, setStatusOrderId] = useState<string | null>(null);
 
   const [assignWarehouseOpen, setAssignWarehouseOpen] = useState(false);
+  const [assignDriverOpen, setAssignDriverOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const columns = [
@@ -58,21 +66,9 @@ export const OrderListPage = () => {
     },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
     { title: "Customer", dataIndex: "customerName", key: "customerName" },
-    {
-      title: "Customer Phone",
-      dataIndex: "customerPhone",
-      key: "customerPhone",
-    },
-    {
-      title: "Delivery Location",
-      dataIndex: "deliveryLocation",
-      key: "deliveryLocation",
-    },
-    {
-      title: "Merchant Location",
-      dataIndex: "merchantLocation",
-      key: "merchantLocation",
-    },
+    { title: "Customer Phone", dataIndex: "customerPhone", key: "customerPhone" },
+    { title: "Delivery Location", dataIndex: "deliveryLocation", key: "deliveryLocation" },
+    { title: "Merchant Location", dataIndex: "merchantLocation", key: "merchantLocation" },
     { title: "Description", dataIndex: "description", key: "description" },
     {
       title: "Status",
@@ -124,6 +120,11 @@ export const OrderListPage = () => {
           </Button>
           <Button
             type="link"
+            onClick={() => {
+              setSelectedOrder(record);
+              setAssignDriverOpen(true);
+            }}
+            disabled={!record.warehouseId} // Can't assign driver if no warehouse
           >
             Assign Driver
           </Button>
@@ -183,14 +184,27 @@ export const OrderListPage = () => {
       />
 
       {selectedOrder && tenantId && (
-        <AssignWarehouseModal
-          open={assignWarehouseOpen}
-          onClose={() => setAssignWarehouseOpen(false)}
-          tenantId={tenantId}
-          orderId={selectedOrder.id}
-          currentStatus={selectedOrder.status}
-          onSuccess={refetch}
-        />
+        <>
+          <AssignWarehouseModal
+            open={assignWarehouseOpen}
+            onClose={() => setAssignWarehouseOpen(false)}
+            tenantId={tenantId}
+            orderId={selectedOrder.id}
+            currentStatus={selectedOrder.status}
+            onSuccess={refetch}
+          />
+
+          {selectedOrder.warehouseId && (
+            <AssignDriverModal
+              open={assignDriverOpen}
+              onClose={() => setAssignDriverOpen(false)}
+              warehouseId={selectedOrder.warehouseId}
+              orderId={selectedOrder.id}
+              currentStatus={selectedOrder.status}
+              onSuccess={refetch}
+            />
+          )}
+        </>
       )}
 
       <UpdateStatusModal

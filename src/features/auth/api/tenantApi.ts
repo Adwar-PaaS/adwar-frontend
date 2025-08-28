@@ -154,3 +154,8 @@ export const updateOrderStatus = async ({
   const response = await instance.put(`/orders/${orderId}`, body);
   return response.data;
 };
+
+// Admin: Get all drivers for a warehouse
+export const fetchWarehouseDrivers = async (warehouseId: string) => {
+  return instance.get(`/warehouses/${warehouseId}/drivers`);
+};
