@@ -4,11 +4,11 @@ import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import styles from "../../../styles/OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
-import { AssignModal } from "../components/AssignModal";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { UpdateStatusModal } from "../components/UpdateOrderStatusModal";
+import { AssignWarehouseModal } from "../components/AssignWarehouseModal";
 
 interface Order {
   id: string;
@@ -20,7 +20,7 @@ interface Order {
   description: string;
   customerName: string;
   customerPhone: string;
-  status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "APPROVED";
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "APPROVED" | "FAILED";
   warehouseId: string | null;
   deliveredAt: string | null;
   createdAt: string;
@@ -39,16 +39,11 @@ export const OrderListPage = () => {
   const orders = data?.data?.orders || [];
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [assignModalOpen, setAssignModalOpen] = useState(false);
-  const [assignType, setAssignType] = useState<"warehouse" | "driver" | null>(
-    null
-  );
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [statusOrderId, setStatusOrderId] = useState<string | null>(null);
 
-  const warehouses = ["Warehouse A", "Warehouse B", "Warehouse C"];
-  const drivers = ["Driver 1", "Driver 2", "Driver 3"];
+  const [assignWarehouseOpen, setAssignWarehouseOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const columns = [
     {
@@ -88,16 +83,17 @@ export const OrderListPage = () => {
         if (status === "COMPLETED") color = "green";
         if (status === "CANCELLED") color = "red";
         if (status === "PENDING") color = "orange";
+        if (status === "FAILED") color = "volcano";
         return (
-        <div>
-          <Tag color={color}>{status}</Tag>
-          {status === "FAILED" && record.failedReason && (
-            <div style={{ fontSize: 10, color: "red" }}>
-              Reason: {record.failedReason.replace(/_/g, " ")}
-            </div>
-          )}
-        </div>
-      );
+          <div>
+            <Tag color={color}>{status}</Tag>
+            {status === "FAILED" && record.failedReason && (
+              <div style={{ fontSize: 10, color: "red" }}>
+                Reason: {record.failedReason.replace(/_/g, " ")}
+              </div>
+            )}
+          </div>
+        );
       },
     },
     {
@@ -128,29 +124,17 @@ export const OrderListPage = () => {
           </Button>
           <Button
             type="link"
-            onClick={() => alert(`Viewing order: ${record.sku}`)}
           >
-            <EyeOutlined /> View
+            Assign Driver
           </Button>
           <Button
             type="link"
             onClick={() => {
               setSelectedOrder(record);
-              setAssignType("warehouse");
-              setAssignModalOpen(true);
+              setAssignWarehouseOpen(true);
             }}
           >
             Assign Warehouse
-          </Button>
-          <Button
-            type="link"
-            onClick={() => {
-              setSelectedOrder(record);
-              setAssignType("driver");
-              setAssignModalOpen(true);
-            }}
-          >
-            Assign Driver
           </Button>
         </Space>
       ),
@@ -198,15 +182,17 @@ export const OrderListPage = () => {
         }}
       />
 
-      <AssignModal
-        open={assignModalOpen}
-        onClose={() => setAssignModalOpen(false)}
-        onSave={(val) => console.log(`Assigned ${assignType}:`, val)}
-        title={
-          assignType === "warehouse" ? "Assign Warehouse" : "Assign Driver"
-        }
-        options={assignType === "warehouse" ? warehouses : drivers}
-      />
+      {selectedOrder && tenantId && (
+        <AssignWarehouseModal
+          open={assignWarehouseOpen}
+          onClose={() => setAssignWarehouseOpen(false)}
+          tenantId={tenantId}
+          orderId={selectedOrder.id}
+          currentStatus={selectedOrder.status}
+          onSuccess={refetch}
+        />
+      )}
+
       <UpdateStatusModal
         open={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}

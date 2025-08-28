@@ -116,7 +116,7 @@ export const fetchOrderById = async (orderId: string) => {
   return res.data.data.order;
 };
 
-// Create a new order
+// Admin: Create a new order
 export const createOrder = async (orderData: {
   sku: string;
   quantity: number;
@@ -131,7 +131,7 @@ export const createOrder = async (orderData: {
   return res.data;
 };
 
-// Update an order
+// Admin: Update an order
 export const updateOrder = async (orderId: string, payload: any) => {
   return instance.put(`/orders/${orderId}`, payload);
 };
