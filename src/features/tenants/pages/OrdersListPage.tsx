@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import styles from "../../../styles/OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
 import { useQuery } from "@tanstack/react-query";
-import { fetchOrders } from "../../auth/api/tenantApi";
+import { fetchOrdersForTenant } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { UpdateStatusModal } from "../components/UpdateOrderStatusModal";
 import { AssignWarehouseModal } from "../components/AssignWarehouseModal";
@@ -38,9 +38,14 @@ export const OrderListPage = () => {
   const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ["orders"],
-    queryFn: () => fetchOrders({ page: 1, limit: 50 }),
+  const {
+    data,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["orders", tenantId],
+    queryFn: () => fetchOrdersForTenant({ tenantId: tenantId! }),
+    enabled: !!tenantId, 
   });
 
   const orders = data?.data?.orders || [];
@@ -124,7 +129,7 @@ export const OrderListPage = () => {
               setSelectedOrder(record);
               setAssignDriverOpen(true);
             }}
-            disabled={!record.warehouseId} // Can't assign driver if no warehouse
+            disabled={!record.warehouseId}
           >
             Assign Driver
           </Button>
@@ -178,9 +183,7 @@ export const OrderListPage = () => {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         tenantId={tenantId}
-        onSubmit={() => {
-          refetch();
-        }}
+        onSubmit={() => refetch()}
       />
 
       {selectedOrder && tenantId && (

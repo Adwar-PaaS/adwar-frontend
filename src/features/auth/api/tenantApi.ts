@@ -100,7 +100,7 @@ export const fetchTenantWarehouses = async (tenantId: string) => {
   return instance.get(`/tenants/${tenantId}/warehouses`);
 };
 
-// Admin: Get all orders
+// Admin: Get all orders for all tenants
 export const fetchOrders = async (params?: {
   page?: number;
   limit?: number;
@@ -109,6 +109,25 @@ export const fetchOrders = async (params?: {
   const res = await instance.get("/orders", { params });
   return res.data;
 };
+
+// Admin: Get all orders for a specific tenant
+export const fetchOrdersForTenant = async ({
+  tenantId,
+  page,
+  limit,
+  status,
+}: {
+  tenantId: string;
+  page?: number;
+  limit?: number;
+  status?: string;
+}) => {
+  const res = await instance.get(`/tenants/${tenantId}/orders`, {
+    params: { page, limit, status },
+  });
+  return res.data;
+};
+
 
 // Admin: Get order details 
 export const fetchOrderById = async (orderId: string) => {
