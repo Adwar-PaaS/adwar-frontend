@@ -2,7 +2,7 @@ import { Layout, Menu } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { handleLogout } from "../../utils/logout";
 import { LogoutOutlined } from "@ant-design/icons";
-import styles from "./SuperAdminPanel.module.css";
+import styles from "../../styles/SuperAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
 
 const { Sider, Content } = Layout;

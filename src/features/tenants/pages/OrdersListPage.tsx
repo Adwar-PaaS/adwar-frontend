@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
 import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import styles from "./OrderListPage.module.css";
+import styles from "../../../styles/OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
 import { AssignModal } from "../components/AssignModal";
 import { useQuery } from "@tanstack/react-query";

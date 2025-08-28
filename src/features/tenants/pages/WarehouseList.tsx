@@ -6,7 +6,7 @@ import { updateWarehouse, createWarehouse, fetchTenantWarehouses } from "../../a
 import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
-import styles from "./WarehouseList.module.css";
+import styles from "../../../styles/WarehouseList.module.css";
 import { WarehouseFormModal } from "../components/WarehouseFormModal";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 import { TenantSchema } from "../../auth/validation";
 import type { TenantFormValues } from "../tenants.types";
-import styles from "./TenantFormModal.module.css";
+import styles from "../../../styles/TenantFormModal.module.css";
 
 interface TenantModalProps {
   open: boolean;

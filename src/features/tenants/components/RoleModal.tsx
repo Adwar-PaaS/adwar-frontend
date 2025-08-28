@@ -12,7 +12,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import styles from "./RoleModal.module.css";
+import styles from "../../../styles/RoleModal.module.css";
 import { fetchRoles, fetchPermissions } from "../../auth/api/tenantApi";
 
 export interface RoleFormValues {

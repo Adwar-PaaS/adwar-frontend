@@ -8,7 +8,7 @@ import {
   LogoutOutlined,
   HighlightOutlined,
 } from "@ant-design/icons";
-import styles from "./TenantAdminPanel.module.css";
+import styles from "../../styles/TenantAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
 import { handleLogout } from "../../utils/logout";
 

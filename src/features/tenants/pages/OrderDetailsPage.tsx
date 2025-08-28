@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { Card, Descriptions, Spin, Typography } from "antd";
 import { fetchOrderById } from "../../auth/api/tenantApi";
-import styles from "./OrderDetailsPage.module.css";
+import styles from "../../../styles/OrderDetailsPage.module.css";
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();

@@ -6,7 +6,7 @@ import {
   getUsersByTenantId,
 } from "../../auth/api/tenantApi";
 import { Button, Col, Tag, Row, Spin, Table, Typography } from "antd";
-import styles from "./TenantDetails.module.css";
+import styles from "../../../styles/TenantDetails.module.css";
 import { TenantUserFormModal } from "../components/TenantUserFormModal";
 import { toast } from "react-toastify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

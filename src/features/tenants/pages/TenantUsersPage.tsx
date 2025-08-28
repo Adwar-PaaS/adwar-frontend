@@ -9,7 +9,7 @@ import {
 } from "../../auth/api/tenantApi";
 import { TenantUserModal } from "./TenantUserModal";
 import { toast } from "react-toastify";
-import styles from "./TenantUsersPage.module.css";
+import styles from "../../../styles/TenantUsersPage.module.css";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { EditOutlined } from "@ant-design/icons";
 import type { createTenantUserPayload } from "../tenants.types";

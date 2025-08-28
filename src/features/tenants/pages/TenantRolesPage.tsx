@@ -2,7 +2,7 @@ import { Button, Table, Space, Row, Col, Typography } from "antd";
 import { useState } from "react";
 import { RoleModal } from "../components/RoleModal";
 import type { RoleFormValues } from "../components/RoleModal";
-import styles from "./TenantRolesPage.module.css";
+import styles from "../../../styles/TenantRolesPage.module.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { assignRolePermissions, fetchRoles } from "../../auth/api/tenantApi";
 import { toPermissionPayload } from "../../../utils/permissions";

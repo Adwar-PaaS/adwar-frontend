@@ -2,7 +2,7 @@ import { Modal, Form, Input, Select, Button, Spin } from "antd";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import styles from "./TenantUserModal.module.css";
+import styles from "../../../styles/TenantUserModal.module.css";
 import { fetchTenantWarehouses } from "../../auth/api/tenantApi";
 import { useQuery } from "@tanstack/react-query";
 

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
-import styles from "./TenantList.module.css";
+import styles from "../../../styles/TenantList.module.css";
 import { EditOutlined } from "@ant-design/icons";
 
 export const TenantList = () => {
