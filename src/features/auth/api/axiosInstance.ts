@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: import.meta.env.DEV ? "/api" : "https://adwar-backend-project.onrender.com",
+  baseURL: import.meta.env.DEV ? "/api" : "https://adwar-backend-project-vh53.onrender.com",
   withCredentials: true, // Important for cookies
 });
 

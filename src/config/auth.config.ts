@@ -6,7 +6,7 @@ export const AUTH_CONFIG = {
   
   // Base URL for authentication endpoints
   // Use proxy in development to avoid CORS issues
-  BASE_URL: import.meta.env.DEV ? '/api' : 'https://adwar-backend-project.onrender.com',
+  BASE_URL: import.meta.env.DEV ? '/api' : 'https://adwar-backend-project-vh53.onrender.com',
   
   // Endpoints
   ENDPOINTS: {
