@@ -8,6 +8,7 @@ import { AssignModal } from "../components/AssignModal";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
+import { UpdateStatusModal } from "../components/UpdateOrderStatusModal";
 
 interface Order {
   id: string;
@@ -43,6 +44,8 @@ export const OrderListPage = () => {
     null
   );
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [statusOrderId, setStatusOrderId] = useState<string | null>(null);
 
   const warehouses = ["Warehouse A", "Warehouse B", "Warehouse C"];
   const drivers = ["Driver 1", "Driver 2", "Driver 3"];
@@ -60,20 +63,41 @@ export const OrderListPage = () => {
     },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
     { title: "Customer", dataIndex: "customerName", key: "customerName" },
-    { title: "Customer Phone", dataIndex: "customerPhone", key: "customerPhone" },
-    { title: "Delivery Location", dataIndex: "deliveryLocation", key: "deliveryLocation" },
-    { title: "Merchant Location", dataIndex: "merchantLocation", key: "merchantLocation" },
+    {
+      title: "Customer Phone",
+      dataIndex: "customerPhone",
+      key: "customerPhone",
+    },
+    {
+      title: "Delivery Location",
+      dataIndex: "deliveryLocation",
+      key: "deliveryLocation",
+    },
+    {
+      title: "Merchant Location",
+      dataIndex: "merchantLocation",
+      key: "merchantLocation",
+    },
     { title: "Description", dataIndex: "description", key: "description" },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => {
+      render: (status: string, record: Order) => {
         let color = "blue";
         if (status === "COMPLETED") color = "green";
         if (status === "CANCELLED") color = "red";
         if (status === "PENDING") color = "orange";
-        return <Tag color={color}>{status}</Tag>;
+        return (
+        <div>
+          <Tag color={color}>{status}</Tag>
+          {status === "FAILED" && record.failedReason && (
+            <div style={{ fontSize: 10, color: "red" }}>
+              Reason: {record.failedReason.replace(/_/g, " ")}
+            </div>
+          )}
+        </div>
+      );
       },
     },
     {
@@ -93,6 +117,15 @@ export const OrderListPage = () => {
       key: "actions",
       render: (_: any, record: Order) => (
         <Space>
+          <Button
+            type="link"
+            onClick={() => {
+              setStatusOrderId(record.id);
+              setStatusModalOpen(true);
+            }}
+          >
+            Update Status
+          </Button>
           <Button
             type="link"
             onClick={() => alert(`Viewing order: ${record.sku}`)}
@@ -161,7 +194,7 @@ export const OrderListPage = () => {
         onClose={() => setModalOpen(false)}
         tenantId={tenantId}
         onSubmit={() => {
-          refetch(); 
+          refetch();
         }}
       />
 
@@ -169,8 +202,16 @@ export const OrderListPage = () => {
         open={assignModalOpen}
         onClose={() => setAssignModalOpen(false)}
         onSave={(val) => console.log(`Assigned ${assignType}:`, val)}
-        title={assignType === "warehouse" ? "Assign Warehouse" : "Assign Driver"}
+        title={
+          assignType === "warehouse" ? "Assign Warehouse" : "Assign Driver"
+        }
         options={assignType === "warehouse" ? warehouses : drivers}
+      />
+      <UpdateStatusModal
+        open={statusModalOpen}
+        onClose={() => setStatusModalOpen(false)}
+        orderId={statusOrderId}
+        onSuccess={() => refetch()}
       />
     </div>
   );

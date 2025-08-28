@@ -3,7 +3,7 @@ import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { getRoles } from "../../auth/api/tenantApi";
-import styles from "./TenantFormModal.module.css";
+import styles from "../../../styles/TenantFormModal.module.css";
 
 interface Role {
   id: string;

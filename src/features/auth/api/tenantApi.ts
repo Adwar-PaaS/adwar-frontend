@@ -130,3 +130,27 @@ export const createOrder = async (orderData: {
   const res = await instance.post("/orders", orderData);
   return res.data;
 };
+
+// Update an order
+export const updateOrder = async (orderId: string, payload: any) => {
+  return instance.put(`/orders/${orderId}`, payload);
+};
+
+export const updateOrderStatus = async ({
+  orderId,
+  status,
+  failedReason,
+}: {
+  orderId: string;
+  status: string;
+  failedReason?: string;
+}) => {
+  const body: any = { status };
+
+  if (status === "FAILED" && failedReason) {
+    body.failedReason = failedReason;
+  }
+
+  const response = await instance.put(`/orders/${orderId}`, body);
+  return response.data;
+};

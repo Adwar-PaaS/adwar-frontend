@@ -2,7 +2,7 @@ import { Modal, Form, Input, Select, Button, InputNumber, Spin } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchTenantWarehouses, createOrder } from "../../auth/api/tenantApi";
+import { fetchTenantWarehouses, createOrder, updateOrder } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
 
 interface Warehouse {
@@ -26,7 +26,8 @@ interface OrderModalProps {
   open: boolean;
   onClose: () => void;
   tenantId: string;
-  onSubmit?: (values: OrderFormValues) => void;
+  onSubmit?: () => void;
+  order?: { id: string } & OrderFormValues;
 }
 
 const OrderSchema = Yup.object().shape({
@@ -40,16 +41,16 @@ const OrderSchema = Yup.object().shape({
   customerPhone: Yup.string().required("Customer phone is required"),
 });
 
-export const OrderModal = ({ open, onClose, tenantId, onSubmit }: OrderModalProps) => {
+export const OrderModal = ({ open, onClose, tenantId, onSubmit, order }: OrderModalProps) => {
   const defaultValues: OrderFormValues = {
-    sku: "",
-    quantity: 1,
-    warehouseId: "",
-    deliveryLocation: "",
-    merchantLocation: "",
-    description: "",
-    customerName: "",
-    customerPhone: "",
+    sku: order?.sku || "",
+    quantity: order?.quantity || 1,
+    warehouseId: order?.warehouseId || "",
+    deliveryLocation: order?.deliveryLocation || "",
+    merchantLocation: order?.merchantLocation || "",
+    description: order?.description || "",
+    customerName: order?.customerName || "",
+    customerPhone: order?.customerPhone || "",
   };
 
   const { data: warehouseData, isLoading: warehouseLoading } = useQuery({
@@ -60,11 +61,11 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit }: OrderModalProp
 
   const warehouses: Warehouse[] = warehouseData?.data?.data?.warehouses || [];
 
-  const { mutate: createOrderMutation, isPending: creating } = useMutation({
+  const createMutation = useMutation({
     mutationFn: createOrder,
-    onSuccess: (_, values) => {
+    onSuccess: () => {
       toast.success("Order created successfully!");
-      if (onSubmit) onSubmit(values as OrderFormValues); 
+      if (onSubmit) onSubmit();
       onClose();
     },
     onError: (err: any) => {
@@ -72,9 +73,24 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit }: OrderModalProp
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: OrderFormValues }) =>
+      updateOrder(id, data),
+    onSuccess: () => {
+      toast.success("Order updated successfully!");
+      if (onSubmit) onSubmit();
+      onClose();
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update order");
+    },
+  });
+
+  const loading = createMutation.isPending || updateMutation.isPending;
+
   return (
     <Modal
-      title="Create New Order"
+      title={order ? "Edit Order" : "Create New Order"}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -82,32 +98,25 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit }: OrderModalProp
       destroyOnClose
     >
       <Formik
+        enableReinitialize
         initialValues={defaultValues}
         validationSchema={OrderSchema}
         onSubmit={(values) => {
-          createOrderMutation(values);
+          if (order) {
+            updateMutation.mutate({ id: order.id, data: values });
+          } else {
+            createMutation.mutate(values);
+          }
         }}
       >
-        {({
-          values,
-          handleChange,
-          handleSubmit,
-          touched,
-          errors,
-          setFieldValue,
-        }) => (
+        {({ values, handleChange, handleSubmit, touched, errors, setFieldValue }) => (
           <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
             <Form.Item
               label="SKU"
               validateStatus={touched.sku && errors.sku ? "error" : ""}
               help={touched.sku && errors.sku}
             >
-              <Input
-                name="sku"
-                value={values.sku}
-                onChange={handleChange}
-                placeholder="Enter SKU"
-              />
+              <Input name="sku" value={values.sku} onChange={handleChange} />
             </Form.Item>
 
             <Form.Item
@@ -119,16 +128,13 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit }: OrderModalProp
                 min={1}
                 value={values.quantity}
                 onChange={(val) => setFieldValue("quantity", val)}
-                placeholder="Enter quantity"
                 style={{ width: "100%" }}
               />
             </Form.Item>
 
             <Form.Item
               label="Warehouse"
-              validateStatus={
-                touched.warehouseId && errors.warehouseId ? "error" : ""
-              }
+              validateStatus={touched.warehouseId && errors.warehouseId ? "error" : ""}
               help={touched.warehouseId && errors.warehouseId}
             >
               {warehouseLoading ? (
@@ -148,87 +154,48 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit }: OrderModalProp
               )}
             </Form.Item>
 
-            <Form.Item
-              label="Delivery Location"
-              validateStatus={
-                touched.deliveryLocation && errors.deliveryLocation
-                  ? "error"
-                  : ""
-              }
-              help={touched.deliveryLocation && errors.deliveryLocation}
-            >
+            <Form.Item label="Delivery Location">
               <Input
                 name="deliveryLocation"
                 value={values.deliveryLocation}
                 onChange={handleChange}
-                placeholder="Enter delivery location"
               />
             </Form.Item>
 
-            <Form.Item
-              label="Merchant Location"
-              validateStatus={
-                touched.merchantLocation && errors.merchantLocation
-                  ? "error"
-                  : ""
-              }
-              help={touched.merchantLocation && errors.merchantLocation}
-            >
+            <Form.Item label="Merchant Location">
               <Input
                 name="merchantLocation"
                 value={values.merchantLocation}
                 onChange={handleChange}
-                placeholder="Enter merchant location"
               />
             </Form.Item>
 
-            <Form.Item
-              label="Description"
-              validateStatus={
-                touched.description && errors.description ? "error" : ""
-              }
-              help={touched.description && errors.description}
-            >
+            <Form.Item label="Description">
               <Input.TextArea
                 name="description"
                 value={values.description}
                 onChange={handleChange}
-                placeholder="Enter description"
               />
             </Form.Item>
 
-            <Form.Item
-              label="Customer Name"
-              validateStatus={
-                touched.customerName && errors.customerName ? "error" : ""
-              }
-              help={touched.customerName && errors.customerName}
-            >
+            <Form.Item label="Customer Name">
               <Input
                 name="customerName"
                 value={values.customerName}
                 onChange={handleChange}
-                placeholder="Enter customer name"
               />
             </Form.Item>
 
-            <Form.Item
-              label="Customer Phone"
-              validateStatus={
-                touched.customerPhone && errors.customerPhone ? "error" : ""
-              }
-              help={touched.customerPhone && errors.customerPhone}
-            >
+            <Form.Item label="Customer Phone">
               <Input
                 name="customerPhone"
                 value={values.customerPhone}
                 onChange={handleChange}
-                placeholder="Enter customer phone"
               />
             </Form.Item>
 
-            <Button type="primary" htmlType="submit" block loading={creating}>
-              {creating ? "Creating..." : "Create Order"}
+            <Button type="primary" htmlType="submit" block loading={loading}>
+              {order ? "Update Order" : "Create Order"}
             </Button>
           </Form>
         )}
