@@ -1,13 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { Card, Descriptions, Spin, Typography } from "antd";
+import { Button, Card, Descriptions, Spin, Typography } from "antd";
 import { fetchOrderById } from "../../auth/api/tenantApi";
 import styles from "../../../styles/OrderDetailsPage.module.css";
+import { OrderModal } from "../components/OrderModal";
+import { useState } from "react";
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
+   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: order, isLoading, isError } = useQuery({
+  const { data: order, isLoading, isError, refetch } = useQuery({
     queryKey: ["order", orderId],
     queryFn: () => fetchOrderById(orderId!),
     enabled: !!orderId,
@@ -18,7 +21,11 @@ export const OrderDetailsPage = () => {
 
   return (
     <div className={styles.container}>
-      <Card title={`Order Details - ${order.sku}`} >
+      <Card title={`Order Details - ${order.sku}`} extra={
+          <Button type="primary" onClick={() => setIsModalOpen(true)}>
+            Edit
+          </Button>
+        }>
         <Descriptions bordered column={1} size="middle">
           <Descriptions.Item label="SKU">{order.sku}</Descriptions.Item>
           <Descriptions.Item label="Quantity">{order.quantity}</Descriptions.Item>
@@ -34,6 +41,17 @@ export const OrderDetailsPage = () => {
           <Descriptions.Item label="Updated At">{new Date(order.updatedAt).toLocaleString()}</Descriptions.Item>
         </Descriptions>
       </Card>
+
+        <OrderModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        tenantId={order.tenantId}
+        order={order} 
+        onSubmit={() => {
+          refetch(); 
+          setIsModalOpen(false);
+        }}
+      />
     </div>
   );
 };
