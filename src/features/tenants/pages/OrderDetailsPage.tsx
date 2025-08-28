@@ -5,10 +5,12 @@ import { fetchOrderById } from "../../auth/api/tenantApi";
 import styles from "../../../styles/OrderDetailsPage.module.css";
 import { OrderModal } from "../components/OrderModal";
 import { useState } from "react";
+import { UploadFileModal } from "../components/UploadFileModal"; 
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const {
     data: order,
@@ -20,6 +22,11 @@ export const OrderDetailsPage = () => {
     queryFn: () => fetchOrderById(orderId!),
     enabled: !!orderId,
   });
+
+  const handleUpload = (file: File) => {
+    console.log("Uploaded file:", file);
+    // Here you can upload this file using FormData to your API
+  };
 
   if (isLoading)
     return (
@@ -37,9 +44,14 @@ export const OrderDetailsPage = () => {
       <Card
         title={`Order Details - ${order.sku}`}
         extra={
-          <Button type="primary" onClick={() => setIsModalOpen(true)}>
-            Edit
-          </Button>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Button type="primary" onClick={() => setIsModalOpen(true)}>
+              Edit
+            </Button>
+            <Button onClick={() => setIsUploadModalOpen(true)}>
+              Upload File
+            </Button>
+          </div>
         }
       >
         <Descriptions bordered column={1} size="middle">
@@ -76,8 +88,6 @@ export const OrderDetailsPage = () => {
               {order.status}
             </Tag>
           </Descriptions.Item>
-
-          <Descriptions.Item label="Status">{order.status}</Descriptions.Item>
           <Descriptions.Item label="Warehouse ID">
             {order.warehouseId || "N/A"}
           </Descriptions.Item>
@@ -102,6 +112,12 @@ export const OrderDetailsPage = () => {
           refetch();
           setIsModalOpen(false);
         }}
+      />
+
+      <UploadFileModal
+        open={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleUpload}
       />
     </div>
   );
