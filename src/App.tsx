@@ -12,7 +12,7 @@ import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 import { WarehouseList } from "./features/tenants/pages/WarehouseList";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
-import { WarehouseDetailsPage } from "./features/tenants/components/WarehouseDetailsPage";
+import { WarehouseDetailsPage } from "./features/tenants/pages/WarehouseDetailsPage";
 
 function App() {
   return (

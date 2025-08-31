@@ -5,6 +5,7 @@ import {
   fetchWarehouseById,
   fetchWarehouseOrders,
   fetchWarehouseDrivers,
+  fetchWarehouseUsers,
 } from "../../auth/api/tenantApi";
 import styles from "../../../styles/WarehouseDetailsPage.module.css";
 
@@ -20,12 +21,35 @@ interface Order {
 
 interface Driver {
   id: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  status: string;
+  role: {
+    id: string;
+    name: string;
+  };
+  tenantId: string;
+  warehouseId: string;
+}
+
+interface WarehouseUser {
+  id: string;
+  userId: string;
+  tenantId: string;
+  warehouseId: string;
+  createdAt: string;
+  updatedAt: string;
   user: {
     id: string;
     email: string;
     fullName: string;
     phone: string;
     status: string;
+    role: {
+      id: string;
+      name: string;
+    };
   };
 }
 
@@ -50,13 +74,22 @@ export const WarehouseDetailsPage = () => {
     enabled: !!warehouseId,
   });
 
-  if (warehouseLoading || ordersLoading || driversLoading) {
-    return <Spin size="large" style={{ display: "block", margin: "50px auto" }} />;
+  const { data: usersData, isLoading: usersLoading } = useQuery({
+    queryKey: ["warehouseUsers", warehouseId],
+    queryFn: () => fetchWarehouseUsers(warehouseId!),
+    enabled: !!warehouseId,
+  });
+
+  if (warehouseLoading || ordersLoading || driversLoading || usersLoading) {
+    return (
+      <Spin size="large" style={{ display: "block", margin: "50px auto" }} />
+    );
   }
 
   const warehouse = warehouseData?.data?.data?.warehouse;
-  const orders = ordersData?.data?.data?.orders || [];
+  const orders: Order[] = ordersData?.data?.data?.orders || [];
   const drivers: Driver[] = driversData?.data?.data?.drivers || [];
+  const users: WarehouseUser[] = usersData?.data?.data?.users || [];
 
   if (!warehouse) {
     return (
@@ -116,21 +149,58 @@ export const WarehouseDetailsPage = () => {
     },
   ];
 
+  const userColumns = [
+    { title: "Full Name", dataIndex: "fullName", key: "fullName" },
+    { title: "Email", dataIndex: "email", key: "email" },
+    { title: "Phone", dataIndex: "phone", key: "phone" },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: string) => (
+        <Tag color={status === "ACTIVE" ? "green" : "red"}>{status}</Tag>
+      ),
+    },
+  ];
+
   const driverData = drivers.map((driver) => ({
     key: driver.id,
-    fullName: driver.user.fullName,
-    email: driver.user.email,
-    phone: driver.user.phone,
-    status: driver.user.status,
+    fullName: driver.fullName,
+    email: driver.email,
+    phone: driver.phone,
+    status: driver.status,
+  }));
+
+  const userData = users.map((entry) => ({
+    key: entry.id,
+    fullName: entry.user.fullName,
+    email: entry.user.email,
+    phone: entry.user.phone,
+    status: entry.user.status,
+    role: entry.user.role?.name || "N/A",
   }));
 
   return (
     <div className={styles.container}>
-      <Card title={`Warehouse - ${warehouse.name}`} style={{ marginBottom: 24 }}>
+      <Card
+        title={`Warehouse - ${warehouse.name}`}
+        style={{ marginBottom: 24 }}
+      >
         <Descriptions bordered column={1}>
-          <Descriptions.Item label="Location">{warehouse.location}</Descriptions.Item>
-          <Descriptions.Item label="Capacity">{warehouse.capacity}</Descriptions.Item>
-          <Descriptions.Item label="Current Stock">{warehouse.currentStock}</Descriptions.Item>
+          <Descriptions.Item label="Location">
+            {warehouse.location}
+          </Descriptions.Item>
+          <Descriptions.Item label="Capacity">
+            {warehouse.capacity}
+          </Descriptions.Item>
+          <Descriptions.Item label="Current Stock">
+            {warehouse.currentStock}
+          </Descriptions.Item>
           <Descriptions.Item label="Status">
             <Tag color={warehouse.status === "OPEN" ? "green" : "red"}>
               {warehouse.status}
@@ -154,11 +224,20 @@ export const WarehouseDetailsPage = () => {
         />
       </Card>
 
-      <Card title="Drivers">
+      <Card title="Drivers" style={{ marginBottom: 24 }}>
         <Table
           rowKey="key"
           columns={driverColumns}
           dataSource={driverData}
+          pagination={{ pageSize: 5 }}
+        />
+      </Card>
+
+      <Card title="Users">
+        <Table
+          rowKey="key"
+          columns={userColumns}
+          dataSource={userData}
           pagination={{ pageSize: 5 }}
         />
       </Card>

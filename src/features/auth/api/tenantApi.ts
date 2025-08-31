@@ -68,7 +68,7 @@ export const fetchRoles = async () => {
 
 // Admin: Get permissions for all roles
 export const fetchPermissions = async () => {
-  return instance.get("/users/role/permissions");
+  return instance.get("/roles/permissions");
 };
 
 // Admin: Assign Permissions to Roles
@@ -78,6 +78,12 @@ export const assignRolePermissions = async ({
   tenantId,
 }: AssignPermissionsPayload) => {
   return instance.post(`/roles`, { tenantId, permissions, name });
+};
+
+// Admin: Get all created and customized roles for a tenant
+export const fetchTenantRoles = async (tenantId: string) => {
+  const response = await instance.get(`/tenants/${tenantId}/roles`);
+  return response.data.data.roles;
 };
 
 // Admin: Get Warehouses
@@ -128,8 +134,7 @@ export const fetchOrdersForTenant = async ({
   return res.data;
 };
 
-
-// Admin: Get order details 
+// Admin: Get order details
 export const fetchOrderById = async (orderId: string) => {
   const res = await instance.get(`/orders/${orderId}`);
   return res.data.data.order;
@@ -179,12 +184,18 @@ export const fetchWarehouseDrivers = async (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}/drivers`);
 };
 
-// Admin: Get all orders for a warehouse
+// Admin: Get a warehouse
 export const fetchWarehouseById = (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}`);
 };
 
+// Admin: Get all orders for a warehouse
 export const fetchWarehouseOrders = (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}/orders`);
 };
 
+
+// Admin: Get all users for a warehouse
+export const fetchWarehouseUsers = async (warehouseId: string) => {
+  return instance.get(`/warehouses/${warehouseId}/users`);
+};

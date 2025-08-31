@@ -1,42 +1,51 @@
-import { Button, Table, Space, Row, Col, Typography } from "antd";
 import { useState } from "react";
+import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import styles from "../../../styles/TenantRolesPage.module.css";
 import { RoleModal } from "../components/RoleModal";
 import type { RoleFormValues } from "../components/RoleModal";
-import styles from "../../../styles/TenantRolesPage.module.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { assignRolePermissions, fetchRoles } from "../../auth/api/tenantApi";
+import {
+  assignRolePermissions,
+  fetchTenantRoles,
+} from "../../auth/api/tenantApi";
 import { toPermissionPayload } from "../../../utils/permissions";
 import { toast } from "react-toastify";
-import { EditOutlined } from "@ant-design/icons";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
+
+interface Permission {
+  entityType: string;
+  actionType: string[];
+}
 
 interface Role {
   id: string;
   name: string;
+  permissions: Permission[];
 }
 
 export const TenantRolesPage = () => {
+  const { data: currentUserData } = useCurrentUser();
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
 
   const queryClient = useQueryClient();
 
-  // Fetch roles
-  const { data: rolesData } = useQuery({
-    queryKey: ["roles"],
-    queryFn: fetchRoles,
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["roles", tenantId],
+    queryFn: () => fetchTenantRoles(tenantId!),
+    enabled: !!tenantId,
   });
 
-  const roles = rolesData?.data?.roles || [];
-
-  const { data: currentUserData } = useCurrentUser();
-  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+  const roles = data || [];
 
   const assignPermissionsMutation = useMutation({
     mutationFn: assignRolePermissions,
     onSuccess: () => {
       toast.success("Permissions assigned successfully");
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", tenantId] });
       setModalOpen(false);
       setEditingRole(null);
     },
@@ -52,19 +61,40 @@ export const TenantRolesPage = () => {
     }
 
     const payloadPermissions = toPermissionPayload(values.permissions);
-     const selectedRoleName = roles.find((r: any) => r === values.roleId) || values.roleId;
-
+    const selectedRole = roles.find((r: Role) => r.id === values.roleId);
 
     assignPermissionsMutation.mutate({
-      name: selectedRoleName,
+      name: (selectedRole?.name || values.roleId).toUpperCase(),
       permissions: payloadPermissions,
       tenantId,
     });
   };
 
   const columns = [
-    { title: "Role Name", dataIndex: "name" },
+    {
+      title: "Role Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Permissions",
+      dataIndex: "permissions",
+      key: "permissions",
+      render: (permissions: Permission[]) => {
+        if (!permissions || permissions.length === 0) {
+          return <Tag color="green">All</Tag>;
+        }
 
+        return permissions.map((perm, idx) => (
+          <div key={idx} style={{ marginBottom: 4 }}>
+            <strong>{perm.entityType}</strong>{" "}
+            {perm.actionType.map((action) => (
+              <Tag key={action}>{action}</Tag>
+            ))}
+          </div>
+        ));
+      },
+    },
     {
       title: "Actions",
       key: "actions",
@@ -77,8 +107,7 @@ export const TenantRolesPage = () => {
               setModalOpen(true);
             }}
           >
-            <EditOutlined />
-            Edit
+            <EditOutlined /> Edit
           </Button>
         </Space>
       ),
@@ -96,6 +125,7 @@ export const TenantRolesPage = () => {
         <Col>
           <Button
             type="primary"
+            icon={<PlusOutlined />}
             onClick={() => {
               setEditingRole(null);
               setModalOpen(true);
@@ -106,13 +136,19 @@ export const TenantRolesPage = () => {
         </Col>
       </Row>
 
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={roles}
-        bordered
-        style={{ marginTop: 16 }}
-      />
+      {isLoading ? (
+        <Spin size="large" style={{ display: "block", margin: "50px auto" }} />
+      ) : (
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={roles}
+          bordered
+          style={{ marginTop: 16 }}
+          pagination={false}
+          scroll={{ x: "max-content" }}
+        />
+      )}
 
       <RoleModal
         open={modalOpen}

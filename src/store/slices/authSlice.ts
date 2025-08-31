@@ -1,4 +1,15 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
+export interface Permission {
+  entity: string;
+  actions: string[];
+}
+
+export interface Role {
+  id: string;
+  name: "SUPER_ADMIN" | "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "USER";
+  permissions: Permission[];
+}
 
 export interface User {
   id: string;
@@ -6,11 +17,8 @@ export interface User {
   fullName: string;
   phone?: string | null;
   isOwner: boolean;
-  role: {
-    id: string;
-    name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
-    permissions: any[];
-  };
+  role: Role; 
+  userPermissions?: Permission[]; // Optional per-user overrides
   tenant: {
     id: string;
     slug: string;
@@ -24,22 +32,23 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  initialized: boolean; // Track if we've checked auth status on app start
+  initialized: boolean;
+  selectedWarehouseId?: string | null;
+  selectedDriverId?: string | null;
 }
 
-// Initial state - secure approach using HTTP-only cookies only
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false, // start false so no spinner initially
+  isLoading: false,
   error: null,
   initialized: false,
+  selectedWarehouseId: null,
+  selectedDriverId: null,
 };
 
-// Auth slice with only synchronous actions
-// Components will handle API calls and update state using these actions
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     // Set loading state (for login, logout, etc.)
@@ -88,11 +97,13 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.error = null;
       state.initialized = true;
+      state.selectedWarehouseId = null;
+      state.selectedDriverId = null;
     },
+
   },
 });
 
-// Export actions for use in components
 export const {
   setLoading,
   setError,
@@ -103,5 +114,4 @@ export const {
   resetAuth,
 } = authSlice.actions;
 
-// Export reducer
 export default authSlice.reducer;

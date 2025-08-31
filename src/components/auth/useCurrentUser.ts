@@ -1,4 +1,3 @@
-// src/auth/hooks/useCurrentUser.ts
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "../../features/auth/api/tenantApi";
 
