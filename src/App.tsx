@@ -12,6 +12,7 @@ import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 import { WarehouseList } from "./features/tenants/pages/WarehouseList";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
+import { WarehouseDetailsPage } from "./features/tenants/components/WarehouseDetailsPage";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
               <Route path="orders" element={<OrderListPage />} />
               <Route path="orders/:orderId" element={<OrderDetailsPage />} />
               <Route path="warehouses" element={<WarehouseList />} />
+              <Route path="warehouses/:warehouseId" element={<WarehouseDetailsPage />} />
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>

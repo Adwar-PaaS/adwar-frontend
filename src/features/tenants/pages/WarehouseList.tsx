@@ -2,9 +2,14 @@ import { Table, Tag, Button, Space, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
-import { updateWarehouse, createWarehouse, fetchTenantWarehouses } from "../../auth/api/tenantApi";
+import {
+  updateWarehouse,
+  createWarehouse,
+  fetchTenantWarehouses,
+} from "../../auth/api/tenantApi";
 import { useAppSelector } from "../../../store/hooks";
 import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import styles from "../../../styles/WarehouseList.module.css";
 import { WarehouseFormModal } from "../components/WarehouseFormModal";
@@ -25,6 +30,8 @@ interface Warehouse {
 export const WarehouseList = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+
 
   const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
@@ -32,7 +39,9 @@ export const WarehouseList = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
+  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(
+    null
+  );
 
   const fetchWarehouses = async () => {
     if (!tenantId) return;
@@ -54,7 +63,7 @@ export const WarehouseList = () => {
     } else {
       navigate("/login", { replace: true });
     }
-  }, [isAuthenticated, tenantId]); 
+  }, [isAuthenticated, tenantId]);
 
   if (loading) {
     return <Spin size="large" fullscreen />;
@@ -64,7 +73,11 @@ export const WarehouseList = () => {
     try {
       const { name, location, capacity } = values;
       if (editingWarehouse) {
-        await updateWarehouse(editingWarehouse.id, { name, location, capacity });
+        await updateWarehouse(editingWarehouse.id, {
+          name,
+          location,
+          capacity,
+        });
         toast.success("Warehouse updated successfully");
       } else {
         await createWarehouse({ name, location, capacity, tenantId });
@@ -87,7 +100,7 @@ export const WarehouseList = () => {
       render: (_: string, record: Warehouse) => (
         <Button
           type="link"
-          onClick={() => navigate(`/warehouses/${record.id}`)}
+         onClick={() => navigate(`/tenant/${tenantSlug}/admin/warehouses/${record.id}`)}
           className={styles.warehouseNameButton}
         >
           {record.name}

@@ -178,3 +178,13 @@ export const updateOrderStatus = async ({
 export const fetchWarehouseDrivers = async (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}/drivers`);
 };
+
+// Admin: Get all orders for a warehouse
+export const fetchWarehouseById = (warehouseId: string) => {
+  return instance.get(`/warehouses/${warehouseId}`);
+};
+
+export const fetchWarehouseOrders = (warehouseId: string) => {
+  return instance.get(`/warehouses/${warehouseId}/orders`);
+};
+
