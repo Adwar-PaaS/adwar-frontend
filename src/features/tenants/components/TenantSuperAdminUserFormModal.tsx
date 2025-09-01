@@ -1,22 +1,16 @@
-import { Modal, Form, Input, Select, Button, Spin } from "antd";
+import { Modal, Form, Input, Select, Button } from "antd";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { getRoles } from "../../auth/api/tenantApi";
 import styles from "../../../styles/TenantFormModal.module.css";
 
-interface Role {
-  id: string;
-  name: string;
-  tenantId?: string | null;
-}
-
 interface TenantUserValues {
   fullName: string;
   email: string;
   password: string;
   phone: string;
-  roleId: string;
+  roleName: string;
 }
 
 interface TenantUserFormModalProps {
@@ -26,27 +20,28 @@ interface TenantUserFormModalProps {
   tenantId: string;
 }
 
-export const TenantUserFormModal = ({
+export const TenantSuperAdminUserFormModal = ({
   open,
   onClose,
   onSubmit,
   tenantId,
 }: TenantUserFormModalProps) => {
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
 
   const defaultValues: TenantUserValues = {
     fullName: "",
     email: "",
     password: "",
     phone: "",
-    roleId: "",
+    roleName: "",
   };
 
   useEffect(() => {
     const fetchRoles = async () => {
       try {
         const res = await getRoles();
-        setRoles(res.data.data.roles || []);
+        setRoles(res.data?.data?.roles || []);
+        console.log("Fetched roles:", res.data?.data?.roles);
       } catch (error) {
         toast.error("Failed to load roles");
       } finally {
@@ -69,7 +64,6 @@ export const TenantUserFormModal = ({
         onSubmit={(values) => {
           const payload = {
             ...values,
-            roleId: values.roleId,
             tenantId,
           };
           onSubmit(payload);
@@ -122,19 +116,17 @@ export const TenantUserFormModal = ({
             </Form.Item>
 
             <Form.Item label="Role" required>
-              {
-                <Select
-                  value={values.roleId}
-                  onChange={(val) => setFieldValue("roleId", val)}
-                  placeholder="Select role"
-                >
-                  {roles.map((role) => (
-                    <Select.Option key={role.id} value={role.id}>
-                      {role.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              }
+              <Select
+                value={values.roleName}
+                onChange={(val) => setFieldValue("roleName", val)}
+                placeholder="Select role"
+              >
+                {roles.map((role) => (
+                  <Select.Option key={role} value={role}>
+                    {role}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Button

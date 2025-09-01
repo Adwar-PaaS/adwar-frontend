@@ -1,13 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import {
-  createTenantUser,
+  createSuperAdminUser,
   getTenantById,
   getUsersByTenantId,
 } from "../../auth/api/tenantApi";
 import { Button, Col, Tag, Row, Spin, Table, Typography } from "antd";
 import styles from "../../../styles/TenantDetails.module.css";
-import { TenantUserFormModal } from "../components/TenantUserFormModal";
+import { TenantSuperAdminUserFormModal } from "../components/TenantSuperAdminUserFormModal";
 import { toast } from "react-toastify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -45,7 +45,7 @@ export const TenantDetails = () => {
 
   // Mutation for creating tenant user
   const createUserMutation = useMutation({
-    mutationFn: createTenantUser,
+    mutationFn: createSuperAdminUser,
     onSuccess: () => {
       toast.success("Tenant user created successfully");
       queryClient.invalidateQueries({ queryKey: ["tenant-details", id] }); // Refetch data
@@ -145,7 +145,7 @@ export const TenantDetails = () => {
         style={{ marginTop: "16px" }}
       />
 
-      <TenantUserFormModal
+      <TenantSuperAdminUserFormModal
         open={isUserModalOpen}
         onClose={() => setUserModalOpen(false)}
         onSubmit={handleCreateTenantAdmin}

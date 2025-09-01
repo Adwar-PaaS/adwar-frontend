@@ -21,12 +21,22 @@ export interface CreateTenantPayload {
   logoUrl?: string | null;
 }
 
+export interface CreateSuperAdminUserPayload {
+  email: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  tenantId: string;
+  roleName: string;
+}
+
 export interface createTenantUserPayload {
   email: string;
   password: string;
   fullName: string;
   phone: string;
   tenantId: string;
+  roleId: string;
 }
 
 export interface AssignPermissionsPayload {

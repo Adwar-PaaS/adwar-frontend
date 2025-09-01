@@ -3,6 +3,7 @@ import type {
   createTenantUserPayload,
   AssignPermissionsPayload,
   Order,
+  CreateSuperAdminUserPayload,
 } from "../../tenants/tenants.types";
 // import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
@@ -32,6 +33,10 @@ export const updateTenant = (
 // SUPERADMIN: Get one tenant by id
 export const getTenantById = (id: string) => instance.get(`/tenants/${id}`);
 
+// SUPERADMIN: Create super admin users in system while logged in as superadmin
+export const createSuperAdminUser = (data: CreateSuperAdminUserPayload) =>
+  instance.post("/users/super-admin/create-user", data);
+
 // SUPERADMIN: Get all users in system while logged in as superadmin
 export const getUsersByTenantId = (tenantId: string) => {
   return instance.get(`/tenants/${tenantId}/users`);
@@ -59,11 +64,6 @@ export const updateTenantUser = (id: string, data: any) =>
 // ADMIN: Update user status
 export const toggleUserStatus = (id: string, status: string) => {
   return instance.patch(`/users/${id}/status`, { status });
-};
-
-// Admin: Get all roles
-export const fetchRoles = async () => {
-  return instance.get("/roles");
 };
 
 // Admin: Get permissions for all roles

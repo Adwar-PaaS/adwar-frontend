@@ -3,14 +3,19 @@ import { Formik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import styles from "../../../styles/TenantUsersPage.module.css";
-import { fetchTenantWarehouses } from "../../auth/api/tenantApi";
+import { fetchTenantWarehouses, fetchTenantRoles } from "../../auth/api/tenantApi";
 import { useQuery } from "@tanstack/react-query";
+
+interface Role {
+  id: string;
+  name: string;
+}
 
 interface TenantUserFormValues {
   name: string;
   email: string;
   phone?: string;
-  role: string;
+  roleId: string;
   warehouseId?: string;
   status: string;
   assignWarehouses?: string[];
@@ -28,7 +33,7 @@ interface TenantUserFormModalProps {
 const TenantUserSchema = Yup.object().shape({
   name: Yup.string().required("Full Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  role: Yup.string().required("Role is required"),
+  roleId: Yup.string().required("Role is required"),
   status: Yup.string().required("Status is required"),
   assignWarehouses: Yup.array()
     .of(Yup.string())
@@ -37,7 +42,7 @@ const TenantUserSchema = Yup.object().shape({
   warehouseId: Yup.string().nullable(),
 });
 
-export const TenantUserModal = ({
+export const TenantAdminUserModal = ({
   open,
   onClose,
   onSubmit,
@@ -49,10 +54,18 @@ export const TenantUserModal = ({
     name: "",
     email: "",
     phone: "",
-    role: "",
-    status: "Active",
+    roleId: "",
+    status: "ACTIVE",
     assignWarehouses: [],
   };
+
+  const { data: rolesData, isLoading: rolesLoading } = useQuery({
+    queryKey: ["tenantRoles", tenantId],
+    queryFn: () => fetchTenantRoles(tenantId),
+    enabled: !!tenantId,
+  });
+
+  const roles: Role[] = rolesData || [];
 
   const { data: warehouseData, isLoading: warehouseLoading } = useQuery({
     queryKey: ["tenantWarehouses", tenantId],
@@ -68,14 +81,18 @@ export const TenantUserModal = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnHidden
+      destroyOnClose
       centered
     >
       <Formik
         initialValues={defaultValues}
         validationSchema={TenantUserSchema}
         onSubmit={(values) => {
-          onSubmit(values);
+          const payload = {
+            ...values,
+            tenantId,
+          };
+          onSubmit(payload);
           toast.success(isEdit ? "User updated successfully" : "User created");
           onClose();
         }}
@@ -131,20 +148,24 @@ export const TenantUserModal = ({
 
             <Form.Item
               label="Role"
-              validateStatus={touched.role && errors.role ? "error" : ""}
-              help={touched.role && errors.role}
+              validateStatus={touched.roleId && errors.roleId ? "error" : ""}
+              help={touched.roleId && errors.roleId}
             >
-              <Select
-                value={values.role}
-                onChange={(val) => setFieldValue("role", val)}
-                placeholder="Select role"
-              >
-                <Select.Option value="ADMIN">Admin</Select.Option>
-                <Select.Option value="OPERATION">Operation</Select.Option>
-                <Select.Option value="DRIVER">Driver</Select.Option>
-                <Select.Option value="PICKER">Picker</Select.Option>
-                <Select.Option value="CUSTOMER">Customer</Select.Option>
-              </Select>
+              {rolesLoading ? (
+                <Spin />
+              ) : (
+                <Select
+                  value={values.roleId}
+                  onChange={(val) => setFieldValue("roleId", val)}
+                  placeholder="Select role"
+                >
+                  {roles.map((role) => (
+                    <Select.Option key={role.id} value={role.id}>
+                      {role.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
             </Form.Item>
 
             <Form.Item
@@ -157,8 +178,8 @@ export const TenantUserModal = ({
                 onChange={(val) => setFieldValue("status", val)}
                 placeholder="Select status"
               >
-                <Select.Option value="Active">Active</Select.Option>
-                <Select.Option value="Inactive">Inactive</Select.Option>
+                <Select.Option value="ACTIVE">Active</Select.Option>
+                <Select.Option value="INACTIVE">Inactive</Select.Option>
               </Select>
             </Form.Item>
 

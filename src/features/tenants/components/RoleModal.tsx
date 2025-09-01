@@ -13,7 +13,7 @@ import * as Yup from "yup";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import styles from "../../../styles/RoleModal.module.css";
-import { fetchRoles, fetchPermissions } from "../../auth/api/tenantApi";
+import { getRoles, fetchPermissions } from "../../auth/api/tenantApi";
 
 export interface RoleFormValues {
   roleId: string;
@@ -52,7 +52,7 @@ export const RoleModal = ({
   // Fetch roles
   const { data: rolesData, isLoading: loadingRoles } = useQuery({
     queryKey: ["roles"],
-    queryFn: fetchRoles,
+    queryFn: getRoles,
   });
 
   // Fetch permissions

@@ -7,7 +7,7 @@ import {
   updateTenantUser,
   toggleUserStatus,
 } from "../../auth/api/tenantApi";
-import { TenantUserModal } from "./TenantUserModal";
+import { TenantAdminUserModal } from "../components/TenantAdminUserModal";
 import { toast } from "react-toastify";
 import styles from "../../../styles/TenantUsersPage.module.css";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
@@ -37,7 +37,8 @@ export const TenantUsersPage = () => {
       email: item.user.email,
       phone: item.user.phone,
       status: item.user.status,
-      role: item.user.role?.name || "N/A",
+      role: item.user.role?.name || "N/A", // for display
+      roleId: item.user.role?.name || "", // keep roleId as string (since API returns strings)
       warehouse: item.warehouse?.name || "N/A",
       assignWarehouses: item.user.assignWarehouses || [],
     })) || [];
@@ -91,6 +92,7 @@ export const TenantUsersPage = () => {
       phone: values.phone,
       password: values.password || "mypassword123",
       tenantId: tenantId,
+      roleId: values.roleId, 
     };
 
     if (editingUser) {
@@ -100,11 +102,11 @@ export const TenantUsersPage = () => {
           fullName: values.name,
           email: values.email,
           phone: values.phone,
-          roleId: values.role,
-        }, // ✅ only allowed fields
+          roleId: values.roleId, 
+        },
       });
     } else {
-      createUserMutation.mutate(payload); // ✅ matches interface
+      createUserMutation.mutate(payload);
     }
   };
 
@@ -186,7 +188,7 @@ export const TenantUsersPage = () => {
         style={{ marginTop: 16 }}
       />
 
-      <TenantUserModal
+      <TenantAdminUserModal
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
@@ -199,7 +201,7 @@ export const TenantUsersPage = () => {
             ? {
                 name: editingUser.fullName,
                 email: editingUser.email,
-                role: editingUser.role,
+                roleId: editingUser.roleId,
                 phone: editingUser.phone,
                 status: editingUser.status,
                 assignWarehouses: editingUser.assignWarehouses || [],
