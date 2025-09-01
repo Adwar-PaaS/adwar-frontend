@@ -21,7 +21,7 @@ interface User {
   isOwner: boolean;
   role: {
     id: string;
-    name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'USER';
+    name: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATIONS' | 'DRIVER' | 'PICKER' | 'CUSTOMER';
     permissions: any[];
   };
   tenant: {

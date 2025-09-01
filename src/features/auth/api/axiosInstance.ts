@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: import.meta.env.DEV ? "/api" : "https://adwar-backend-project-vh53.onrender.com",
+  baseURL: import.meta.env.DEV
+    ? "/api"
+    : "https://adwar-backend-project-vh53.onrender.com",
   withCredentials: true, // Important for cookies
 });
 
@@ -19,12 +21,12 @@ instance.interceptors.request.use(
       // Import store dynamically to avoid circular dependency
       const { store } = await import("../../../store");
       const user = store.getState().auth.user;
-      
+
       if (user && user.role) {
         config.headers["X-User-Role"] = user.role.name;
-        
+
         // Also add tenant info for tenant-specific roles
-        if (user.tenant && user.role.name !== 'SUPER_ADMIN') {
+        if (user.tenant && user.role.name !== "SUPER_ADMIN") {
           config.headers["X-Tenant-ID"] = user.tenant.id;
           config.headers["X-Tenant-Slug"] = user.tenant.slug;
         }
@@ -54,21 +56,24 @@ instance.interceptors.response.use(
       originalRequest._retry = true;
 
       // Check if we have cookies before attempting refresh
-      const hasCookies =  document.cookie.includes('session');
+      const hasCookies = document.cookie.includes("session");
       // document.cookie.includes('access') ||
 
       if (!hasCookies) {
         // Import store dynamically to avoid circular dependency
         const { store } = await import("../../../store");
         const { resetAuth } = await import("../../../store/slices/authSlice");
-        
+
         store.dispatch(resetAuth());
-        
+
         // Only redirect if not already on login page
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+        if (
+          !window.location.pathname.includes("/login") &&
+          !window.location.pathname.includes("/register")
+        ) {
+          window.location.href = "/login";
         }
-        
+
         return Promise.reject(error);
       }
 
@@ -77,28 +82,30 @@ instance.interceptors.response.use(
         const { store } = await import("../../../store");
         const { setUser } = await import("../../../store/slices/authSlice");
         const { authAPI } = await import("./authApi");
-        
+
         // Try to refresh the token via direct API call
         const refreshResponse = await authAPI.refreshToken();
-        
+
         // Update user in store if refresh successful
         store.dispatch(setUser(refreshResponse.data.user));
-        
+
         // Retry the original request
         return instance(originalRequest);
       } catch (refreshError) {
-        
         // If refresh fails, clear auth state and redirect to login
         const { store } = await import("../../../store");
         const { resetAuth } = await import("../../../store/slices/authSlice");
-        
+
         store.dispatch(resetAuth());
-        
+
         // Only redirect if not already on login page
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+        if (
+          !window.location.pathname.includes("/login") &&
+          !window.location.pathname.includes("/register")
+        ) {
+          window.location.href = "/login";
         }
-        
+
         return Promise.reject(refreshError);
       }
     }

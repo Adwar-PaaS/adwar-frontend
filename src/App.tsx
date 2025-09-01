@@ -13,12 +13,16 @@ import { WarehouseList } from "./features/tenants/pages/WarehouseList";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
 import { WarehouseDetailsPage } from "./features/tenants/pages/WarehouseDetailsPage";
+import RegisterPage from "./features/auth/pages/Register";
+import TenantSelectionPage from "./features/Customer/TenantSelectionPage";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/tenant-selection" element={<TenantSelectionPage />} />
 
         {/* SUPERADMIN Routes */}
         <Route element={<ProtectedRoute requiredRoles={["SUPER_ADMIN"]} />}>
@@ -95,20 +99,21 @@ function App() {
 
           {/* Tenant User Routes */}
           <Route
-            path="user/*"
+            path="CUSTOMER/*"
             element={
               <ProtectedRoute
-                requiredRoles={["USER"]}
+                requiredRoles={["CUSTOMER"]}
                 requireTenantAccess={true}
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant User Dashboard</div>} />
+            <Route path="dashboard" element={<div>Tenant Customer Dashboard</div>} />
           </Route>
+
         </Route>
 
         {/* Catch-all Route */}
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<Navigate to="/register" />} />
       </Routes>
     </>
   );

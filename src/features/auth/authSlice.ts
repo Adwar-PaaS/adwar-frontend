@@ -9,7 +9,7 @@ export interface Permission {
 // Define Role type
 export interface Role {
   id: string;
-  name: "SUPER_ADMIN" | "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "USER";
+  name: "SUPER_ADMIN" | "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "CUSTOMER";
   permissions: Permission[];
 }
 
