@@ -1,4 +1,4 @@
-import { Table, Tag, Button, Space, Spin } from "antd";
+import { Table, Tag, Button, Space } from "antd";
 import { useEffect, useState } from "react";
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
@@ -23,19 +23,14 @@ export const TenantList = () => {
   const [editingTenant, setEditingTenant] = useState<TenantFormValues | null>(
     null
   );
-  const [loading, setLoading] = useState(false);
-
   const fetchTenants = async () => {
     try {
-      setLoading(true);
       const response = await getTenants();
       setTenants(response.data.data.tenants || []);
     } catch (error) {
       toast.error("Failed to fetch tenants");
       setTenants([]);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {
@@ -45,10 +40,6 @@ export const TenantList = () => {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated]);
-
-  // if (loading) {
-  //   return <Spin size="large" fullscreen />;
-  // }
 
   const openAddModal = () => {
     setEditingTenant(null);
@@ -164,13 +155,6 @@ export const TenantList = () => {
       ),
     },
   ];
-  if (loading) {
-    return (
-      <div>
-        <Spin />
-      </div>
-    );
-  }
 
   return (
     <div className={styles.container}>

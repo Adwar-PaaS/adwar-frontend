@@ -95,7 +95,7 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit, order }: OrderMo
       onCancel={onClose}
       footer={null}
       centered
-      destroyOnClose
+      destroyOnHidden
     >
       <Formik
         enableReinitialize
