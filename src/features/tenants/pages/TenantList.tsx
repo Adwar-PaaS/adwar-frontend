@@ -46,9 +46,9 @@ export const TenantList = () => {
     }
   }, [isAuthenticated]);
 
-  if (loading) {
-    return <Spin size="large" fullscreen />;
-  }
+  // if (loading) {
+  //   return <Spin size="large" fullscreen />;
+  // }
 
   const openAddModal = () => {
     setEditingTenant(null);
