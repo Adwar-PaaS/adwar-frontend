@@ -1,5 +1,5 @@
 import { Button, Form, Input, Typography } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
@@ -15,18 +15,18 @@ import styles from "../../../styles/Login.module.css";
 export const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isLoading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isLoading, error, isAuthenticated, user } = useAppSelector(
+    (state) => state.auth
+  );
 
-  // Only redirect if already authenticated (on page load)
   useEffect(() => {
     if (isAuthenticated && user) {
       const dashboardRoute = getRoleBasedRoute(user);
       navigate(dashboardRoute, { replace: true });
     }
-  }, [isAuthenticated, navigate]); // Run only once on mount
+  }, [isAuthenticated, navigate, user]);
 
   useEffect(() => {
-    // Show error toast if login fails
     if (error) {
       toast.error(error);
       dispatch(clearError());
@@ -42,21 +42,17 @@ export const Login = () => {
     try {
       dispatch(setLoading(true));
       dispatch(clearError());
-      
+
       const response = await authAPI.login({ email, password: passwordHash });
-      const user = response.data.user; // Use directly without transformation
-      
-      console.log('User from server:', user); // Debug log
-      
+      const user = response.data.user;
+
       dispatch(setUser(user));
-      
       toast.success("Login successful");
-      
-      // Navigate based on user role
+
       const dashboardRoute = getRoleBasedRoute(user);
       navigate(dashboardRoute, { replace: true });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.response?.data?.message || "Login failed";
       dispatch(setError(errorMessage));
       toast.error(errorMessage);
     } finally {
@@ -117,6 +113,13 @@ export const Login = () => {
               >
                 Login
               </Button>
+
+              <div style={{ marginTop: "12px", textAlign: "center" }}>
+                <Typography.Text>
+                  Don't have an account?{" "}
+                  <Link to="/register">Register here</Link>
+                </Typography.Text>
+              </div>
             </Form>
           )}
         </Formik>

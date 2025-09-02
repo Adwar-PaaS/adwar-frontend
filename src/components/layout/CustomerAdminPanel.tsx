@@ -1,5 +1,5 @@
 import { Layout, Menu } from "antd";
-import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   ShoppingCartOutlined,
   TruckOutlined,
@@ -9,14 +9,19 @@ import {
 import styles from "../../styles/CustomerAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
 import { handleLogout } from "../../utils/logout";
+import { useCurrentUser } from "../../components/auth/useCurrentUser";
 
 const { Sider, Content } = Layout;
 
 export const CustomerAdminPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tenantSlug } = useParams();
   const { user } = useAppSelector((state) => state.auth);
+  const { data: currentUserData } = useCurrentUser();
+
+
+  const tenantSlug =
+    currentUserData?.data?.data?.user?.tenant?.slug;
 
   const basePath = `/tenant/${tenantSlug}/CUSTOMER/dashboard`;
 
