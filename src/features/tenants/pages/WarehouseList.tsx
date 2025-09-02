@@ -65,9 +65,9 @@ export const WarehouseList = () => {
     }
   }, [isAuthenticated, tenantId]);
 
-  if (loading) {
-    return <Spin size="large" fullscreen />;
-  }
+  // if (loading) {
+  //   return <Spin size="large" fullscreen />;
+  // }
 
   const handleSubmit = async (values: any) => {
     try {

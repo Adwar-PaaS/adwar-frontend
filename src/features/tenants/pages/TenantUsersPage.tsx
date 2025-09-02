@@ -92,7 +92,7 @@ export const TenantUsersPage = () => {
       phone: values.phone,
       password: values.password || "mypassword123",
       tenantId: tenantId,
-      roleId: values.roleId, 
+      roleId: values.roleId,
     };
 
     if (editingUser) {
@@ -102,7 +102,7 @@ export const TenantUsersPage = () => {
           fullName: values.name,
           email: values.email,
           phone: values.phone,
-          roleId: values.roleId, 
+          roleId: values.roleId,
         },
       });
     } else {
@@ -127,6 +127,30 @@ export const TenantUsersPage = () => {
             onChange={(checked) => {
               const newStatus = checked ? "ACTIVE" : "INACTIVE";
               setLoadingId(record.id);
+
+              queryClient.setQueryData(
+                ["tenantUsers", tenantId],
+                (oldData: any) => {
+                  if (!oldData) return oldData;
+                  const newUsers = oldData.data.data.users.map((u: any) => {
+                    if (u.user.id === record.id) {
+                      return {
+                        ...u,
+                        user: { ...u.user, status: newStatus },
+                      };
+                    }
+                    return u;
+                  });
+                  return {
+                    ...oldData,
+                    data: {
+                      ...oldData.data,
+                      data: { ...oldData.data.data, users: newUsers },
+                    },
+                  };
+                }
+              );
+
               updateStatusMutation.mutate(
                 { id: record.id, status: newStatus },
                 { onSettled: () => setLoadingId(null) }
