@@ -31,7 +31,6 @@ export const WarehouseFormModal = ({
   open,
   onClose,
   onSubmit,
-  tenantId,
   initialValues,
   isEdit = false,
 }: WarehouseFormModalProps) => {

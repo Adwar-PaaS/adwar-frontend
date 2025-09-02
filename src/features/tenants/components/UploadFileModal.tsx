@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Upload, Button, Typography } from "antd";
+import { Modal, Upload, Typography } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const { Dragger } = Upload;

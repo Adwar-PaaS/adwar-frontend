@@ -11,7 +11,6 @@ import {
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import styles from "../../../styles/RoleModal.module.css";
 import { getRoles, fetchPermissions } from "../../auth/api/tenantApi";
 
@@ -46,8 +45,6 @@ export const RoleModal = ({
     roleId: "",
     permissions: [],
   };
-
-  const [selectedRoleId, setSelectedRoleId] = useState(defaultValues.roleId);
 
   // Fetch roles
   const { data: rolesData, isLoading: loadingRoles } = useQuery({
@@ -159,7 +156,6 @@ export const RoleModal = ({
                     placeholder="Select a role"
                     value={values.roleId}
                     onChange={(val) => {
-                      setSelectedRoleId(val);
                       setFieldValue("roleId", val);
                     }}
                   >

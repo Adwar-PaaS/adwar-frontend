@@ -33,7 +33,7 @@ export const TenantRolesPage = () => {
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["roles", tenantId],
     queryFn: () => fetchTenantRoles(tenantId!),
     enabled: !!tenantId,
