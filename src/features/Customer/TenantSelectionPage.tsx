@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TenantSelectionForm } from "./TenantSelectionForm";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   fetchAllTenants,
   assignTenant,
@@ -18,7 +18,6 @@ interface Tenant {
 export const TenantSelectionPage: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
 const userId = user?.id;
