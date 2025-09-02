@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Form, Input, Button, Typography, message } from "antd";
 import { registerUser } from "../api/tenantApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import type { RegisterUserPayload } from "../../tenants/users.types";
 import styles from "../../../styles/Login.module.css"; 
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
@@ -69,6 +69,13 @@ const RegisterPage = () => {
               Register
             </Button>
           </Form.Item>
+          
+          <div style={{ textAlign: "center", marginTop: 8 }}>
+            <Text>
+              Already have an account?{" "}
+              <Link to="/login">Login</Link>
+            </Text>
+          </div>
         </Form>
       </div>
     </div>

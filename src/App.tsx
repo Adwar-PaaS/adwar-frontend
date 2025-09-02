@@ -15,6 +15,8 @@ import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
 import { WarehouseDetailsPage } from "./features/tenants/pages/WarehouseDetailsPage";
 import RegisterPage from "./features/auth/pages/Register";
 import TenantSelectionPage from "./features/Customer/TenantSelectionPage";
+import { CustomerAdminPanel } from "./components/layout/CustomerAdminPanel";
+import { CustomerOrdersList } from "./features/Customer/CustomerOrdersList";
 
 function App() {
   return (
@@ -48,12 +50,18 @@ function App() {
             }
           >
             <Route element={<TenantAdminPanel />}>
-              <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
+              <Route
+                path="dashboard"
+                element={<div>Tenant Admin Dashboard</div>}
+              />
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
               <Route path="orders/:orderId" element={<OrderDetailsPage />} />
               <Route path="warehouses" element={<WarehouseList />} />
-              <Route path="warehouses/:warehouseId" element={<WarehouseDetailsPage />} />
+              <Route
+                path="warehouses/:warehouseId"
+                element={<WarehouseDetailsPage />}
+              />
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>
@@ -68,7 +76,10 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant Operations Dashboard</div>} />
+            <Route
+              path="dashboard"
+              element={<div>Tenant Operations Dashboard</div>}
+            />
           </Route>
 
           {/* Tenant Driver Routes */}
@@ -81,7 +92,10 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant Driver Dashboard</div>} />
+            <Route
+              path="dashboard"
+              element={<div>Tenant Driver Dashboard</div>}
+            />
           </Route>
 
           {/* Tenant Picker Routes */}
@@ -94,7 +108,10 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant Picker Dashboard</div>} />
+            <Route
+              path="dashboard"
+              element={<div>Tenant Picker Dashboard</div>}
+            />
           </Route>
 
           {/* Tenant User Routes */}
@@ -107,9 +124,11 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant Customer Dashboard</div>} />
+            <Route path="dashboard" element={<CustomerAdminPanel />}>
+              <Route index element={<div>Welcome to Customer Dashboard</div>} />
+              <Route path="orders" element={<CustomerOrdersList />} />
+            </Route>
           </Route>
-
         </Route>
 
         {/* Catch-all Route */}

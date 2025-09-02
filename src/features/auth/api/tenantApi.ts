@@ -4,7 +4,12 @@ import type {
   AssignPermissionsPayload,
   CreateSuperAdminUserPayload,
 } from "../../tenants/tenants.types";
-import type { AssignTenantPayload, FetchTenantsResponse, RegisterResponse, RegisterUserPayload } from "../../tenants/users.types";
+import type {
+  AssignTenantPayload,
+  FetchTenantsResponse,
+  RegisterResponse,
+  RegisterUserPayload,
+} from "../../tenants/users.types";
 // import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
 
@@ -201,7 +206,10 @@ export const fetchWarehouseUsers = async (warehouseId: string) => {
 
 // Customer: Register user
 export const registerUser = async (data: RegisterUserPayload) => {
-  const response = await instance.post<RegisterResponse>("/auth/register", data);
+  const response = await instance.post<RegisterResponse>(
+    "/auth/register",
+    data
+  );
   return response.data;
 };
 
@@ -216,4 +224,9 @@ export const assignTenant = async (payload: AssignTenantPayload) => {
   return instance.post("/auth/attach-to-tenant", payload, {
     headers: { "Content-Type": "application/json" },
   });
+};
+
+// Customer: Fetch orders from customer dashboard
+export const fetchOrdersByCustomer = async (customerId: string) => {
+  return instance.get(`/orders/customer/${customerId}`);
 };

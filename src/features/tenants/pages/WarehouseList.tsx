@@ -1,4 +1,4 @@
-import { Table, Tag, Button, Space, Spin } from "antd";
+import { Table, Tag, Button, Space } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
@@ -32,12 +32,10 @@ export const WarehouseList = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
 
-
   const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(
     null
@@ -46,14 +44,11 @@ export const WarehouseList = () => {
   const fetchWarehouses = async () => {
     if (!tenantId) return;
     try {
-      setLoading(true);
       const response = await fetchTenantWarehouses(tenantId);
       setWarehouses(response.data.data.warehouses || []);
     } catch (error) {
       toast.error("Failed to fetch warehouses");
       setWarehouses([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -64,11 +59,6 @@ export const WarehouseList = () => {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, tenantId]);
-
-  // if (loading) {
-  //   return <Spin size="large" fullscreen />;
-  // }
-
   const handleSubmit = async (values: any) => {
     try {
       const { name, location, capacity } = values;
@@ -100,7 +90,9 @@ export const WarehouseList = () => {
       render: (_: string, record: Warehouse) => (
         <Button
           type="link"
-         onClick={() => navigate(`/tenant/${tenantSlug}/admin/warehouses/${record.id}`)}
+          onClick={() =>
+            navigate(`/tenant/${tenantSlug}/admin/warehouses/${record.id}`)
+          }
           className={styles.warehouseNameButton}
         >
           {record.name}
