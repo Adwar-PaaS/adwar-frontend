@@ -230,3 +230,10 @@ export const assignTenant = async (payload: AssignTenantPayload) => {
 export const fetchOrdersByCustomer = async (customerId: string) => {
   return instance.get(`/orders/customer/${customerId}`);
 };
+
+// Customer: Create pickup request for selected orders
+export const createPickup = async (orderIds: string[]) => {
+  return instance.post("/pickups", {
+    orderIds,
+  });
+};

@@ -17,6 +17,7 @@ import RegisterPage from "./features/auth/pages/Register";
 import TenantSelectionPage from "./features/Customer/TenantSelectionPage";
 import { CustomerAdminPanel } from "./components/layout/CustomerAdminPanel";
 import { CustomerOrdersList } from "./features/Customer/CustomerOrdersList";
+import { ShipmentPickUp } from "./features/Customer/ShipmentPickUp"; 
 
 function App() {
   return (
@@ -127,6 +128,10 @@ function App() {
             <Route path="dashboard" element={<CustomerAdminPanel />}>
               <Route index element={<div>Welcome to Customer Dashboard</div>} />
               <Route path="orders" element={<CustomerOrdersList />} />
+              <Route
+                path="shipments"
+                element={<ShipmentPickUp />}
+              />
             </Route>
           </Route>
         </Route>
