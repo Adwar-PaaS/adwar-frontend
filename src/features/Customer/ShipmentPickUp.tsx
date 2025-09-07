@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Table, Tag, Typography, Button, Row, Col, message } from "antd";
+import { Table, Tag, Typography, Button, Row, Col, message, Space } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOrdersByCustomer, createPickup } from "../auth/api/tenantApi";
 import { useCurrentUser } from "../../components/auth/useCurrentUser";
+import { AllPickups } from "./AllPickups";
 
 interface Shipment {
   id: string;
@@ -23,6 +24,10 @@ export const ShipmentPickUp = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showAllPickups, setShowAllPickups] = useState(false);
+
   const { data, isLoading } = useQuery({
     queryKey: ["customerShipments", customerId],
     queryFn: () => fetchOrdersByCustomer(customerId!),
@@ -30,19 +35,13 @@ export const ShipmentPickUp = () => {
   });
 
   const shipments: Shipment[] = data?.data?.data?.orders || [];
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const handleCreatePickup = async () => {
     if (!selectedRowKeys.length) return;
     try {
       setLoading(true);
-      await createPickup(selectedRowKeys as string[]);
-      message.success({
-        content: "Pickup created successfully!",
-        key: "pickup-success",
-        duration: 3,
-      });
+      const res = await createPickup(selectedRowKeys as string[]);
+      message.success("Pickup created successfully!");
 
       const newPicked = [...pickedOrderIds, ...selectedRowKeys.map(String)];
       setPickedOrderIds(newPicked);
@@ -50,6 +49,7 @@ export const ShipmentPickUp = () => {
 
       setSelectedRowKeys([]);
       queryClient.invalidateQueries({ queryKey: ["customerShipments"] });
+      queryClient.invalidateQueries({ queryKey: ["customerPickups"] });
     } catch (err) {
       message.error("Failed to create pickup");
     } finally {
@@ -57,7 +57,7 @@ export const ShipmentPickUp = () => {
     }
   };
 
-  const columns = [
+  const shipmentColumns = [
     { title: "Order Number", dataIndex: "sku", key: "sku" },
     {
       title: "Destination",
@@ -97,20 +97,29 @@ export const ShipmentPickUp = () => {
           <Typography.Title level={3}>Shipments for Pickup</Typography.Title>
         </Col>
         <Col>
-          <Button
-            type="primary"
-            disabled={!selectedRowKeys.length}
-            loading={loading}
-            onClick={handleCreatePickup}
-          >
-            Create Pickup
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              disabled={!selectedRowKeys.length}
+              loading={loading}
+              onClick={handleCreatePickup}
+            >
+              Create Pickup
+            </Button>
+            <Button
+              onClick={() => setShowAllPickups((prev) => !prev)}
+              type="default"
+            >
+              {showAllPickups ? "Hide All Pickups" : "View All Pickups"}
+            </Button>
+          </Space>
         </Col>
       </Row>
 
+      {/* Customer Shipments Table */}
       <Table
         rowKey="id"
-        columns={columns}
+        columns={shipmentColumns}
         dataSource={shipments}
         loading={isLoading}
         bordered
@@ -124,6 +133,9 @@ export const ShipmentPickUp = () => {
           }),
         }}
       />
+
+      {/* All Pickups Table */}
+      {showAllPickups && <AllPickups />}
     </div>
   );
 };

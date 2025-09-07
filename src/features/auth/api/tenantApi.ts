@@ -237,3 +237,13 @@ export const createPickup = async (orderIds: string[]) => {
     orderIds,
   });
 };
+
+// Customer : Get pickups for a customer
+export const fetchCustomerPickups = async (customerId: string) => {
+  return await instance.get(`/pickups/${customerId}/customer-pickups`);
+};
+
+// Customer : Get orders for a pickup
+export const fetchPickupOrders = async (pickupId: string) => {
+  return await instance.get(`/pickups/${pickupId}/pickup-orders`);
+};
