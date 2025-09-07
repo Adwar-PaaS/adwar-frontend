@@ -247,3 +247,11 @@ export const fetchCustomerPickups = async (customerId: string) => {
 export const fetchPickupOrders = async (pickupId: string) => {
   return await instance.get(`/pickups/${pickupId}/pickup-orders`);
 };
+
+export const createPickupRequest = async (
+  pickupId: string,
+) => {
+  return await instance.post(`/pickups/${pickupId}/requests`, {
+    pickupId,
+  });
+};
