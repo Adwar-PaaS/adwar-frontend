@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Table,
-  Tag,
   Typography,
   Button,
   Row,
@@ -10,16 +9,15 @@ import {
 } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
-import { fetchBranchesByCustomer } from "../../auth/api/tenantApi";
+import { fetchBranchesByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
-// import { BranchModal } from "../../tenants/components/BranchModal"; 
+import { BranchModal } from "../components/BranchModal";
 
 interface Branch {
   id: string;
   name: string;
   location: string;
-  phone: string;
-  status: "ACTIVE" | "INACTIVE";
+  phone?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,54 +44,22 @@ export const CustomerBranchesList = () => {
     setEditingBranch(null);
   };
 
-  const getBranchForModal = (branch: Branch | null) => {
-    if (!branch) return undefined;
-    return {
-      id: branch.id,
-      name: branch.name,
-      location: branch.location,
-      phone: branch.phone,
-      status: branch.status,
-    };
-  };
-
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Location", dataIndex: "location", key: "location" },
-    { title: "Phone", dataIndex: "phone", key: "phone" },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: Branch["status"]) => {
-        let color = status === "ACTIVE" ? "green" : "red";
-        return <Tag color={color}>{status}</Tag>;
-      },
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
+    { title: "Created At", dataIndex: "createdAt", key: "createdAt",
       render: (date: string) => new Date(date).toLocaleString(),
     },
-    {
-      title: "Updated At",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
+    { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt",
       render: (date: string) => new Date(date).toLocaleString(),
     },
-    {
-      title: "Actions",
-      key: "actions",
+    { title: "Actions", key: "actions",
       render: (_: any, record: Branch) => (
         <Space>
-          <Button
-            type="link"
-            onClick={() => {
-              setEditingBranch(record);
-              setModalOpen(true);
-            }}
-          >
+          <Button type="link" onClick={() => {
+            setEditingBranch(record);
+            setModalOpen(true);
+          }}>
             <EditOutlined /> Edit
           </Button>
         </Space>
@@ -108,9 +74,7 @@ export const CustomerBranchesList = () => {
           <Typography.Title level={3}>Customer Branches</Typography.Title>
         </Col>
         <Col>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
+          <Button type="primary" icon={<PlusOutlined />}
             onClick={() => {
               setEditingBranch(null);
               setModalOpen(true);
@@ -131,15 +95,19 @@ export const CustomerBranchesList = () => {
         scroll={{ x: "max-content" }}
       />
 
-      {/* <BranchModal
+      <BranchModal
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
           setEditingBranch(null);
         }}
         onSubmit={handleModalSubmit}
-        branch={getBranchForModal(editingBranch)}
-      /> */}
+        branch={editingBranch ? {
+          id: editingBranch.id,
+          name: editingBranch.name,
+          location: editingBranch.location,
+        } : undefined}
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Table, Tag, Typography, Button, message, Space } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchCustomerPickups, createPickupRequest } from "../../auth/api/tenantApi";
+import { fetchCustomerPickups, createPickupRequest } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { useState } from "react";
 import type { ColumnsType } from "antd/es/table";

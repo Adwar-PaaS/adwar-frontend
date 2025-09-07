@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   fetchAllTenants,
   assignTenant,
-} from "../../../features/auth/api/tenantApi";
+} from "../../../features/auth/api/customerApi";
 import { message, Typography } from "antd";
 
 import styles from "../../../styles/Login.module.css";

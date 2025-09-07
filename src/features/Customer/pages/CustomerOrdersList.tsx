@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
-import { fetchOrdersByCustomer } from "../../auth/api/tenantApi";
+import { fetchOrdersByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { OrderModal } from "../../tenants/components/OrderModal";
 

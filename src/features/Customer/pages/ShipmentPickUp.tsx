@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Table, Tag, Typography, Button, Row, Col, message, Space } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchOrdersByCustomer, createPickup } from "../../auth/api/tenantApi";
+import { fetchOrdersByCustomer, createPickup } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { AllPickups } from "../components/AllPickups";
 
@@ -40,7 +40,7 @@ export const ShipmentPickUp = () => {
     if (!selectedRowKeys.length) return;
     try {
       setLoading(true);
-      const res = await createPickup(selectedRowKeys as string[]);
+      await createPickup(selectedRowKeys as string[]);
       message.success("Pickup created successfully!");
 
       const newPicked = [...pickedOrderIds, ...selectedRowKeys.map(String)];
@@ -50,7 +50,7 @@ export const ShipmentPickUp = () => {
       setSelectedRowKeys([]);
       queryClient.invalidateQueries({ queryKey: ["customerShipments"] });
       queryClient.invalidateQueries({ queryKey: ["customerPickups"] });
-    } catch (err) {
+    } catch {
       message.error("Failed to create pickup");
     } finally {
       setLoading(false);
@@ -59,20 +59,20 @@ export const ShipmentPickUp = () => {
 
   const shipmentColumns = [
     { title: "Order Number", dataIndex: "sku", key: "sku" },
-    {
-      title: "Destination",
-      dataIndex: "deliveryLocation",
-      key: "deliveryLocation",
-    },
+    { title: "Destination", dataIndex: "deliveryLocation", key: "deliveryLocation" },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
       render: (status: Shipment["status"]) => {
-        let color = "blue";
-        if (status === "CREATED") color = "purple";
-        if (status === "COMPLETED") color = "green";
-        if (status === "CANCELLED") color = "red";
+        const color =
+          status === "CREATED"
+            ? "purple"
+            : status === "COMPLETED"
+            ? "green"
+            : status === "CANCELLED"
+            ? "red"
+            : "blue";
         return <Tag color={color}>{status}</Tag>;
       },
     },
@@ -107,8 +107,8 @@ export const ShipmentPickUp = () => {
               Create Pickup
             </Button>
             <Button
-              onClick={() => setShowAllPickups((prev) => !prev)}
               type="default"
+              onClick={() => setShowAllPickups((prev) => !prev)}
             >
               {showAllPickups ? "Hide All Pickups" : "View All Pickups"}
             </Button>
@@ -116,7 +116,6 @@ export const ShipmentPickUp = () => {
         </Col>
       </Row>
 
-      {/* Customer Shipments Table */}
       <Table
         rowKey="id"
         columns={shipmentColumns}
@@ -134,7 +133,6 @@ export const ShipmentPickUp = () => {
         }}
       />
 
-      {/* All Pickups Table */}
       {showAllPickups && <AllPickups />}
     </div>
   );

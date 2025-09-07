@@ -4,12 +4,7 @@ import type {
   AssignPermissionsPayload,
   CreateSuperAdminUserPayload,
 } from "../../tenants/tenants.types";
-import type {
-  AssignTenantPayload,
-  FetchTenantsResponse,
-  RegisterResponse,
-  RegisterUserPayload,
-} from "../../tenants/users.types";
+
 // import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
 
@@ -204,61 +199,3 @@ export const fetchWarehouseUsers = async (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}/users`);
 };
 
-// Customer: Register user
-export const registerUser = async (data: RegisterUserPayload) => {
-  const response = await instance.post<RegisterResponse>(
-    "/auth/register",
-    data
-  );
-  return response.data;
-};
-
-// Customer: Fetch all tenants for user to select from during registration
-export const fetchAllTenants = async (): Promise<FetchTenantsResponse> => {
-  const response = await instance.get<FetchTenantsResponse>("/tenants");
-  return response.data;
-};
-
-// Customer: Assign tenant during registration
-export const assignTenant = async (payload: AssignTenantPayload) => {
-  return instance.post("/auth/attach-to-tenant", payload, {
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
-// Customer: Fetch orders from customer dashboard
-export const fetchOrdersByCustomer = async (customerId: string) => {
-  return instance.get(`/orders/customer/${customerId}`);
-};
-
-// Customer: Create pickup request for selected orders
-export const createPickup = async (orderIds: string[]) => {
-  return instance.post("/pickups", {
-    orderIds,
-  });
-};
-
-// Customer : Get pickups for a customer
-export const fetchCustomerPickups = async (customerId: string) => {
-  return await instance.get(`/pickups/${customerId}/customer-pickups`);
-};
-
-// Customer : Get orders for a pickup
-export const fetchPickupOrders = async (pickupId: string) => {
-  return await instance.get(`/pickups/${pickupId}/pickup-orders`);
-};
-
-export const createPickupRequest = async (
-  pickupId: string,
-) => {
-  return await instance.post(`/pickups/${pickupId}/requests`, {
-    pickupId,
-  });
-};
-
-
-// Fetch branches for a specific customer
-export const fetchBranchesByCustomer = async (customerId: string) => {
-  const response = await instance.get(`/branches/customer/${customerId}`);
-  return response;
-};

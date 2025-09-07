@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Form, Input, Button, Typography, message } from "antd";
-import { registerUser } from "../api/tenantApi";
+import { registerUser } from "../api/customerApi";
 import { useNavigate, Link } from "react-router-dom";
 import type { RegisterUserPayload } from "../../tenants/users.types";
 import styles from "../../../styles/Login.module.css"; 
