@@ -5,6 +5,7 @@ import {
   TruckOutlined,
   HomeOutlined,
   LogoutOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import styles from "../../styles/CustomerAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
@@ -40,6 +41,11 @@ export const CustomerAdminPanel = () => {
       key: `${basePath}/shipments`,
       icon: <TruckOutlined />,
       label: "Shipments",
+    },
+    {
+      key: `${basePath}/branches`,
+      icon: <ShopOutlined />,
+      label: "Branches",
     },
     {
       key: "logout",

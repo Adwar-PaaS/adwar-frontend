@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Table, Tag, Typography, Button, Row, Col, message, Space } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchOrdersByCustomer, createPickup } from "../auth/api/tenantApi";
-import { useCurrentUser } from "../../components/auth/useCurrentUser";
-import { AllPickups } from "./AllPickups";
+import { fetchOrdersByCustomer, createPickup } from "../../auth/api/tenantApi";
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
+import { AllPickups } from "../components/AllPickups";
 
 interface Shipment {
   id: string;

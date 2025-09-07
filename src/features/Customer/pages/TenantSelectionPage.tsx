@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { TenantSelectionForm } from "./TenantSelectionForm";
+import { TenantSelectionForm } from "../components/TenantSelectionForm";
 import { useNavigate } from "react-router-dom";
 import {
   fetchAllTenants,
   assignTenant,
-} from "../../features/auth/api/tenantApi";
+} from "../../../features/auth/api/tenantApi";
 import { message, Typography } from "antd";
 
-import styles from "../../styles/Login.module.css";
-import { useAppSelector } from "../../store/hooks";
+import styles from "../../../styles/Login.module.css";
+import { useAppSelector } from "../../../store/hooks";
 
 interface Tenant {
   id: string;

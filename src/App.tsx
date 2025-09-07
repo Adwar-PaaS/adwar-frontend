@@ -14,10 +14,11 @@ import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
 import { WarehouseDetailsPage } from "./features/tenants/pages/WarehouseDetailsPage";
 import RegisterPage from "./features/auth/pages/Register";
-import TenantSelectionPage from "./features/Customer/TenantSelectionPage";
+import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
 import { CustomerAdminPanel } from "./components/layout/CustomerAdminPanel";
-import { CustomerOrdersList } from "./features/Customer/CustomerOrdersList";
-import { ShipmentPickUp } from "./features/Customer/ShipmentPickUp"; 
+import { CustomerOrdersList } from "./features/Customer/pages/CustomerOrdersList";
+import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp"; 
+import { CustomerBranchesList } from "./features/Customer/pages/CustomerBranchesList";
 
 function App() {
   return (
@@ -131,6 +132,10 @@ function App() {
               <Route
                 path="shipments"
                 element={<ShipmentPickUp />}
+              />
+              <Route
+                path="branches"
+                element={<CustomerBranchesList />}
               />
             </Route>
           </Route>

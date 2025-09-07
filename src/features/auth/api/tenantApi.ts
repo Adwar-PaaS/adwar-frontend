@@ -255,3 +255,10 @@ export const createPickupRequest = async (
     pickupId,
   });
 };
+
+
+// Fetch branches for a specific customer
+export const fetchBranchesByCustomer = async (customerId: string) => {
+  const response = await instance.get(`/branches/customer/${customerId}`);
+  return response;
+};
