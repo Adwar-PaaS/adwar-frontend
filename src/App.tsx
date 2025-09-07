@@ -17,8 +17,9 @@ import RegisterPage from "./features/auth/pages/Register";
 import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
 import { CustomerAdminPanel } from "./components/layout/CustomerAdminPanel";
 import { CustomerOrdersList } from "./features/Customer/pages/CustomerOrdersList";
-import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp"; 
+import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp";
 import { CustomerBranchesList } from "./features/Customer/pages/CustomerBranchesList";
+import { BranchDetailsPage } from "./features/Customer/pages/BranchDetailsPage";
 
 function App() {
   return (
@@ -129,13 +130,11 @@ function App() {
             <Route path="dashboard" element={<CustomerAdminPanel />}>
               <Route index element={<div>Welcome to Customer Dashboard</div>} />
               <Route path="orders" element={<CustomerOrdersList />} />
+              <Route path="shipments" element={<ShipmentPickUp />} />
+              <Route path="branches" element={<CustomerBranchesList />} />
               <Route
-                path="shipments"
-                element={<ShipmentPickUp />}
-              />
-              <Route
-                path="branches"
-                element={<CustomerBranchesList />}
+                path="branches/:branchId"
+                element={<BranchDetailsPage />}
               />
             </Route>
           </Route>

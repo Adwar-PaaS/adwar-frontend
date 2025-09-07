@@ -84,3 +84,9 @@ export const updateBranch = async (branchId: string, payload: {
   const response = await instance.put(`/branches/${branchId}`, payload);
   return response.data;
 };
+
+// Fetch a specific branch by ID
+export const fetchBranchById = async (branchId: string) => {
+return instance.get(`/branches/${branchId}`);
+};
+

@@ -9,6 +9,7 @@ import {
 } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import { fetchBranchesByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { BranchModal } from "../components/BranchModal";
@@ -23,9 +24,11 @@ interface Branch {
 }
 
 export const CustomerBranchesList = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: currentUserData } = useCurrentUser();
   const customerId = currentUserData?.data?.data?.user?.id;
+  const tenantSlug = currentUserData?.data?.data?.user?.tenantSlug; // <-- extract tenant slug
 
   const { data, isLoading } = useQuery({
     queryKey: ["customerBranches", customerId],
@@ -45,21 +48,44 @@ export const CustomerBranchesList = () => {
   };
 
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (_: any, record: Branch) => (
+        <Button
+          type="link"
+        onClick={() => navigate(`${record.id}`)}
+        >
+          {record.name}
+        </Button>
+      ),
+    },
     { title: "Location", dataIndex: "location", key: "location" },
-    { title: "Created At", dataIndex: "createdAt", key: "createdAt",
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
       render: (date: string) => new Date(date).toLocaleString(),
     },
-    { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt",
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
       render: (date: string) => new Date(date).toLocaleString(),
     },
-    { title: "Actions", key: "actions",
+    {
+      title: "Actions",
+      key: "actions",
       render: (_: any, record: Branch) => (
         <Space>
-          <Button type="link" onClick={() => {
-            setEditingBranch(record);
-            setModalOpen(true);
-          }}>
+          <Button
+            type="link"
+            onClick={() => {
+              setEditingBranch(record);
+              setModalOpen(true);
+            }}
+          >
             <EditOutlined /> Edit
           </Button>
         </Space>
@@ -74,7 +100,9 @@ export const CustomerBranchesList = () => {
           <Typography.Title level={3}>Customer Branches</Typography.Title>
         </Col>
         <Col>
-          <Button type="primary" icon={<PlusOutlined />}
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
             onClick={() => {
               setEditingBranch(null);
               setModalOpen(true);
@@ -102,11 +130,15 @@ export const CustomerBranchesList = () => {
           setEditingBranch(null);
         }}
         onSubmit={handleModalSubmit}
-        branch={editingBranch ? {
-          id: editingBranch.id,
-          name: editingBranch.name,
-          location: editingBranch.location,
-        } : undefined}
+        branch={
+          editingBranch
+            ? {
+                id: editingBranch.id,
+                name: editingBranch.name,
+                location: editingBranch.location,
+              }
+            : undefined
+        }
       />
     </div>
   );
