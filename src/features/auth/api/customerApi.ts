@@ -90,3 +90,7 @@ export const fetchBranchById = async (branchId: string) => {
 return instance.get(`/branches/${branchId}`);
 };
 
+// Delete a branch by ID
+export const deleteBranch = async (branchId: string) => {
+  return instance.delete(`/branches/${branchId}`);
+};

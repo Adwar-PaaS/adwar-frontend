@@ -6,11 +6,16 @@ import {
   Row,
   Col,
   Space,
+  message,
+  Popconfirm,
 } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { fetchBranchesByCustomer } from "../../auth/api/customerApi";
+import {
+  fetchBranchesByCustomer,
+  deleteBranch,
+} from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { BranchModal } from "../components/BranchModal";
 
@@ -28,7 +33,6 @@ export const CustomerBranchesList = () => {
   const queryClient = useQueryClient();
   const { data: currentUserData } = useCurrentUser();
   const customerId = currentUserData?.data?.data?.user?.id;
-  const tenantSlug = currentUserData?.data?.data?.user?.tenantSlug; // <-- extract tenant slug
 
   const { data, isLoading } = useQuery({
     queryKey: ["customerBranches", customerId],
@@ -42,10 +46,26 @@ export const CustomerBranchesList = () => {
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
 
   const handleModalSubmit = () => {
-    queryClient.invalidateQueries({ queryKey: ["customerBranches", customerId] });
+    queryClient.invalidateQueries({
+      queryKey: ["customerBranches", customerId],
+    });
     setModalOpen(false);
     setEditingBranch(null);
   };
+
+const handleDelete = async (id: string) => {
+  try {
+    await deleteBranch(id);
+    message.success("Branch deleted successfully");
+
+    queryClient.invalidateQueries({
+      queryKey: ["customerBranches", customerId],
+    });
+  } catch (error) {
+    message.error("Failed to delete branch");
+  }
+};
+
 
   const columns = [
     {
@@ -53,10 +73,7 @@ export const CustomerBranchesList = () => {
       dataIndex: "name",
       key: "name",
       render: (_: any, record: Branch) => (
-        <Button
-          type="link"
-        onClick={() => navigate(`${record.id}`)}
-        >
+        <Button type="link" onClick={() => navigate(`${record.id}`)}>
           {record.name}
         </Button>
       ),
@@ -88,6 +105,17 @@ export const CustomerBranchesList = () => {
           >
             <EditOutlined /> Edit
           </Button>
+
+          <Popconfirm
+            title="Are you sure you want to delete this branch?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" danger>
+              <DeleteOutlined /> Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
