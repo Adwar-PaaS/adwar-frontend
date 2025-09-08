@@ -2,10 +2,8 @@ import { Layout, Menu } from "antd";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   HomeOutlined,
-  ShoppingCartOutlined,
-  DatabaseOutlined,
-  UserOutlined,
   LogoutOutlined,
+  TruckOutlined,
 } from "@ant-design/icons";
 import styles from "../../styles/TenantAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
@@ -28,19 +26,9 @@ export const OperationsPanel = () => {
       label: "Dashboard",
     },
     {
-      key: `${basePath}/tasks`,
-      icon: <ShoppingCartOutlined />,
-      label: "Tasks",
-    },
-    {
-      key: `${basePath}/reports`,
-      icon: <DatabaseOutlined />,
-      label: "Reports",
-    },
-    {
-      key: `${basePath}/users`,
-      icon: <UserOutlined />,
-      label: "Users",
+      key: `${basePath}/pickups`,
+      icon: <TruckOutlined />,
+      label: "Pickups",
     },
     {
       key: "logout",

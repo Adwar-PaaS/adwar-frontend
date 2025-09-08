@@ -21,6 +21,7 @@ import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp";
 import { CustomerBranchesList } from "./features/Customer/pages/CustomerBranchesList";
 import { BranchDetailsPage } from "./features/Customer/pages/BranchDetailsPage";
 import { OperationsPanel } from "./components/layout/OperationsPanel"; // <--- Import the new layout
+import { PickupsListPage } from "./features/Operation/pages/PickupsListPage";
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
           >
             <Route element={<OperationsPanel />}>
               <Route path="dashboard" element={<div>Tenant Operations Dashboard</div>} />
+              <Route path="pickups" element={<PickupsListPage/>} />
             </Route>
           </Route>
 
