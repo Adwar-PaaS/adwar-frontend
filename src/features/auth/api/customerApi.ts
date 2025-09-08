@@ -45,11 +45,6 @@ export const fetchCustomerPickups = async (customerId: string) => {
   return await instance.get(`/pickups/${customerId}/customer-pickups`);
 };
 
-// Customer : Get orders for a pickup
-export const fetchPickupOrders = async (pickupId: string) => {
-  return await instance.get(`/pickups/${pickupId}/pickup-orders`);
-};
-
 // Customer : Create a pickup request
 export const createPickupRequest = async (
   pickupId: string,
@@ -58,7 +53,6 @@ export const createPickupRequest = async (
     pickupId,
   });
 };
-
 
 // Fetch branches for a specific customer
 export const fetchBranchesByCustomer = async (customerId: string) => {

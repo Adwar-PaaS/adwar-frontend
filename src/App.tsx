@@ -22,6 +22,7 @@ import { CustomerBranchesList } from "./features/Customer/pages/CustomerBranches
 import { BranchDetailsPage } from "./features/Customer/pages/BranchDetailsPage";
 import { OperationsPanel } from "./components/layout/OperationsPanel"; // <--- Import the new layout
 import { PickupsListPage } from "./features/Operation/pages/PickupsListPage";
+import { PickupDetailsPage } from "./features/Operation/pages/PickupDetailsPage";
 
 function App() {
   return (
@@ -55,12 +56,18 @@ function App() {
             }
           >
             <Route element={<TenantAdminPanel />}>
-              <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
+              <Route
+                path="dashboard"
+                element={<div>Tenant Admin Dashboard</div>}
+              />
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
               <Route path="orders/:orderId" element={<OrderDetailsPage />} />
               <Route path="warehouses" element={<WarehouseList />} />
-              <Route path="warehouses/:warehouseId" element={<WarehouseDetailsPage />} />
+              <Route
+                path="warehouses/:warehouseId"
+                element={<WarehouseDetailsPage />}
+              />
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>
@@ -76,8 +83,12 @@ function App() {
             }
           >
             <Route element={<OperationsPanel />}>
-              <Route path="dashboard" element={<div>Tenant Operations Dashboard</div>} />
-              <Route path="pickups" element={<PickupsListPage/>} />
+              <Route
+                path="dashboard"
+                element={<div>Tenant Operations Dashboard</div>}
+              />
+              <Route path="pickups" element={<PickupsListPage />} />
+              <Route path="pickups/:pickupId" element={<PickupDetailsPage />} />
             </Route>
           </Route>
 
@@ -91,7 +102,10 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant Driver Dashboard</div>} />
+            <Route
+              path="dashboard"
+              element={<div>Tenant Driver Dashboard</div>}
+            />
           </Route>
 
           {/* Tenant Picker Routes */}
@@ -104,7 +118,10 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<div>Tenant Picker Dashboard</div>} />
+            <Route
+              path="dashboard"
+              element={<div>Tenant Picker Dashboard</div>}
+            />
           </Route>
 
           {/* Tenant Customer Routes */}
@@ -122,7 +139,10 @@ function App() {
               <Route path="orders" element={<CustomerOrdersList />} />
               <Route path="shipments" element={<ShipmentPickUp />} />
               <Route path="branches" element={<CustomerBranchesList />} />
-              <Route path="branches/:branchId" element={<BranchDetailsPage />} />
+              <Route
+                path="branches/:branchId"
+                element={<BranchDetailsPage />}
+              />
             </Route>
           </Route>
         </Route>

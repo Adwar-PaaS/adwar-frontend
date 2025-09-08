@@ -1,9 +1,7 @@
-// src/features/Customer/pages/PickupsListPage.tsx
-import { useState } from "react";
-import { Table, Tag, Typography, Row, Col, Button, Space } from "antd";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { Table, Tag, Typography, Button } from "antd";
+import { useQuery } from "@tanstack/react-query";
 import { fetchAllPickups } from "../../auth/api/operationApi";
+import { useNavigate, useParams } from "react-router-dom";
 
 export interface PickupRequest {
   id: string;
@@ -16,20 +14,28 @@ export interface PickupRequest {
 }
 
 export const PickupsListPage = () => {
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["pickupsList"],
     queryFn: fetchAllPickups,
   });
 
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const pickups: PickupRequest[] = data?.data?.requests || [];
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingPickup, setEditingPickup] = useState<PickupRequest | null>(null);
-
   const columns = [
-    { title: "Pickup ID", dataIndex: "pickupId", key: "pickupId" },
+    {
+      title: "Pickup ID",
+      dataIndex: "pickupId",
+      key: "pickupId",
+      render: (pickupId: string) => (
+        <Button type="link" onClick={() =>  navigate(`/tenant/${tenantSlug}/operation/pickups/${pickupId}`)}>
+          {pickupId}
+        </Button>
+      ),
+    },
     { title: "Requested By", dataIndex: "requestedBy", key: "requestedBy" },
+    { title: "Responded By", dataIndex: "respondedBy", key: "respondedBy" },
     {
       title: "Status",
       dataIndex: "status",
@@ -55,61 +61,19 @@ export const PickupsListPage = () => {
       key: "updatedAt",
       render: (date: string) => new Date(date).toLocaleString(),
     },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_: any, record: PickupRequest) => (
-        <Space>
-          <Button
-            type="link"
-            onClick={() => {
-              setEditingPickup(record);
-              setModalOpen(true);
-            }}
-          >
-            <EditOutlined /> Edit
-          </Button>
-        </Space>
-      ),
-    },
   ];
 
   return (
     <div style={{ padding: 20 }}>
-      <Row align="middle" justify="space-between">
-        <Col>
-          <Typography.Title level={3}>Pickup Requests</Typography.Title>
-        </Col>
-        <Col>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingPickup(null);
-              setModalOpen(true);
-            }}
-          >
-            Add Pickup
-          </Button>
-        </Col>
-      </Row>
-
+      <Typography.Title level={3}>Pickup Requests</Typography.Title>
       <Table
         rowKey="id"
         columns={columns}
         dataSource={pickups}
         loading={isLoading}
         bordered
-        style={{ marginTop: 16 }}
         scroll={{ x: "max-content" }}
       />
-
-      {modalOpen && (
-        <div>
-          <div>Modal content for {editingPickup?.id || "new pickup"}</div>
-          <Button onClick={() => setModalOpen(false)}>Close</Button>
-        </div>
-      )}
     </div>
   );
 };
