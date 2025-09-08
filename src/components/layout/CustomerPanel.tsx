@@ -7,14 +7,14 @@ import {
   LogoutOutlined,
   ShopOutlined,
 } from "@ant-design/icons";
-import styles from "../../styles/CustomerAdminPanel.module.css";
+import styles from "../../styles/CustomerPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
 import { handleLogout } from "../../utils/logout";
-import { useCurrentUser } from "../../components/auth/useCurrentUser";
+import { useCurrentUser } from "../auth/useCurrentUser";
 
 const { Sider, Content } = Layout;
 
-export const CustomerAdminPanel = () => {
+export const CustomerPanel = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAppSelector((state) => state.auth);
@@ -24,7 +24,7 @@ export const CustomerAdminPanel = () => {
   const tenantSlug =
     currentUserData?.data?.data?.user?.tenant?.slug;
 
-  const basePath = `/tenant/${tenantSlug}/CUSTOMER/dashboard`;
+  const basePath = `/tenant/${tenantSlug}/customer/dashboard`;
 
   const menuItems = [
     {

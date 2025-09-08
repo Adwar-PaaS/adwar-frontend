@@ -15,11 +15,12 @@ import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
 import { WarehouseDetailsPage } from "./features/tenants/pages/WarehouseDetailsPage";
 import RegisterPage from "./features/auth/pages/Register";
 import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
-import { CustomerAdminPanel } from "./components/layout/CustomerAdminPanel";
+import { CustomerPanel } from "./components/layout/CustomerPanel";
 import { CustomerOrdersList } from "./features/Customer/pages/CustomerOrdersList";
 import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp";
 import { CustomerBranchesList } from "./features/Customer/pages/CustomerBranchesList";
 import { BranchDetailsPage } from "./features/Customer/pages/BranchDetailsPage";
+import { OperationsPanel } from "./components/layout/OperationsPanel"; // <--- Import the new layout
 
 function App() {
   return (
@@ -53,36 +54,29 @@ function App() {
             }
           >
             <Route element={<TenantAdminPanel />}>
-              <Route
-                path="dashboard"
-                element={<div>Tenant Admin Dashboard</div>}
-              />
+              <Route path="dashboard" element={<div>Tenant Admin Dashboard</div>} />
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
               <Route path="orders/:orderId" element={<OrderDetailsPage />} />
               <Route path="warehouses" element={<WarehouseList />} />
-              <Route
-                path="warehouses/:warehouseId"
-                element={<WarehouseDetailsPage />}
-              />
+              <Route path="warehouses/:warehouseId" element={<WarehouseDetailsPage />} />
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>
 
           {/* Tenant Operations Routes */}
           <Route
-            path="operations/*"
+            path="operation/*"
             element={
               <ProtectedRoute
-                requiredRoles={["OPERATIONS"]}
+                requiredRoles={["OPERATION"]}
                 requireTenantAccess={true}
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Operations Dashboard</div>}
-            />
+            <Route element={<OperationsPanel />}>
+              <Route path="dashboard" element={<div>Tenant Operations Dashboard</div>} />
+            </Route>
           </Route>
 
           {/* Tenant Driver Routes */}
@@ -95,10 +89,7 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Driver Dashboard</div>}
-            />
+            <Route path="dashboard" element={<div>Tenant Driver Dashboard</div>} />
           </Route>
 
           {/* Tenant Picker Routes */}
@@ -111,15 +102,12 @@ function App() {
               />
             }
           >
-            <Route
-              path="dashboard"
-              element={<div>Tenant Picker Dashboard</div>}
-            />
+            <Route path="dashboard" element={<div>Tenant Picker Dashboard</div>} />
           </Route>
 
-          {/* Tenant User Routes */}
+          {/* Tenant Customer Routes */}
           <Route
-            path="CUSTOMER/*"
+            path="customer/*"
             element={
               <ProtectedRoute
                 requiredRoles={["CUSTOMER"]}
@@ -127,15 +115,12 @@ function App() {
               />
             }
           >
-            <Route path="dashboard" element={<CustomerAdminPanel />}>
+            <Route path="dashboard" element={<CustomerPanel />}>
               <Route index element={<div>Welcome to Customer Dashboard</div>} />
               <Route path="orders" element={<CustomerOrdersList />} />
               <Route path="shipments" element={<ShipmentPickUp />} />
               <Route path="branches" element={<CustomerBranchesList />} />
-              <Route
-                path="branches/:branchId"
-                element={<BranchDetailsPage />}
-              />
+              <Route path="branches/:branchId" element={<BranchDetailsPage />} />
             </Route>
           </Route>
         </Route>

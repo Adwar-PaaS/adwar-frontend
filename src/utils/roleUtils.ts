@@ -7,14 +7,14 @@ export const getRoleBasedRoute = (user: User): string => {
       return "/superadmin/dashboard";
     case "ADMIN":
       return `/tenant/${tenantSlug}/admin/dashboard`;
-    case "OPERATIONS":
-      return `/tenant/${tenantSlug}/operations/dashboard`;
+    case "OPERATION":
+      return `/tenant/${tenantSlug}/operation/dashboard`;
     case "DRIVER":
       return `/tenant/${tenantSlug}/driver/dashboard`;
     case "PICKER":
       return `/tenant/${tenantSlug}/picker/dashboard`;
     case "CUSTOMER":
-      return `/tenant/${tenantSlug}/CUSTOMER/dashboard`;
+      return `/tenant/${tenantSlug}/customer/dashboard`;
     default:
       return "/login"; // fallback
   }
@@ -74,7 +74,7 @@ export const isAdminOrHigher = (user: User | null, tenantSlug?: string): boolean
   if (!user) return false;
   if (user.role.name === "SUPER_ADMIN") return false;
 
-  const allowed = ["ADMIN", "OPERATIONS", "DRIVER", "PICKER"];
+  const allowed = ["ADMIN", "OPERATION", "DRIVER", "PICKER"];
   if (!allowed.includes(user.role.name)) return false;
 
   if (tenantSlug) return user.tenant?.slug === tenantSlug;
@@ -97,7 +97,7 @@ export const isTenantUser = (user: User | null): boolean =>
   !!user && user.role.name !== "SUPER_ADMIN";
 
 export const getTenantRoles = (): Array<
-  "ADMIN" | "OPERATIONS" | "DRIVER" | "PICKER" | "CUSTOMER"
+  "ADMIN" | "OPERATION" | "DRIVER" | "PICKER" | "CUSTOMER"
 > => {
-  return ["ADMIN", "OPERATIONS", "DRIVER", "PICKER", "CUSTOMER"];
+  return ["ADMIN", "OPERATION", "DRIVER", "PICKER", "CUSTOMER"];
 };
