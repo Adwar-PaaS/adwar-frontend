@@ -25,7 +25,6 @@ export const OrderDetailsPage = () => {
 
   const handleUpload = (file: File) => {
     console.log("Uploaded file:", file);
-    // Here you can upload this file using FormData to your API
   };
 
   if (isLoading)
