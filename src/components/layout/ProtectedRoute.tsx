@@ -22,7 +22,7 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   // Grab the full auth state from Redux
   const authState = useAppSelector((state) => state.auth);
-  const { isAuthenticated, initialized, user, isLoading } = authState;
+  const { initialized, user, isLoading } = authState;
   const { tenantSlug } = useParams();
 
   // Adapt Redux state to match canUser expected format
@@ -50,9 +50,6 @@ export const ProtectedRoute = ({
   }
 
   // Not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
   const fallbackRoute = user ? getRoleBasedRoute(user) : "/login";
 
