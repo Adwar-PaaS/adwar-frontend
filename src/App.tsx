@@ -23,6 +23,7 @@ import { BranchDetailsPage } from "./features/Customer/pages/BranchDetailsPage";
 import { OperationsPanel } from "./components/layout/OperationsPanel"; // <--- Import the new layout
 import { PickupsListPage } from "./features/Operation/pages/PickupsListPage";
 import { PickupDetailsPage } from "./features/Operation/pages/PickupDetailsPage";
+import { ApprovedPickupsListPage } from "./features/Operation/pages/ApprovedPickupsListPage";
 
 function App() {
   return (
@@ -89,6 +90,12 @@ function App() {
               />
               <Route path="pickups" element={<PickupsListPage />} />
               <Route path="pickups/:pickupId" element={<PickupDetailsPage />} />
+
+              {/* Enable Approved Pickups page */}
+              <Route
+                path="approved-pickups"
+                element={<ApprovedPickupsListPage />}
+              />
             </Route>
           </Route>
 

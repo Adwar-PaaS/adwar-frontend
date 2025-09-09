@@ -1,6 +1,7 @@
 import { Layout, Menu } from "antd";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
+  CheckCircleOutlined,
   HomeOutlined,
   LogoutOutlined,
   TruckOutlined,
@@ -29,6 +30,11 @@ export const OperationsPanel = () => {
       key: `${basePath}/pickups`,
       icon: <TruckOutlined />,
       label: "Pickups",
+    },
+    {
+      key: `${basePath}/approved-pickups`,
+      icon: <CheckCircleOutlined />,
+      label: "Approved Pickups",
     },
     {
       key: "logout",
