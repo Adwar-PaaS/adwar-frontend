@@ -10,3 +10,17 @@ export const fetchAllPickups = async () => {
 export const fetchPickupOrders = async (pickupId: string) => {
   return await instance.get(`/pickups/${pickupId}/pickup-orders`);
 };
+
+// Approve a pickup request
+export const approvePickupRequest = async (requestId: string) => {
+  return await instance.post(`/pickups/requests/${requestId}/respond`, {
+    status: "APPROVED",
+  });
+};
+
+// Reject a pickup request
+export const rejectPickupRequest = async (requestId: string) => {
+  return await instance.post(`/pickups/requests/${requestId}/respond`, {
+    status: "REJECTED",
+  });
+};

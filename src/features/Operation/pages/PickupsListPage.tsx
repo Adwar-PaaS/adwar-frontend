@@ -29,7 +29,12 @@ export const PickupsListPage = () => {
       dataIndex: "pickupId",
       key: "pickupId",
       render: (pickupId: string) => (
-        <Button type="link" onClick={() =>  navigate(`/tenant/${tenantSlug}/operation/pickups/${pickupId}`)}>
+        <Button
+          type="link"
+          onClick={() =>
+            navigate(`/tenant/${tenantSlug}/operation/pickups/${pickupId}`)
+          }
+        >
           {pickupId}
         </Button>
       ),
@@ -37,7 +42,7 @@ export const PickupsListPage = () => {
     { title: "Requested By", dataIndex: "requestedBy", key: "requestedBy" },
     { title: "Responded By", dataIndex: "respondedBy", key: "respondedBy" },
     {
-      title: "Status",
+      title: "Pickup Request Status",
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
@@ -46,6 +51,9 @@ export const PickupsListPage = () => {
         if (status === "CANCELLED") color = "red";
         if (status === "PENDING") color = "orange";
         if (status === "FAILED") color = "volcano";
+        if (status === "APPROVED") color = "cyan";
+        if (status === "REJECTED") color = "magenta";
+
         return <Tag color={color}>{status}</Tag>;
       },
     },
