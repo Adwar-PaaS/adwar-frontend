@@ -4,9 +4,11 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { getRoles } from "../../auth/api/tenantApi";
 import styles from "../../../styles/TenantFormModal.module.css";
+import type { CreateSuperAdminUserPayload } from "../tenants.types";
 
 interface TenantUserValues {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   phone: string;
@@ -29,7 +31,8 @@ export const TenantSuperAdminUserFormModal = ({
   const [roles, setRoles] = useState<string[]>([]);
 
   const defaultValues: TenantUserValues = {
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     phone: "",
@@ -62,7 +65,7 @@ export const TenantSuperAdminUserFormModal = ({
       <Formik
         initialValues={defaultValues}
         onSubmit={(values) => {
-          const payload = {
+          const payload: CreateSuperAdminUserPayload = {
             ...values,
             tenantId,
           };
@@ -78,12 +81,21 @@ export const TenantSuperAdminUserFormModal = ({
             autoComplete="off"
             name="tenantUserForm"
           >
-            <Form.Item label="Full Name" required>
+            <Form.Item label="First Name" required>
               <Input
-                name="fullName"
-                value={values.fullName}
+                name="firstName"
+                value={values.firstName}
                 onChange={handleChange}
-                placeholder="Enter full name"
+                placeholder="Enter first name"
+              />
+            </Form.Item>
+
+            <Form.Item label="Last Name" required>
+              <Input
+                name="lastName"
+                value={values.lastName}
+                onChange={handleChange}
+                placeholder="Enter last name"
               />
             </Form.Item>
 

@@ -29,7 +29,8 @@ export const TenantDetails = () => {
         users: Array.isArray(usersRes.data.data?.users)
           ? usersRes.data.data.users.map((u: any) => ({
               id: u.user.id,
-              fullName: u.user.fullName,
+              firstName: u.user.firstName,
+              lastName: u.user.lastName,
               email: u.user.email,
               phone: u.user.phone,
               status: u.user.status,
@@ -142,7 +143,13 @@ export const TenantDetails = () => {
       <Table
         rowKey="id"
         columns={[
-          { title: "Full Name", dataIndex: "fullName" },
+          {
+            title: "Name",
+            key: "name",
+            render: (_: any, record: any) => (
+              <span>{`${record.firstName} ${record.lastName}`.trim()}</span>
+            ),
+          },
           { title: "Email", dataIndex: "email" },
           { title: "Phone", dataIndex: "phone" },
           { title: "Role", dataIndex: "role" },

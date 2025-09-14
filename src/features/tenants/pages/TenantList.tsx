@@ -109,7 +109,17 @@ export const TenantList = () => {
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
 
-    { title: "Address", dataIndex: "address", key: "address" },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render: (address: any) => {
+        if (!address) return "N/A";
+        return `${address.address1 || ""}, ${address.city || ""}, ${
+          address.country || ""
+        }`.replace(/(,\s*)+$/, "");
+      },
+    },
     {
       title: "Logo",
       dataIndex: "logoUrl",
@@ -127,7 +137,10 @@ export const TenantList = () => {
       title: "Created By",
       dataIndex: "creator",
       key: "createdBy",
-      render: (creator: { fullName: string }) => creator?.fullName,
+      render: (creator: { firstName?: string; lastName?: string }) =>
+        creator
+          ? `${creator.firstName || ""} ${creator.lastName || ""}`.trim()
+          : "N/A",
     },
     {
       title: "Status",
