@@ -34,9 +34,9 @@ export const TenantAdminPanel = () => {
       label: "Orders",
     },
     {
-     key: `${basePath}/warehouses`,
+     key: `${basePath}/branches`,
       icon: <DatabaseOutlined />,
-      label: "Warehouses",
+      label: "Branches",
     },
     {
       key: `${basePath}/users`,

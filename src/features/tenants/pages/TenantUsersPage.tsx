@@ -33,12 +33,13 @@ export const TenantUsersPage = () => {
   const users =
     data?.data?.data?.users?.map((item: any) => ({
       id: item.user.id,
-      fullName: item.user.fullName,
+      firstName: item.user.firstName,
+      lastName: item.user.lastName,
       email: item.user.email,
       phone: item.user.phone,
       status: item.user.status,
-      role: item.user.role?.name || "N/A", // for display
-      roleId: item.user.role?.name || "", // keep roleId as string (since API returns strings)
+      role: item.user.role?.name || "N/A",
+      roleId: item.user.role?.name || "",
       warehouse: item.warehouse?.name || "N/A",
       assignWarehouses: item.user.assignWarehouses || [],
     })) || [];
@@ -87,7 +88,8 @@ export const TenantUsersPage = () => {
     if (!tenantId) return;
 
     const payload: createTenantUserPayload = {
-      fullName: values.name,
+      firstName: values.firstName,
+      lastName: values.lastName,
       email: values.email,
       phone: values.phone,
       password: values.password || "mypassword123",
@@ -99,7 +101,8 @@ export const TenantUsersPage = () => {
       updateUserMutation.mutate({
         id: editingUser.id,
         values: {
-          fullName: values.name,
+          firstName: values.firstName,
+          lastName: values.lastName,
           email: values.email,
           phone: values.phone,
           roleId: values.roleId,
@@ -111,7 +114,12 @@ export const TenantUsersPage = () => {
   };
 
   const columns = [
-    { title: "Full Name", dataIndex: "fullName" },
+    {
+      title: "Full Name",
+      dataIndex: "fullName",
+      render: (_: any, record: any) =>
+        `${record.firstName} ${record.lastName}`.trim(),
+    },
     { title: "Email", dataIndex: "email" },
     { title: "Phone", dataIndex: "phone" },
     { title: "Role", dataIndex: "role" },
@@ -223,7 +231,8 @@ export const TenantUsersPage = () => {
         initialValues={
           editingUser
             ? {
-                name: editingUser.fullName,
+                firstName: editingUser.firstName,
+                lastName: editingUser.lastName,
                 email: editingUser.email,
                 roleId: editingUser.roleId,
                 phone: editingUser.phone,

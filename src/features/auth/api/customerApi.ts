@@ -1,9 +1,11 @@
 import instance from "./axiosInstance";
 import type {
   AssignTenantPayload,
+  CreateBranchPayload,
   FetchTenantsResponse,
   RegisterResponse,
   RegisterUserPayload,
+  UpdateBranchPayload,
 } from "../../tenants/users.types";
 
 // Customer: Register user
@@ -61,20 +63,16 @@ export const fetchBranchesByCustomer = async (customerId: string) => {
 };
 
 // Create a new branch for a customer
-export const createBranch = async (payload: {
-  name: string;
-  location: string;
-  customerId: string;
-}) => {
-  return await instance.post("/branches", payload);
+export const createBranch = async (payload: CreateBranchPayload) => {
+  const response = await instance.post("/branches", payload);
+  return response.data;
 };
 
 /// Update branch
-export const updateBranch = async (branchId: string, payload: {
-  name: string;
-  location: string;
-  status?: string;
-}) => {
+export const updateBranch = async (
+  branchId: string,
+  payload: UpdateBranchPayload
+) => {
   const response = await instance.put(`/branches/${branchId}`, payload);
   return response.data;
 };

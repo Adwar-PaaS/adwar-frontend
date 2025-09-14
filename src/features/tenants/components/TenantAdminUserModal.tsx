@@ -3,7 +3,10 @@ import { Formik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import styles from "../../../styles/TenantUsersPage.module.css";
-import { fetchTenantWarehouses, fetchTenantRoles } from "../../auth/api/tenantApi";
+import {
+  fetchTenantWarehouses,
+  fetchTenantRoles,
+} from "../../auth/api/tenantApi";
 import { useQuery } from "@tanstack/react-query";
 
 interface Role {
@@ -12,7 +15,8 @@ interface Role {
 }
 
 interface TenantUserFormValues {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone?: string;
   roleId: string;
@@ -31,7 +35,8 @@ interface TenantUserFormModalProps {
 }
 
 const TenantUserSchema = Yup.object().shape({
-  name: Yup.string().required("Full Name is required"),
+  firstName: Yup.string().required("First Name is required"),
+  lastName: Yup.string().required("Last Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
   roleId: Yup.string().required("Role is required"),
   status: Yup.string().required("Status is required"),
@@ -51,7 +56,8 @@ export const TenantAdminUserModal = ({
   isEdit = false,
 }: TenantUserFormModalProps) => {
   const defaultValues: TenantUserFormValues = initialValues || {
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     roleId: "",
@@ -107,15 +113,32 @@ export const TenantAdminUserModal = ({
         }) => (
           <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
             <Form.Item
-              label="Full Name"
-              validateStatus={touched.name && errors.name ? "error" : ""}
-              help={touched.name && errors.name}
+              label="First Name"
+              validateStatus={
+                touched.firstName && errors.firstName ? "error" : ""
+              }
+              help={touched.firstName && errors.firstName}
             >
               <Input
-                name="name"
-                value={values.name}
+                name="firstName"
+                value={values.firstName}
                 onChange={handleChange}
-                placeholder="Enter full name"
+                placeholder="Enter first name"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Last Name"
+              validateStatus={
+                touched.lastName && errors.lastName ? "error" : ""
+              }
+              help={touched.lastName && errors.lastName}
+            >
+              <Input
+                name="lastName"
+                value={values.lastName}
+                onChange={handleChange}
+                placeholder="Enter last name"
               />
             </Form.Item>
 

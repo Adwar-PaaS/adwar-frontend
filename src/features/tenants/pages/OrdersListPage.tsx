@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import styles from "../../../styles/OrderListPage.module.css";
 import { OrderModal } from "../components/OrderModal";
@@ -158,7 +157,6 @@ export const OrderListPage = () => {
         <Col>
           <Button
             type="primary"
-            icon={<PlusOutlined />}
             onClick={() => setModalOpen(true)}
           >
             Add Order

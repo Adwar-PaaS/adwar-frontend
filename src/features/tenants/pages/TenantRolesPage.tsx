@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import styles from "../../../styles/TenantRolesPage.module.css";
 import { RoleModal } from "../components/RoleModal";
 import type { RoleFormValues } from "../components/RoleModal";
@@ -125,7 +125,6 @@ export const TenantRolesPage = () => {
         <Col>
           <Button
             type="primary"
-            icon={<PlusOutlined />}
             onClick={() => {
               setEditingRole(null);
               setModalOpen(true);

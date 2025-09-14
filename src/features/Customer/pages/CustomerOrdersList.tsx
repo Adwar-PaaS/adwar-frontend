@@ -9,7 +9,7 @@ import {
   Space,
 } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import { fetchOrdersByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { OrderModal } from "../../tenants/components/OrderModal";
@@ -145,7 +145,6 @@ export const CustomerOrdersList = () => {
         <Col>
           <Button
             type="primary"
-            icon={<PlusOutlined />}
             onClick={() => {
               setEditingOrder(null);
               setModalOpen(true);

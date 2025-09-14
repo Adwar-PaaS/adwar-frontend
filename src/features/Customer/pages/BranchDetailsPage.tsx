@@ -16,20 +16,41 @@ export const BranchDetailsPage = () => {
   const branch = data?.data?.data.branch;
 
   if (isError || !branch)
-    return (
-      <Typography.Text>
-        Failed to load branch details
-      </Typography.Text>
-    );
+    return <Typography.Text>Failed to load branch details</Typography.Text>;
 
   return (
     <div className={styles.container}>
       <Card title={`Branch Details - ${branch.name}`}>
         <Descriptions bordered column={1} size="middle">
           <Descriptions.Item label="Name">{branch.name}</Descriptions.Item>
-          <Descriptions.Item label="Location">
-            {branch.location}
+          <Descriptions.Item label="Status">{branch.status}</Descriptions.Item>
+          <Descriptions.Item label="Type">{branch.type}</Descriptions.Item>
+          <Descriptions.Item label="Category">
+            {branch.category}
           </Descriptions.Item>
+
+          <Descriptions.Item label="Address Label">
+            {branch.address?.label}
+          </Descriptions.Item>
+          <Descriptions.Item label="Address 1">
+            {branch.address?.address1}
+          </Descriptions.Item>
+          <Descriptions.Item label="City">
+            {branch.address?.city}
+          </Descriptions.Item>
+          <Descriptions.Item label="Country">
+            {branch.address?.country}
+          </Descriptions.Item>
+          <Descriptions.Item label="Postal Code">
+            {branch.address?.postalCode}
+          </Descriptions.Item>
+          <Descriptions.Item label="Latitude">
+            {branch.address?.latitude}
+          </Descriptions.Item>
+          <Descriptions.Item label="Longitude">
+            {branch.address?.longitude}
+          </Descriptions.Item>
+
           <Descriptions.Item label="Created At">
             {new Date(branch.createdAt).toLocaleString()}
           </Descriptions.Item>

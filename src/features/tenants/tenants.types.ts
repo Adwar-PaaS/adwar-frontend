@@ -42,7 +42,8 @@ export interface CreateSuperAdminUserPayload {
 export interface createTenantUserPayload {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   tenantId: string;
   roleId: string;

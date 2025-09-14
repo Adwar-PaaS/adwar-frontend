@@ -10,7 +10,7 @@ import {
   Popconfirm,
 } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import {
   fetchBranchesByCustomer,
@@ -22,8 +22,18 @@ import { BranchModal } from "../components/BranchModal";
 interface Branch {
   id: string;
   name: string;
-  location: string;
-  phone?: string;
+  status: string;
+  type: string;
+  category: string;
+  address: {
+    label: string;
+    address1: string;
+    city: string;
+    country: string;
+    postalCode: string;
+    latitude: number;
+    longitude: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -53,19 +63,18 @@ export const CustomerBranchesList = () => {
     setEditingBranch(null);
   };
 
-const handleDelete = async (id: string) => {
-  try {
-    await deleteBranch(id);
-    message.success("Branch deleted successfully");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteBranch(id);
+      message.success("Branch deleted successfully");
 
-    queryClient.invalidateQueries({
-      queryKey: ["customerBranches", customerId],
-    });
-  } catch (error) {
-    message.error("Failed to delete branch");
-  }
-};
-
+      queryClient.invalidateQueries({
+        queryKey: ["customerBranches", customerId],
+      });
+    } catch (error) {
+      message.error("Failed to delete branch");
+    }
+  };
 
   const columns = [
     {
@@ -78,7 +87,26 @@ const handleDelete = async (id: string) => {
         </Button>
       ),
     },
-    { title: "Location", dataIndex: "location", key: "location" },
+    {
+      title: "City",
+      dataIndex: ["address", "city"],
+      key: "city",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+    },
     {
       title: "Created At",
       dataIndex: "createdAt",
@@ -125,12 +153,11 @@ const handleDelete = async (id: string) => {
     <div style={{ padding: 20 }}>
       <Row align="middle" justify="space-between">
         <Col>
-          <Typography.Title level={3}>Customer Branches</Typography.Title>
+          <Typography.Title level={3}>Branches</Typography.Title>
         </Col>
         <Col>
           <Button
             type="primary"
-            icon={<PlusOutlined />}
             onClick={() => {
               setEditingBranch(null);
               setModalOpen(true);
@@ -158,15 +185,7 @@ const handleDelete = async (id: string) => {
           setEditingBranch(null);
         }}
         onSubmit={handleModalSubmit}
-        branch={
-          editingBranch
-            ? {
-                id: editingBranch.id,
-                name: editingBranch.name,
-                location: editingBranch.location,
-              }
-            : undefined
-        }
+        branch={editingBranch || undefined}
       />
     </div>
   );

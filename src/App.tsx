@@ -9,10 +9,8 @@ import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
 import "./App.css";
 import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
-import { WarehouseList } from "./features/tenants/pages/WarehouseList";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
-import { WarehouseDetailsPage } from "./features/tenants/pages/WarehouseDetailsPage";
 import RegisterPage from "./features/auth/pages/Register";
 import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
 import { CustomerPanel } from "./components/layout/CustomerPanel";
@@ -64,11 +62,12 @@ function App() {
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
               <Route path="orders/:orderId" element={<OrderDetailsPage />} />
-              <Route path="warehouses" element={<WarehouseList />} />
+              <Route path="branches" element={<CustomerBranchesList />} />
               <Route
-                path="warehouses/:warehouseId"
-                element={<WarehouseDetailsPage />}
+                path="branches/:branchId"
+                element={<BranchDetailsPage />}
               />
+
               <Route path="roles" element={<TenantRolesPage />} />
             </Route>
           </Route>

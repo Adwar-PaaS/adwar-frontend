@@ -25,3 +25,32 @@ export interface AssignTenantPayload {
   tenantId: string;
   userId: string;
 }
+
+export interface BranchAddress {
+  label: string;
+  address1: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface CreateBranchPayload {
+  name: string;
+  tenantId: string;
+  customerId?: string;
+  status: string;
+  type: string;
+  category: string;
+  address: BranchAddress;
+}
+
+export interface UpdateBranchPayload {
+  name: string;
+  location?: string; 
+  status: string;
+  type: string;
+  category: string;
+  address: BranchAddress;
+}
