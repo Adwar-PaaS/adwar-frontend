@@ -1,5 +1,6 @@
 import { AUTH_CONFIG } from "../../../config/auth.config";
 import axiosInstance from "./axiosInstance"; // Use the main axios instance
+import { getCsrfToken } from "./tenantApi";
 
 const { ENDPOINTS } = AUTH_CONFIG;
 
@@ -42,8 +43,12 @@ interface AuthResponse {
 const authAxios = axiosInstance;
 
 export const login = async (data: LoginPayload): Promise<ApiResponse<LoginResponse>> => {
-  const response = await authAxios.post(ENDPOINTS.LOGIN, data);
-  return response.data;
+    const csrfToken = await getCsrfToken();
+const response = await authAxios.post(ENDPOINTS.LOGIN, data, {
+    headers: {
+      "X-CSRF-Token": csrfToken,
+    },
+  });  return response.data;
 };
 
 export const refreshToken = async (): Promise<ApiResponse<AuthResponse>> => {

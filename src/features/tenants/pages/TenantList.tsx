@@ -30,7 +30,7 @@ export const TenantList = () => {
     } catch (error) {
       toast.error("Failed to fetch tenants");
       setTenants([]);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -58,7 +58,10 @@ export const TenantList = () => {
       formData.append("email", values.email);
       formData.append("phone", values.phone);
       formData.append("status", values.status);
-      formData.append("address", values.address);
+
+      formData.append("address[address1]", values.address.address1);
+      formData.append("address[city]", values.address.city);
+      formData.append("address[country]", values.address.country);
 
       if (file) {
         formData.append("logoUrl", file);
@@ -67,7 +70,6 @@ export const TenantList = () => {
       if (editingTenant) {
         const response = await updateTenant(editingTenant.id!, formData);
         const updatedTenant = response.data.data;
-
         setTenants((prev) =>
           prev.map((tenant) =>
             tenant.id === editingTenant.id ? updatedTenant : tenant
@@ -77,13 +79,11 @@ export const TenantList = () => {
       } else {
         const response = await createTenant(formData);
         const newTenant = response.data.data;
-
         setTenants((prev) => [...prev, newTenant]);
         toast.success("Tenant created successfully");
       }
 
       fetchTenants();
-
       setModalOpen(false);
       setEditingTenant(null);
     } catch (error) {

@@ -4,7 +4,11 @@ export interface TenantFormValues {
   email: string;
   phone: string;
   status: "ACTIVE" | "INACTIVE";
-  address: string;
+  address: {
+    address1: string;
+    city: string;
+    country: string;
+  };
   logoUrl: string | null;
   createdAt?: string;
   creator?: {
@@ -17,7 +21,11 @@ export interface CreateTenantPayload {
   email: string;
   phone: string;
   status: "ACTIVE" | "INACTIVE";
-  address: string;
+  address: {
+    address1: string;
+    city: string;
+    country: string;
+  };
   logoUrl?: string | null;
 }
 

@@ -10,6 +10,13 @@ import instance from "./axiosInstance";
 
 // FormData is needed for file uploads to match backend's FileInterceptor
 
+export const getCsrfToken = async (): Promise<string> => {
+  const response = await instance.get<{ data: { token: string } }>(
+    "/auth/csrf-token"
+  );
+  return response.data.data.token;
+};
+
 // SUPERADMIN: Create tenants
 export const createTenant = (data: CreateTenantPayload | FormData) =>
   instance.post("/tenants", data, {
@@ -198,4 +205,3 @@ export const fetchWarehouseOrders = (warehouseId: string) => {
 export const fetchWarehouseUsers = async (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}/users`);
 };
-

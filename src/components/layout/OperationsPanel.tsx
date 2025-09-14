@@ -9,8 +9,9 @@ import {
 import styles from "../../styles/TenantAdminPanel.module.css";
 import { useAppSelector } from "../../store/hooks";
 import { handleLogout } from "../../utils/logout";
+import { NotificationsBell } from "../../features/Operation/components/NotificationsBell";
 
-const { Sider, Content } = Layout;
+const { Sider, Content, Header } = Layout;
 
 export const OperationsPanel = () => {
   const navigate = useNavigate();
@@ -73,6 +74,17 @@ export const OperationsPanel = () => {
         />
       </Sider>
       <Layout>
+         <Header
+          style={{
+            background: "#fff",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            paddingRight: 20,
+          }}
+        >
+          <NotificationsBell />
+        </Header>
         <Content className={styles.content}>
           <Outlet />
         </Content>

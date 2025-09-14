@@ -15,22 +15,25 @@ interface TenantModalProps {
   isEdit?: boolean;
 }
 
-export const TenantFormModal = ({ 
+export const TenantFormModal = ({
   open,
   onClose,
   onSubmit,
   initialValues,
   isEdit = false,
 }: TenantModalProps) => {
-
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
+
   const defaultValues: TenantFormValues = initialValues || {
     name: "",
     email: "",
     phone: "",
     status: "ACTIVE",
-    address: "",
+    address: {
+      address1: "",
+      city: "",
+      country: "",
+    },
     logoUrl: null,
   };
 
@@ -115,10 +118,48 @@ export const TenantFormModal = ({
               </Select>
             </Form.Item>
 
-            <Form.Item label="Address">
+            <Form.Item
+              label="Address Line 1"
+              validateStatus={
+                touched.address?.address1 && errors.address?.address1
+                  ? "error"
+                  : ""
+              }
+              help={touched.address?.address1 && errors.address?.address1}
+            >
               <Input
-                name="address"
-                value={values.address}
+                name="address.address1"
+                value={values.address.address1}
+                onChange={handleChange}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="City"
+              validateStatus={
+                touched.address?.city && errors.address?.city ? "error" : ""
+              }
+              help={touched.address?.city && errors.address?.city}
+            >
+              <Input
+                name="address.city"
+                value={values.address.city}
+                onChange={handleChange}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Country"
+              validateStatus={
+                touched.address?.country && errors.address?.country
+                  ? "error"
+                  : ""
+              }
+              help={touched.address?.country && errors.address?.country}
+            >
+              <Input
+                name="address.country"
+                value={values.address.country}
                 onChange={handleChange}
               />
             </Form.Item>
@@ -127,11 +168,11 @@ export const TenantFormModal = ({
               <Upload
                 beforeUpload={async (file) => {
                   setSelectedFile(file);
-                  
+
                   const base64 = await getBase64(file);
                   setFieldValue("logoUrl", base64);
                   message.success("Image uploaded");
-                  return false; 
+                  return false;
                 }}
                 showUploadList={false}
               >

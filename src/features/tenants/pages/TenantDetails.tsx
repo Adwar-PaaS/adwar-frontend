@@ -17,13 +17,12 @@ export const TenantDetails = () => {
   const userModalOpen = useState(false);
   const [isUserModalOpen, setUserModalOpen] = userModalOpen;
 
-  // Fetch tenant + users in one query
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tenant-details", id],
     queryFn: async () => {
       const [tenantRes, usersRes] = await Promise.all([
         getTenantById(id!),
-        getUsersByTenantId(id!), // get users from API instead of tenant.users
+        getUsersByTenantId(id!),
       ]);
       return {
         tenant: tenantRes.data.data.tenant,
@@ -43,12 +42,11 @@ export const TenantDetails = () => {
     enabled: !!id,
   });
 
-  // Mutation for creating tenant user
   const createUserMutation = useMutation({
     mutationFn: createSuperAdminUser,
     onSuccess: () => {
       toast.success("Tenant user created successfully");
-      queryClient.invalidateQueries({ queryKey: ["tenant-details", id] }); // Refetch data
+      queryClient.invalidateQueries({ queryKey: ["tenant-details", id] });
     },
     onError: () => {
       toast.error("Failed to create tenant user");
@@ -68,7 +66,13 @@ export const TenantDetails = () => {
   const detailsData = [
     { key: "1", label: "Email", value: tenant.email },
     { key: "2", label: "Phone", value: tenant.phone },
-    { key: "3", label: "Address", value: tenant.address },
+    {
+      key: "3",
+      label: "Address",
+      value: tenant.address
+        ? `${tenant.address.address1}, ${tenant.address.city}, ${tenant.address.country}`
+        : "N/A",
+    },
     {
       key: "4",
       label: "Status",
@@ -100,7 +104,11 @@ export const TenantDetails = () => {
     <div className={styles.container}>
       <Row align="middle" gutter={16} className={styles.headerRow}>
         <Col>
-          <img src={tenant.logoUrl} alt="logo" className={styles.logo} />
+          <img
+            src={tenant.logoUrl || "/logo-placeholder.jpg"}
+            alt="logo"
+            className={styles.logo}
+          />
         </Col>
         <Col>
           <Typography.Title level={3} className={styles.name}>
