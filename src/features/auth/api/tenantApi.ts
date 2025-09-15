@@ -205,3 +205,9 @@ export const fetchWarehouseOrders = (warehouseId: string) => {
 export const fetchWarehouseUsers = async (warehouseId: string) => {
   return instance.get(`/warehouses/${warehouseId}/users`);
 };
+
+// Admin: Get all branches for a tenant
+export const fetchTenantBranches = async (tenantId: string) => {
+  const response = await instance.get(`/branches/tenant/${tenantId}`);
+  return response;
+};

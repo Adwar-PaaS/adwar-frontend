@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import styles from "../../../styles/TenantUsersPage.module.css";
 import {
-  fetchTenantWarehouses,
+  fetchTenantBranches,
   fetchTenantRoles,
 } from "../../auth/api/tenantApi";
 import { useQuery } from "@tanstack/react-query";
@@ -42,7 +42,7 @@ const TenantUserSchema = Yup.object().shape({
   status: Yup.string().required("Status is required"),
   assignWarehouses: Yup.array()
     .of(Yup.string())
-    .min(1, "Select at least one warehouse"),
+    .min(1, "Select at least one branch"),
   phone: Yup.string().nullable(),
   warehouseId: Yup.string().nullable(),
 });
@@ -71,15 +71,15 @@ export const TenantAdminUserModal = ({
     enabled: !!tenantId,
   });
 
-  const roles: Role[] = rolesData || [];
-
-  const { data: warehouseData, isLoading: warehouseLoading } = useQuery({
-    queryKey: ["tenantWarehouses", tenantId],
-    queryFn: () => fetchTenantWarehouses(tenantId),
+  const { data, isLoading: branchesLoading } = useQuery({
+    queryKey: ["tenantBranches", tenantId],
+    queryFn: () => fetchTenantBranches(tenantId),
     enabled: !!tenantId,
   });
 
-  const warehouses = warehouseData?.data?.data?.warehouses || [];
+  const roles: Role[] = rolesData || [];
+  const branches = data?.data?.data?.branches || [];
+
 
   return (
     <Modal
@@ -87,7 +87,7 @@ export const TenantAdminUserModal = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       centered
     >
       <Formik
@@ -207,7 +207,7 @@ export const TenantAdminUserModal = ({
             </Form.Item>
 
             <Form.Item
-              label="Assign Warehouses"
+              label="Assign Branches"
               validateStatus={
                 touched.assignWarehouses && errors.assignWarehouses
                   ? "error"
@@ -215,18 +215,18 @@ export const TenantAdminUserModal = ({
               }
               help={touched.assignWarehouses && errors.assignWarehouses}
             >
-              {warehouseLoading ? (
+              {branchesLoading ? (
                 <Spin />
               ) : (
                 <Select
                   mode="multiple"
-                  placeholder="Select warehouses"
+                  placeholder="Select branches"
                   value={values.assignWarehouses}
                   onChange={(val) => setFieldValue("assignWarehouses", val)}
                 >
-                  {warehouses.map((wh: any) => (
-                    <Select.Option key={wh.id} value={wh.id}>
-                      {wh.name} - {wh.location}
+                  {branches.map((branch: any) => (
+                    <Select.Option key={branch.id} value={branch.id}>
+                      {branch.name}
                     </Select.Option>
                   ))}
                 </Select>

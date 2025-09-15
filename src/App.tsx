@@ -22,6 +22,7 @@ import { OperationsPanel } from "./components/layout/OperationsPanel"; // <--- I
 import { PickupsListPage } from "./features/Operation/pages/PickupsListPage";
 import { PickupDetailsPage } from "./features/Operation/pages/PickupDetailsPage";
 import { ApprovedPickupsListPage } from "./features/Operation/pages/ApprovedPickupsListPage";
+import { TenantBranchesList } from "./features/tenants/pages/TenantBranchesList";
 
 function App() {
   return (
@@ -62,7 +63,7 @@ function App() {
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
               <Route path="orders/:orderId" element={<OrderDetailsPage />} />
-              <Route path="branches" element={<CustomerBranchesList />} />
+              <Route path="branches" element={<TenantBranchesList />} />
               <Route
                 path="branches/:branchId"
                 element={<BranchDetailsPage />}

@@ -67,7 +67,7 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({
       title="Assign Driver"
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       {loading ? (
         <div className="flex justify-center items-center p-6">
