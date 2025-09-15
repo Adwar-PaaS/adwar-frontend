@@ -1,13 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBranchById } from "../../auth/api/customerApi";
-import { Card, Descriptions, Typography } from "antd";
+import { Card, Descriptions } from "antd";
 import styles from "../../../styles/BranchDetailsPage.module.css";
 
 export const BranchDetailsPage = () => {
   const { branchId } = useParams<{ branchId: string }>();
 
-  const { data, isError } = useQuery({
+  const { data } = useQuery({
     queryKey: ["branchDetails", branchId],
     queryFn: () => fetchBranchById(branchId!),
     enabled: !!branchId,
@@ -15,8 +15,6 @@ export const BranchDetailsPage = () => {
 
   const branch = data?.data?.data.branch;
 
-  if (isError || !branch)
-    return <Typography.Text>Failed to load branch details</Typography.Text>;
 
   return (
     <div className={styles.container}>

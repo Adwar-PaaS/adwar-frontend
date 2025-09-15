@@ -155,7 +155,7 @@ function App() {
         </Route>
 
         {/* Catch-all Route */}
-        <Route path="*" element={<Navigate to="/register" />} />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </>
   );

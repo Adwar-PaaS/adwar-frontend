@@ -5,7 +5,7 @@ import {
   getTenantById,
   getUsersByTenantId,
 } from "../../auth/api/tenantApi";
-import { Button, Col, Tag, Row, Spin, Table, Typography } from "antd";
+import { Button, Col, Tag, Row, Table, Typography } from "antd";
 import styles from "../../../styles/TenantDetails.module.css";
 import { TenantSuperAdminUserFormModal } from "../components/TenantSuperAdminUserFormModal";
 import { toast } from "react-toastify";
@@ -17,31 +17,38 @@ export const TenantDetails = () => {
   const userModalOpen = useState(false);
   const [isUserModalOpen, setUserModalOpen] = userModalOpen;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["tenant-details", id],
-    queryFn: async () => {
-      const [tenantRes, usersRes] = await Promise.all([
-        getTenantById(id!),
-        getUsersByTenantId(id!),
-      ]);
-      return {
-        tenant: tenantRes.data.data.tenant,
-        users: Array.isArray(usersRes.data.data?.users)
-          ? usersRes.data.data.users.map((u: any) => ({
-              id: u.user.id,
-              firstName: u.user.firstName,
-              lastName: u.user.lastName,
-              email: u.user.email,
-              phone: u.user.phone,
-              status: u.user.status,
-              role: u.user.role?.name,
-              warehouse: u.warehouse,
-            }))
-          : [],
-      };
-    },
-    enabled: !!id,
-  });
+const { data, isError } = useQuery({
+  queryKey: ["tenant-details", id],
+  queryFn: async () => {
+    const tenantRes = await getTenantById(id!);
+
+    let users: any[] = [];
+    try {
+      const usersRes = await getUsersByTenantId(id!);
+      users = Array.isArray(usersRes.data.data?.users)
+        ? usersRes.data.data.users.map((u: any) => ({
+           id: u.id,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      email: u.email,
+      phone: u.phone,
+      status: u.status,
+      role: u.role?.name,
+          }))
+        : [];
+    } catch (err) {
+      console.warn("Failed to fetch tenant users:", err);
+      users = []; 
+    }
+
+    return {
+      tenant: tenantRes.data.data.tenant,
+      users,
+    };
+  },
+  enabled: !!id,
+});
+
 
   const createUserMutation = useMutation({
     mutationFn: createSuperAdminUser,
@@ -58,8 +65,7 @@ export const TenantDetails = () => {
     createUserMutation.mutate(values);
   };
 
-  if (isLoading) return <Spin />;
-  if (isError || !data?.tenant) return <div>Tenant not found</div>;
+  if (isError || !data?.tenant) return <div>Tenant not found or time out</div>;
 
   const { tenant, users } = data;
   const isActive = tenant.status === "ACTIVE";

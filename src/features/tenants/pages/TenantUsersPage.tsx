@@ -32,16 +32,14 @@ export const TenantUsersPage = () => {
 
   const users =
     data?.data?.data?.users?.map((item: any) => ({
-      id: item.user.id,
-      firstName: item.user.firstName,
-      lastName: item.user.lastName,
-      email: item.user.email,
-      phone: item.user.phone,
-      status: item.user.status,
-      role: item.user.role?.name || "N/A",
-      roleId: item.user.role?.name || "",
-      warehouse: item.warehouse?.name || "N/A",
-      assignWarehouses: item.user.assignWarehouses || [],
+      id: item.id,
+    firstName: item.firstName,
+    lastName: item.lastName,
+    email: item.email,
+    phone: item.phone,
+    status: item.status,
+    role: item.role?.name || "N/A",
+    roleId: item.role?.id || "",
     })) || [];
 
   const createUserMutation = useMutation({
@@ -237,7 +235,6 @@ export const TenantUsersPage = () => {
                 roleId: editingUser.roleId,
                 phone: editingUser.phone,
                 status: editingUser.status,
-                assignWarehouses: editingUser.assignWarehouses || [],
               }
             : undefined
         }
