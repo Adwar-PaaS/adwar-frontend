@@ -124,8 +124,14 @@ export const TenantList = () => {
       title: "Logo",
       dataIndex: "logoUrl",
       key: "logoUrl",
-      render: (url: string) =>
-        url ? <img src={url} alt="logo" width={40} height={40} /> : "N/A",
+      render: (url: string) => (
+        <img
+          src={url || "../logo-placeholder.jpg"}
+          alt="logo"
+          width={40}
+          height={40}
+        />
+      ),
     },
     {
       title: "Created At",
