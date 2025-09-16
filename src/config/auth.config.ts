@@ -20,7 +20,7 @@ export const AUTH_CONFIG = {
 
   // Redirect paths
   ROUTES: {
-    REGISTER: "/register",
+    // REGISTER: "/register",
     LOGIN: "/login",
     DASHBOARD: "/superadmin/tenants",
   },

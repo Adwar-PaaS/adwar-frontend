@@ -67,10 +67,7 @@ instance.interceptors.response.use(
         store.dispatch(resetAuth());
 
         // Only redirect if not already on login page
-        if (
-          !window.location.pathname.includes("/login") &&
-          !window.location.pathname.includes("/register")
-        ) {
+        if (!window.location.pathname.includes("/login")) {
           window.location.href = "/login";
         }
 

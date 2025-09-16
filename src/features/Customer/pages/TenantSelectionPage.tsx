@@ -28,7 +28,6 @@ const userId = user?.id;
         const data = await fetchAllTenants();
         setTenants(data?.data?.tenants || []);
       } catch (error) {
-        console.error("Failed to load tenants:", error);
         message.error("Failed to load tenants");
       }
     };
@@ -46,7 +45,6 @@ const userId = user?.id;
       message.success("Tenant assigned successfully!");
       navigate("/login");
     } catch (error) {
-      console.error("Error assigning tenant:", error);
       message.error("Failed to assign tenant");
     } finally {
       setLoading(false);

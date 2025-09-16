@@ -11,7 +11,6 @@ import "./App.css";
 import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
-import RegisterPage from "./features/auth/pages/Register";
 import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
 import { CustomerPanel } from "./components/layout/CustomerPanel";
 import { CustomerOrdersList } from "./features/Customer/pages/CustomerOrdersList";
@@ -29,7 +28,6 @@ function App() {
     <>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<RegisterPage />} />
         <Route path="/tenant-selection" element={<TenantSelectionPage />} />
 
         {/* SUPERADMIN Routes */}

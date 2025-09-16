@@ -59,15 +59,10 @@ const authSlice = createSlice({
 
     // Login success (set user, mark authenticated)
     loginSuccess: (state, action: PayloadAction<User>) => {
-      console.log("Dispatching loginSuccess with:", action.payload);
       state.user = action.payload;
       state.isAuthenticated = true;
       state.loading = false;
       state.error = null;
-      console.log("Auth state update", {
-        action: action.type,
-        newState: { ...state, ...action.payload },
-      });
     },
 
     // Login failure (set error, stop loading)

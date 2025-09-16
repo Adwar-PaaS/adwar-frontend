@@ -1,5 +1,5 @@
 import { Button, Form, Input, Typography } from "antd";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
@@ -113,13 +113,6 @@ export const Login = () => {
               >
                 Login
               </Button>
-
-              <div style={{ marginTop: "12px", textAlign: "center" }}>
-                <Typography.Text>
-                  Don't have an account?{" "}
-                  <Link to="/register">Register here</Link>
-                </Typography.Text>
-              </div>
             </Form>
           )}
         </Formik>

@@ -44,7 +44,6 @@ export const TenantSuperAdminUserFormModal = ({
       try {
         const res = await getRoles();
         setRoles(res.data?.data?.roles || []);
-        console.log("Fetched roles:", res.data?.data?.roles);
       } catch (error) {
         toast.error("Failed to load roles");
       } finally {
