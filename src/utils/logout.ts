@@ -6,7 +6,7 @@ export const handleLogout = async () => {
   try {
     await authAPI.logout();
   } catch (error) {
-    // ignore backend error
+    console.warn("Logout API failed, clearing state anyway:", error);
   } finally {
     store.dispatch(clearUser());
   }

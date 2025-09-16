@@ -96,7 +96,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
       state.error = null;
-      state.initialized = true;
+      state.initialized = false;
       state.selectedWarehouseId = null;
       state.selectedDriverId = null;
     },

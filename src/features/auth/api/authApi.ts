@@ -62,9 +62,20 @@ export const checkAuth = async (): Promise<ApiResponse<AuthResponse>> => {
 };
 
 export const logout = async (): Promise<ApiResponse<null>> => {
-  const response = await authAxios.post(ENDPOINTS.LOGOUT);
+  const csrfToken = await getCsrfToken();
+  const response = await authAxios.post(
+    ENDPOINTS.LOGOUT,
+    {},
+    {
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
+      withCredentials: true,
+    }
+  );
   return response.data;
 };
+
 
 export const authAPI = {
   login,
