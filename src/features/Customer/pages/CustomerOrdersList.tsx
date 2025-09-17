@@ -1,27 +1,26 @@
 import { useState } from "react";
-import {
-  Table,
-  Tag,
-  Typography,
-  Button,
-  Row,
-  Col,
-  Space,
-} from "antd";
+import { Table, Tag, Typography, Button, Row, Col, Space } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditOutlined } from "@ant-design/icons";
 import { fetchOrdersByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { OrderModal } from "../../tenants/components/OrderModal";
 
+interface OrderItem {
+  sku: string;
+  name: string;
+  description: string;
+  weight: number;
+  quantity: number;
+  unitPrice: number;
+}
+
 interface Order {
   id: string;
-  sku: string;
-  quantity: number;
-  failedReason: string | null;
-  deliveryLocation: string;
-  merchantLocation: string;
-  description: string;
+  orderNumber: string;
+  specialInstructions: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  estimatedDelivery: string;
   status:
     | "PENDING"
     | "PROCESSING"
@@ -29,18 +28,18 @@ interface Order {
     | "CANCELLED"
     | "APPROVED"
     | "CREATED"
-    | "FAILED";
+    | "FAILED"
+    | "DRAFT";
+  failedReason: string | null;
   createdAt: string;
   updatedAt: string;
-  customerName?: string;
-  customerPhone?: string;
+  items?: OrderItem[];
 }
 
 export const CustomerOrdersList = () => {
   const queryClient = useQueryClient();
   const { data: currentUserData } = useCurrentUser();
   const customerId = currentUserData?.data?.data?.user?.id;
-  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
   const { data, isLoading } = useQuery({
     queryKey: ["customerOrders", customerId],
@@ -48,7 +47,7 @@ export const CustomerOrdersList = () => {
     enabled: !!customerId,
   });
 
-  const orders: Order[] = data?.data?.orders || [];
+const orders: Order[] = data?.data?.data?.orders?.items || [];
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
@@ -63,22 +62,41 @@ export const CustomerOrdersList = () => {
     if (!order) return undefined;
     return {
       id: order.id,
-      sku: order.sku,
-      quantity: order.quantity,
-      deliveryLocation: order.deliveryLocation,
-      merchantLocation: order.merchantLocation,
-      description: order.description,
-      customerName: order.customerName ?? "",
-      customerPhone: order.customerPhone ?? "",
+      orderNumber: order.orderNumber,
+      specialInstructions: order.specialInstructions,
+      priority: order.priority,
+      estimatedDelivery: order.estimatedDelivery,
+      items: order.items || [],
     };
   };
 
   const columns = [
-    { title: "SKU", dataIndex: "sku", key: "sku" },
-    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-    { title: "Delivery Location", dataIndex: "deliveryLocation", key: "deliveryLocation" },
-    { title: "Merchant Location", dataIndex: "merchantLocation", key: "merchantLocation" },
-    { title: "Description", dataIndex: "description", key: "description" },
+    { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber" },
+    { title: "Priority", dataIndex: "priority", key: "priority" },
+    {
+      title: "Estimated Delivery",
+      dataIndex: "estimatedDelivery",
+      key: "estimatedDelivery",
+      render: (date: string) => new Date(date).toLocaleString(),
+    },
+    {
+      title: "Items",
+      key: "items",
+      render: (_: any, record: Order) => (
+        <div>
+          {record.items && record.items.length > 0 ? (
+            record.items.map((item, idx) => (
+              <div key={idx}>
+                <b>{item.name}</b> (SKU: {item.sku}) - {item.quantity} × $
+                {item.unitPrice}
+              </div>
+            ))
+          ) : (
+            <i>No items</i>
+          )}
+        </div>
+      ),
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -90,6 +108,7 @@ export const CustomerOrdersList = () => {
         if (status === "CANCELLED") color = "red";
         if (status === "PENDING") color = "orange";
         if (status === "FAILED") color = "volcano";
+        if (status === "DRAFT") color = "geekblue";
 
         return (
           <div>
@@ -170,7 +189,6 @@ export const CustomerOrdersList = () => {
           setEditingOrder(null);
         }}
         onSubmit={handleModalSubmit}
-        tenantId={tenantId!}
         order={getOrderForModal(editingOrder)}
       />
     </div>

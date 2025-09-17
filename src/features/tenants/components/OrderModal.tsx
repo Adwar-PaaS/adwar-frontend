@@ -1,51 +1,71 @@
-import { Modal, Form, Input, Button, InputNumber } from "antd";
-import { Formik } from "formik";
+import { Modal, Form, Input, Button, InputNumber, DatePicker, Select } from "antd";
+import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
-import {  createOrder, updateOrder } from "../../auth/api/tenantApi";
+import { createOrder, updateOrder } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
+interface OrderItem {
+  sku: string;
+  name: string;
+  description: string;
+  weight: number;
+  quantity: number;
+  unitPrice: number;
+}
 
 interface OrderFormValues {
-  sku: string;
-  quantity: number;
-  deliveryLocation: string;
-  merchantLocation: string;
-  description: string;
-  customerName: string;
-  customerPhone: string;
+  orderNumber: string;
+  specialInstructions: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  estimatedDelivery: string;
+  items: OrderItem[];
 }
 
 interface OrderModalProps {
   open: boolean;
   onClose: () => void;
-  tenantId: string;
   onSubmit?: () => void;
   order?: { id: string } & OrderFormValues;
 }
 
 const OrderSchema = Yup.object().shape({
-  sku: Yup.string().required("SKU is required"),
-  quantity: Yup.number().required("Quantity is required").positive(),
-  deliveryLocation: Yup.string().required("Delivery location is required"),
-  merchantLocation: Yup.string().required("Merchant location is required"),
-  description: Yup.string().required("Description is required"),
-  customerName: Yup.string().required("Customer name is required"),
-  customerPhone: Yup.string().required("Customer phone is required"),
+  orderNumber: Yup.string().required("Order number is required"),
+  specialInstructions: Yup.string().required("Special instructions required"),
+  priority: Yup.string().oneOf(["LOW", "MEDIUM", "HIGH"]).required(),
+  estimatedDelivery: Yup.string().required("Estimated delivery is required"),
+  items: Yup.array()
+    .of(
+      Yup.object().shape({
+        sku: Yup.string().required("SKU required"),
+        name: Yup.string().required("Name required"),
+        description: Yup.string().required("Description required"),
+        weight: Yup.number().positive().required("Weight required"),
+        quantity: Yup.number().positive().required("Quantity required"),
+        unitPrice: Yup.number().positive().required("Unit price required"),
+      })
+    )
+    .min(1, "At least one item is required"),
 });
 
 export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) => {
   const defaultValues: OrderFormValues = {
-    sku: order?.sku || "",
-    quantity: order?.quantity || 1,
-    deliveryLocation: order?.deliveryLocation || "",
-    merchantLocation: order?.merchantLocation || "",
-    description: order?.description || "",
-    customerName: order?.customerName || "",
-    customerPhone: order?.customerPhone || "",
+    orderNumber: order?.orderNumber || "ORD-",
+    specialInstructions: order?.specialInstructions || "",
+    priority: order?.priority || "MEDIUM",
+    estimatedDelivery: order?.estimatedDelivery || "",
+    items: order?.items || [
+      {
+        sku: "PROD-",
+        name: "",
+        description: "",
+        weight: 0,
+        quantity: 1,
+        unitPrice: 0,
+      },
+    ],
   };
-
-
 
   const createMutation = useMutation({
     mutationFn: createOrder,
@@ -81,7 +101,7 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
       onCancel={onClose}
       footer={null}
       centered
-      destroyOnHidden
+      destroyOnClose
     >
       <Formik
         enableReinitialize
@@ -97,66 +117,109 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
       >
         {({ values, handleChange, handleSubmit, touched, errors, setFieldValue }) => (
           <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-            <Form.Item
-              label="SKU"
-              validateStatus={touched.sku && errors.sku ? "error" : ""}
-              help={touched.sku && errors.sku}
-            >
-              <Input name="sku" value={values.sku} onChange={handleChange} />
+            <Form.Item label="Order Number" help={touched.orderNumber && errors.orderNumber}>
+              <Input name="orderNumber" value={values.orderNumber} onChange={handleChange} />
             </Form.Item>
 
             <Form.Item
-              label="Quantity"
-              validateStatus={touched.quantity && errors.quantity ? "error" : ""}
-              help={touched.quantity && errors.quantity}
+              label="Special Instructions"
+              help={touched.specialInstructions && errors.specialInstructions}
             >
-              <InputNumber
-                min={1}
-                value={values.quantity}
-                onChange={(val) => setFieldValue("quantity", val)}
+              <Input.TextArea
+                name="specialInstructions"
+                value={values.specialInstructions}
+                onChange={handleChange}
+              />
+            </Form.Item>
+
+            <Form.Item label="Priority" help={touched.priority && errors.priority}>
+              <Select
+                value={values.priority}
+                onChange={(val) => setFieldValue("priority", val)}
+              >
+                <Select.Option value="LOW">Low</Select.Option>
+                <Select.Option value="MEDIUM">Medium</Select.Option>
+                <Select.Option value="HIGH">High</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Estimated Delivery"
+              help={touched.estimatedDelivery && errors.estimatedDelivery}
+            >
+              <DatePicker
+                showTime
+                value={values.estimatedDelivery ? dayjs(values.estimatedDelivery) : null}
+                onChange={(val) => setFieldValue("estimatedDelivery", val?.toISOString() || "")}
                 style={{ width: "100%" }}
               />
             </Form.Item>
 
-            <Form.Item label="Delivery Location">
-              <Input
-                name="deliveryLocation"
-                value={values.deliveryLocation}
-                onChange={handleChange}
-              />
-            </Form.Item>
+            <FieldArray name="items">
+              {({ push, remove }) => (
+                <>
+                  {values.items.map((item, idx) => (
+                    <div key={idx} style={{ border: "1px solid #ddd", padding: 12, marginBottom: 12 }}>
+                      <Form.Item label="SKU">
+                        <Input
+                          name={`items[${idx}].sku`}
+                          value={item.sku}
+                          onChange={handleChange}
+                        />
+                      </Form.Item>
+                      <Form.Item label="Name">
+                        <Input
+                          name={`items[${idx}].name`}
+                          value={item.name}
+                          onChange={handleChange}
+                        />
+                      </Form.Item>
+                      <Form.Item label="Description">
+                        <Input
+                          name={`items[${idx}].description`}
+                          value={item.description}
+                          onChange={handleChange}
+                        />
+                      </Form.Item>
+                      <Form.Item label="Weight">
+                        <InputNumber
+                          min={0}
+                          value={item.weight}
+                          onChange={(val) => setFieldValue(`items[${idx}].weight`, val)}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                      <Form.Item label="Quantity">
+                        <InputNumber
+                          min={1}
+                          value={item.quantity}
+                          onChange={(val) => setFieldValue(`items[${idx}].quantity`, val)}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                      <Form.Item label="Unit Price">
+                        <InputNumber
+                          min={0}
+                          value={item.unitPrice}
+                          onChange={(val) => setFieldValue(`items[${idx}].unitPrice`, val)}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
 
-            <Form.Item label="Merchant Location">
-              <Input
-                name="merchantLocation"
-                value={values.merchantLocation}
-                onChange={handleChange}
-              />
-            </Form.Item>
+                      {values.items.length > 1 && (
+                        <Button danger onClick={() => remove(idx)} block>
+                          Remove Item
+                        </Button>
+                      )}
+                    </div>
+                  ))}
 
-            <Form.Item label="Description">
-              <Input.TextArea
-                name="description"
-                value={values.description}
-                onChange={handleChange}
-              />
-            </Form.Item>
-
-            <Form.Item label="Customer Name">
-              <Input
-                name="customerName"
-                value={values.customerName}
-                onChange={handleChange}
-              />
-            </Form.Item>
-
-            <Form.Item label="Customer Phone">
-              <Input
-                name="customerPhone"
-                value={values.customerPhone}
-                onChange={handleChange}
-              />
-            </Form.Item>
+                  <Button type="dashed" onClick={() => push({ sku: "", name: "", description: "", weight: 0, quantity: 1, unitPrice: 0 })} block>
+                    + Add Item
+                  </Button>
+                </>
+              )}
+            </FieldArray>
 
             <Button type="primary" htmlType="submit" block loading={loading}>
               {order ? "Update Order" : "Create Order"}

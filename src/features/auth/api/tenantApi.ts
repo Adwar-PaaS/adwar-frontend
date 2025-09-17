@@ -149,13 +149,18 @@ export const fetchOrderById = async (orderId: string) => {
 
 // Admin: Create a new order
 export const createOrder = async (orderData: {
-  sku: string;
-  quantity: number;
-  deliveryLocation: string;
-  merchantLocation: string;
-  description: string;
-  customerName: string;
-  customerPhone: string;
+  orderNumber: string;
+  specialInstructions: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  estimatedDelivery: string; // ISO string
+  items: {
+    sku: string;
+    name: string;
+    description: string;
+    weight: number;
+    quantity: number;
+    unitPrice: number;
+  }[];
 }) => {
   const res = await instance.post("/orders", orderData);
   return res.data;
