@@ -32,7 +32,7 @@ export const assignTenant = async (payload: AssignTenantPayload) => {
 
 // Customer: Fetch orders from customer dashboard
 export const fetchOrdersByCustomer = async (customerId: string) => {
-  return instance.get(`/orders/customer/${customerId}`);
+  return instance.get(`/customers/${customerId}/orders`);
 };
 
 // Customer: Create pickup request for selected orders

@@ -48,7 +48,7 @@ export const CustomerOrdersList = () => {
     enabled: !!customerId,
   });
 
-  const orders: Order[] = data?.data?.data?.orders || [];
+  const orders: Order[] = data?.data?.orders || [];
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
