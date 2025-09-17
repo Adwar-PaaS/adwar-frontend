@@ -32,7 +32,6 @@ interface Order {
     | "FAILED";
   createdAt: string;
   updatedAt: string;
-  warehouseId?: string;
   customerName?: string;
   customerPhone?: string;
 }
@@ -66,7 +65,6 @@ export const CustomerOrdersList = () => {
       id: order.id,
       sku: order.sku,
       quantity: order.quantity,
-      warehouseId: order.warehouseId ?? "",
       deliveryLocation: order.deliveryLocation,
       merchantLocation: order.merchantLocation,
       description: order.description,

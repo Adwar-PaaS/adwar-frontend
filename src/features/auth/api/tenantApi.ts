@@ -151,7 +151,6 @@ export const fetchOrderById = async (orderId: string) => {
 export const createOrder = async (orderData: {
   sku: string;
   quantity: number;
-  warehouseId: string;
   deliveryLocation: string;
   merchantLocation: string;
   description: string;

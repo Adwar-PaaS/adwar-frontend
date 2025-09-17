@@ -1,20 +1,14 @@
-import { Modal, Form, Input, Select, Button, InputNumber, Spin } from "antd";
+import { Modal, Form, Input, Button, InputNumber } from "antd";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchTenantWarehouses, createOrder, updateOrder } from "../../auth/api/tenantApi";
+import { useMutation } from "@tanstack/react-query";
+import {  createOrder, updateOrder } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
 
-interface Warehouse {
-  id: string;
-  name: string;
-  location?: string;
-}
 
 interface OrderFormValues {
   sku: string;
   quantity: number;
-  warehouseId: string;
   deliveryLocation: string;
   merchantLocation: string;
   description: string;
@@ -33,7 +27,6 @@ interface OrderModalProps {
 const OrderSchema = Yup.object().shape({
   sku: Yup.string().required("SKU is required"),
   quantity: Yup.number().required("Quantity is required").positive(),
-  warehouseId: Yup.string().required("Warehouse is required"),
   deliveryLocation: Yup.string().required("Delivery location is required"),
   merchantLocation: Yup.string().required("Merchant location is required"),
   description: Yup.string().required("Description is required"),
@@ -41,11 +34,10 @@ const OrderSchema = Yup.object().shape({
   customerPhone: Yup.string().required("Customer phone is required"),
 });
 
-export const OrderModal = ({ open, onClose, tenantId, onSubmit, order }: OrderModalProps) => {
+export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) => {
   const defaultValues: OrderFormValues = {
     sku: order?.sku || "",
     quantity: order?.quantity || 1,
-    warehouseId: order?.warehouseId || "",
     deliveryLocation: order?.deliveryLocation || "",
     merchantLocation: order?.merchantLocation || "",
     description: order?.description || "",
@@ -53,13 +45,7 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit, order }: OrderMo
     customerPhone: order?.customerPhone || "",
   };
 
-  const { data: warehouseData, isLoading: warehouseLoading } = useQuery({
-    queryKey: ["tenantWarehouses", tenantId],
-    queryFn: () => fetchTenantWarehouses(tenantId),
-    enabled: !!tenantId,
-  });
 
-  const warehouses: Warehouse[] = warehouseData?.data?.data?.warehouses || [];
 
   const createMutation = useMutation({
     mutationFn: createOrder,
@@ -130,28 +116,6 @@ export const OrderModal = ({ open, onClose, tenantId, onSubmit, order }: OrderMo
                 onChange={(val) => setFieldValue("quantity", val)}
                 style={{ width: "100%" }}
               />
-            </Form.Item>
-
-            <Form.Item
-              label="Warehouse"
-              validateStatus={touched.warehouseId && errors.warehouseId ? "error" : ""}
-              help={touched.warehouseId && errors.warehouseId}
-            >
-              {warehouseLoading ? (
-                <Spin />
-              ) : (
-                <Select
-                  placeholder="Select warehouse"
-                  value={values.warehouseId}
-                  onChange={(val) => setFieldValue("warehouseId", val)}
-                >
-                  {warehouses.map((wh) => (
-                    <Select.Option key={wh.id} value={wh.id}>
-                      {wh.name} {wh.location && `- ${wh.location}`}
-                    </Select.Option>
-                  ))}
-                </Select>
-              )}
             </Form.Item>
 
             <Form.Item label="Delivery Location">

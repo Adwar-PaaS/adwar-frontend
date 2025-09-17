@@ -65,7 +65,7 @@ const { data, isError } = useQuery({
     createUserMutation.mutate(values);
   };
 
-  if (isError || !data?.tenant) return <div>Tenant not found or time out</div>;
+  if (isError || !data?.tenant) return <div>... Loading</div>;
 
   const { tenant, users } = data;
   const isActive = tenant.status === "ACTIVE";

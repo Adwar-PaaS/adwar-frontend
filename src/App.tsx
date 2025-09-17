@@ -15,9 +15,8 @@ import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
 import { CustomerPanel } from "./components/layout/CustomerPanel";
 import { CustomerOrdersList } from "./features/Customer/pages/CustomerOrdersList";
 import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp";
-import { CustomerBranchesList } from "./features/Customer/pages/CustomerBranchesList";
 import { BranchDetailsPage } from "./features/Customer/pages/BranchDetailsPage";
-import { OperationsPanel } from "./components/layout/OperationsPanel"; // <--- Import the new layout
+import { OperationsPanel } from "./components/layout/OperationsPanel";
 import { PickupsListPage } from "./features/Operation/pages/PickupsListPage";
 import { PickupDetailsPage } from "./features/Operation/pages/PickupDetailsPage";
 import { ApprovedPickupsListPage } from "./features/Operation/pages/ApprovedPickupsListPage";
@@ -143,11 +142,6 @@ function App() {
               <Route index element={<div>Welcome to Customer Dashboard</div>} />
               <Route path="orders" element={<CustomerOrdersList />} />
               <Route path="shipments" element={<ShipmentPickUp />} />
-              <Route path="branches" element={<CustomerBranchesList />} />
-              <Route
-                path="branches/:branchId"
-                element={<BranchDetailsPage />}
-              />
             </Route>
           </Route>
         </Route>
