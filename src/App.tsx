@@ -20,6 +20,7 @@ import { PickupsListPage } from "./features/Operation/pages/PickupsListPage";
 import { PickupDetailsPage } from "./features/Operation/pages/PickupDetailsPage";
 import { ApprovedPickupsListPage } from "./features/Operation/pages/ApprovedPickupsListPage";
 import { TenantBranchesList } from "./features/tenants/pages/TenantBranchesList";
+import { CustomerDashboard } from "./features/Customer/pages/CustomerDashboard";
 
 function App() {
   return (
@@ -137,9 +138,9 @@ function App() {
             }
           >
             <Route path="dashboard" element={<CustomerPanel />}>
-              <Route index element={<div>Welcome to Customer Dashboard</div>} />
+              <Route index element={<CustomerDashboard/>} />
               <Route path="orders" element={<CustomerOrdersList />} />
-              <Route path="shipments" element={<ShipmentPickUp />} />
+              <Route path="pickups" element={<ShipmentPickUp />} />
             </Route>
           </Route>
         </Route>

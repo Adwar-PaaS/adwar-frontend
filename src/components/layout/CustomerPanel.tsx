@@ -37,9 +37,9 @@ export const CustomerPanel = () => {
       label: "Orders",
     },
     {
-      key: `${basePath}/shipments`,
+      key: `${basePath}/pickups`,
       icon: <TruckOutlined />,
-      label: "Shipments",
+      label: "Pickups",
     },
     {
       key: "logout",

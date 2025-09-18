@@ -1,0 +1,33 @@
+.card {
+  width: 100%;
+  padding: 20px;
+  margin-bottom: 16px; 
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.name {
+  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+}
+
+.value {
+  font-size: 16px;
+  color: #333;
+}

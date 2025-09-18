@@ -21,8 +21,6 @@ export const fetchCustomerPickups = async (customerId: string) => {
   return await instance.get(`/customers/${customerId}/pickups`);
 };
 
-
-
 // Fetch branches for a specific customer
 export const fetchBranchesByCustomer = async (customerId: string) => {
   const response = await instance.get(`/branches/customer/${customerId}`);

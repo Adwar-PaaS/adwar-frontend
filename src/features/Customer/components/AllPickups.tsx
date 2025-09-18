@@ -5,9 +5,14 @@ import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import type { ColumnsType } from "antd/es/table";
 
 interface PickupRow {
-  pickupId: string;
+  id: string;
+  pickupNumber: string;
   status: "CREATED" | "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED";
-  orderIds: string[];
+  type: "REGULAR" | "EXPRESS";
+  scheduledFor: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const AllPickups = () => {
@@ -23,13 +28,8 @@ export const AllPickups = () => {
   const pickups: PickupRow[] = data?.data?.data?.pickups || [];
 
   const pickupColumns: ColumnsType<PickupRow> = [
-    { title: "Pickup ID", dataIndex: "pickupId", key: "pickupId" },
-    {
-      title: "Number of Orders",
-      dataIndex: "orderIds",
-      key: "orderCount",
-      render: (orderIds: string[]) => orderIds.length,
-    },
+    { title: "Pickup Number", dataIndex: "pickupNumber", key: "pickupNumber" },
+    { title: "Type", dataIndex: "type", key: "type" },
     {
       title: "Status",
       dataIndex: "status",
@@ -44,13 +44,37 @@ export const AllPickups = () => {
         return <Tag color={color}>{status}</Tag>;
       },
     },
+    {
+      title: "Scheduled For",
+      dataIndex: "scheduledFor",
+      key: "scheduledFor",
+      render: (date) => (date ? new Date(date).toLocaleString() : "-"),
+    },
+    {
+      title: "Completed At",
+      dataIndex: "completedAt",
+      key: "completedAt",
+      render: (date) => (date ? new Date(date).toLocaleString() : "-"),
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date) => new Date(date).toLocaleString(),
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      render: (date) => new Date(date).toLocaleString(),
+    },
   ];
 
   return (
     <div style={{ marginTop: 32 }}>
       <Typography.Title level={4}>All Pickups</Typography.Title>
       <Table<PickupRow>
-        rowKey="pickupId"
+        rowKey="id"
         loading={isLoading}
         dataSource={pickups}
         columns={pickupColumns}
