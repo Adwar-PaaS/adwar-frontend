@@ -4,7 +4,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditOutlined } from "@ant-design/icons";
 import { fetchOrdersByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
-import { OrderModal } from "../../tenants/components/OrderModal";
+import {
+  OrderModal,
+  type FailedReason,
+} from "../../tenants/components/OrderModal";
 
 interface OrderItem {
   sku: string;
@@ -23,13 +26,20 @@ interface Order {
   estimatedDelivery: string;
   status:
     | "PENDING"
-    | "PROCESSING"
-    | "COMPLETED"
-    | "CANCELLED"
     | "APPROVED"
-    | "CREATED"
+    | "ASSIGNED_FOR_PICKUP"
+    | "PICKED_UP"
+    | "RECEIVED_IN_WAREHOUSE"
+    | "STORED_ON_SHELVES"
+    | "READY_FOR_DISPATCH"
+    | "OUT_FOR_DELIVERY"
+    | "DELIVERED"
     | "FAILED"
-    | "DRAFT";
+    | "RESCHEDULED"
+    | "CANCELLED"
+    | "RETURNED_TO_OPERATION"
+    | "READY_TO_RETURN_TO_ORIGIN"
+    | "RETURNED_TO_ORIGIN";
   failedReason: string | null;
   createdAt: string;
   updatedAt: string;
@@ -47,7 +57,7 @@ export const CustomerOrdersList = () => {
     enabled: !!customerId,
   });
 
-const orders: Order[] = data?.data?.data?.orders?.items || [];
+  const orders: Order[] = data?.data?.data?.orders || [];
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
@@ -58,17 +68,44 @@ const orders: Order[] = data?.data?.data?.orders?.items || [];
     setEditingOrder(null);
   };
 
-  const getOrderForModal = (order: Order | null) => {
-    if (!order) return undefined;
-    return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      specialInstructions: order.specialInstructions,
-      priority: order.priority,
-      estimatedDelivery: order.estimatedDelivery,
-      items: order.items || [],
-    };
+const getOrderForModal = (order: Order | null) => {
+  if (!order) return undefined;
+
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber || "ORD-",
+    specialInstructions: order.specialInstructions || "",
+    priority: order.priority || "MEDIUM",
+    estimatedDelivery: order.estimatedDelivery || "",
+    status: order.status || "PENDING",
+    failedReason: order.failedReason
+      ? (order.failedReason as FailedReason)
+      : undefined,
+    items:
+      order.items && order.items.length > 0
+        ? order.items.map((item: any) => ({
+            sku: item.productId || "PROD-", // map productId → sku
+            name: item.name || "",
+            description: item.description || "",
+            weight: Number(item.weight) || 0,
+            quantity: Number(item.quantity) || 1,
+            unitPrice: Number(item.unitPrice) || 0,
+          }))
+        : [
+            {
+              sku: "PROD-",
+              name: "",
+              description: "",
+              weight: 0,
+              quantity: 1,
+              unitPrice: 0,
+            },
+          ],
   };
+};
+
+
+
 
   const columns = [
     { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber" },

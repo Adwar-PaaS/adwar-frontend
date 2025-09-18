@@ -11,7 +11,6 @@ import "./App.css";
 import { TenantRolesPage } from "./features/tenants/pages/TenantRolesPage";
 import { OrderListPage } from "./features/tenants/pages/OrdersListPage";
 import { OrderDetailsPage } from "./features/tenants/pages/OrderDetailsPage";
-import TenantSelectionPage from "./features/Customer/pages/TenantSelectionPage";
 import { CustomerPanel } from "./components/layout/CustomerPanel";
 import { CustomerOrdersList } from "./features/Customer/pages/CustomerOrdersList";
 import { ShipmentPickUp } from "./features/Customer/pages/ShipmentPickUp";
@@ -27,7 +26,6 @@ function App() {
     <>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/tenant-selection" element={<TenantSelectionPage />} />
 
         {/* SUPERADMIN Routes */}
         <Route element={<ProtectedRoute requiredRoles={["SUPER_ADMIN"]} />}>

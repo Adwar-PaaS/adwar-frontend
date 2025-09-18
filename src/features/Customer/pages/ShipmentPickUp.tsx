@@ -5,11 +5,14 @@ import { fetchOrdersByCustomer, createPickup } from "../../auth/api/customerApi"
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { AllPickups } from "../components/AllPickups";
 
-interface Shipment {
+interface Order {
   id: string;
-  sku: string;
-  deliveryLocation: string;
-  status: "CREATED" | "PROCESSING" | "COMPLETED" | "CANCELLED";
+  orderNumber: string;
+  totalWeight: string;
+  totalValue: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  status: "PENDING" | "DRAFT" | "COMPLETED" | "CANCELLED";
+  estimatedDelivery: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,12 +32,12 @@ export const ShipmentPickUp = () => {
   const [showAllPickups, setShowAllPickups] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["customerShipments", customerId],
+    queryKey: ["customerOrders", customerId],
     queryFn: () => fetchOrdersByCustomer(customerId!),
     enabled: !!customerId,
   });
 
-  const shipments: Shipment[] = data?.data?.data?.orders || [];
+  const orders: Order[] = data?.data?.data?.orders || [];
 
   const handleCreatePickup = async () => {
     if (!selectedRowKeys.length) return;
@@ -48,7 +51,7 @@ export const ShipmentPickUp = () => {
       localStorage.setItem("pickedOrders", JSON.stringify(newPicked));
 
       setSelectedRowKeys([]);
-      queryClient.invalidateQueries({ queryKey: ["customerShipments"] });
+      queryClient.invalidateQueries({ queryKey: ["customerOrders"] });
       queryClient.invalidateQueries({ queryKey: ["customerPickups"] });
     } catch {
       message.error("Failed to create pickup");
@@ -57,35 +60,50 @@ export const ShipmentPickUp = () => {
     }
   };
 
-  const shipmentColumns = [
-    { title: "Order Number", dataIndex: "sku", key: "sku" },
-    { title: "Destination", dataIndex: "deliveryLocation", key: "deliveryLocation" },
+  const orderColumns = [
+    { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber" },
+    { title: "Total Weight (kg)", dataIndex: "totalWeight", key: "totalWeight" },
+    { title: "Total Value ($)", dataIndex: "totalValue", key: "totalValue" },
+    {
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
+      render: (priority: Order["priority"]) => {
+        const color =
+          priority === "HIGH"
+            ? "red"
+            : priority === "MEDIUM"
+            ? "orange"
+            : "green";
+        return <Tag color={color}>{priority}</Tag>;
+      },
+    },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: Shipment["status"]) => {
+      render: (status: Order["status"]) => {
         const color =
-          status === "CREATED"
-            ? "purple"
+          status === "PENDING"
+            ? "blue"
             : status === "COMPLETED"
             ? "green"
             : status === "CANCELLED"
             ? "red"
-            : "blue";
+            : "default";
         return <Tag color={color}>{status}</Tag>;
       },
+    },
+    {
+      title: "Estimated Delivery",
+      dataIndex: "estimatedDelivery",
+      key: "estimatedDelivery",
+      render: (date: string) => (date ? new Date(date).toLocaleString() : "-"),
     },
     {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date: string) => new Date(date).toLocaleString(),
-    },
-    {
-      title: "Updated At",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
       render: (date: string) => new Date(date).toLocaleString(),
     },
   ];
@@ -94,7 +112,7 @@ export const ShipmentPickUp = () => {
     <div style={{ padding: 20 }}>
       <Row align="middle" justify="space-between">
         <Col>
-          <Typography.Title level={3}>Shipments for Pickup</Typography.Title>
+          <Typography.Title level={3}>Orders for Pickup</Typography.Title>
         </Col>
         <Col>
           <Space>
@@ -118,8 +136,8 @@ export const ShipmentPickUp = () => {
 
       <Table
         rowKey="id"
-        columns={shipmentColumns}
-        dataSource={shipments}
+        columns={orderColumns}
+        dataSource={orders}
         loading={isLoading}
         bordered
         style={{ marginTop: 16 }}

@@ -1,10 +1,52 @@
-import { Modal, Form, Input, Button, InputNumber, DatePicker, Select } from "antd";
+import {
+  Modal,
+  Form,
+  Input,
+  Button,
+  InputNumber,
+  DatePicker,
+  Select,
+} from "antd";
 import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
 import { createOrder, updateOrder } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+
+// Order status values
+export type OrderStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "ASSIGNED_FOR_PICKUP"
+  | "PICKED_UP"
+  | "RECEIVED_IN_WAREHOUSE"
+  | "STORED_ON_SHELVES"
+  | "READY_FOR_DISPATCH"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "FAILED"
+  | "RESCHEDULED"
+  | "CANCELLED"
+  | "RETURNED_TO_OPERATION"
+  | "READY_TO_RETURN_TO_ORIGIN"
+  | "RETURNED_TO_ORIGIN";
+
+// Failed reason values
+export type FailedReason =
+  | "CUSTOMER_NOT_AVAILABLE"
+  | "WRONG_ADDRESS"
+  | "NO_ANSWER"
+  | "DAMAGED_PACKAGE"
+  | "OUT_OF_COVERAGE_AREA"
+  | "MOBILE_SWITCHED_OFF"
+  | "CUSTOMER_REFUSED"
+  | "INCOMPLETE_ADDRESS"
+  | "SECURITY_ISSUE"
+  | "WEATHER_CONDITIONS"
+  | "VEHICLE_BREAKDOWN"
+  | "TRAFFIC_CONGESTION"
+  | "OTHER";
 
 interface OrderItem {
   sku: string;
@@ -20,6 +62,8 @@ interface OrderFormValues {
   specialInstructions: string;
   priority: "LOW" | "MEDIUM" | "HIGH";
   estimatedDelivery: string;
+  status: OrderStatus;
+  failedReason?: FailedReason;
   items: OrderItem[];
 }
 
@@ -30,11 +74,54 @@ interface OrderModalProps {
   order?: { id: string } & OrderFormValues;
 }
 
+const ORDER_STATUS_OPTIONS: OrderStatus[] = [
+  "PENDING",
+  "APPROVED",
+  "ASSIGNED_FOR_PICKUP",
+  "PICKED_UP",
+  "RECEIVED_IN_WAREHOUSE",
+  "STORED_ON_SHELVES",
+  "READY_FOR_DISPATCH",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "FAILED",
+  "RESCHEDULED",
+  "CANCELLED",
+  "RETURNED_TO_OPERATION",
+  "READY_TO_RETURN_TO_ORIGIN",
+  "RETURNED_TO_ORIGIN",
+];
+
+const FAILED_REASON_OPTIONS: FailedReason[] = [
+  "CUSTOMER_NOT_AVAILABLE",
+  "WRONG_ADDRESS",
+  "NO_ANSWER",
+  "DAMAGED_PACKAGE",
+  "OUT_OF_COVERAGE_AREA",
+  "MOBILE_SWITCHED_OFF",
+  "CUSTOMER_REFUSED",
+  "INCOMPLETE_ADDRESS",
+  "SECURITY_ISSUE",
+  "WEATHER_CONDITIONS",
+  "VEHICLE_BREAKDOWN",
+  "TRAFFIC_CONGESTION",
+  "OTHER",
+];
+
 const OrderSchema = Yup.object().shape({
   orderNumber: Yup.string().required("Order number is required"),
   specialInstructions: Yup.string().required("Special instructions required"),
   priority: Yup.string().oneOf(["LOW", "MEDIUM", "HIGH"]).required(),
   estimatedDelivery: Yup.string().required("Estimated delivery is required"),
+  status: Yup.string()
+    .oneOf(ORDER_STATUS_OPTIONS)
+    .required("Status is required"),
+  failedReason: Yup.string().when("status", {
+    is: "FAILED",
+    then: (schema) =>
+      schema.oneOf(FAILED_REASON_OPTIONS).required("Failed reason is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   items: Yup.array()
     .of(
       Yup.object().shape({
@@ -49,12 +136,19 @@ const OrderSchema = Yup.object().shape({
     .min(1, "At least one item is required"),
 });
 
-export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) => {
+export const OrderModal = ({
+  open,
+  onClose,
+  onSubmit,
+  order,
+}: OrderModalProps) => {
   const defaultValues: OrderFormValues = {
     orderNumber: order?.orderNumber || "ORD-",
     specialInstructions: order?.specialInstructions || "",
     priority: order?.priority || "MEDIUM",
     estimatedDelivery: order?.estimatedDelivery || "",
+    status: order?.status || "PENDING",
+    failedReason: order?.failedReason,
     items: order?.items || [
       {
         sku: "PROD-",
@@ -80,8 +174,8 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: OrderFormValues }) =>
-      updateOrder(id, data),
+    mutationFn: (payload: { id: string } & OrderFormValues) =>
+      updateOrder(payload.id, payload),
     onSuccess: () => {
       toast.success("Order updated successfully!");
       if (onSubmit) onSubmit();
@@ -108,17 +202,39 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
         initialValues={defaultValues}
         validationSchema={OrderSchema}
         onSubmit={(values) => {
+          const payload = {
+            ...values,
+            failedReason:
+              values.status === "FAILED" ? values.failedReason : undefined,
+          };
+
           if (order) {
-            updateMutation.mutate({ id: order.id, data: values });
+            // update
+            updateMutation.mutate({ id: order.id, ...payload });
           } else {
-            createMutation.mutate(values);
+            // create
+            createMutation.mutate(payload);
           }
         }}
       >
-        {({ values, handleChange, handleSubmit, touched, errors, setFieldValue }) => (
+        {({
+          values,
+          handleChange,
+          handleSubmit,
+          touched,
+          errors,
+          setFieldValue,
+        }) => (
           <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-            <Form.Item label="Order Number" help={touched.orderNumber && errors.orderNumber}>
-              <Input name="orderNumber" value={values.orderNumber} onChange={handleChange} />
+            <Form.Item
+              label="Order Number"
+              help={touched.orderNumber && errors.orderNumber}
+            >
+              <Input
+                name="orderNumber"
+                value={values.orderNumber}
+                onChange={handleChange}
+              />
             </Form.Item>
 
             <Form.Item
@@ -132,7 +248,10 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
               />
             </Form.Item>
 
-            <Form.Item label="Priority" help={touched.priority && errors.priority}>
+            <Form.Item
+              label="Priority"
+              help={touched.priority && errors.priority}
+            >
               <Select
                 value={values.priority}
                 onChange={(val) => setFieldValue("priority", val)}
@@ -149,17 +268,61 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
             >
               <DatePicker
                 showTime
-                value={values.estimatedDelivery ? dayjs(values.estimatedDelivery) : null}
-                onChange={(val) => setFieldValue("estimatedDelivery", val?.toISOString() || "")}
+                value={
+                  values.estimatedDelivery
+                    ? dayjs(values.estimatedDelivery)
+                    : null
+                }
+                onChange={(val) =>
+                  setFieldValue("estimatedDelivery", val?.toISOString() || "")
+                }
                 style={{ width: "100%" }}
               />
             </Form.Item>
+
+            <Form.Item label="Status" help={touched.status && errors.status}>
+              <Select
+                value={values.status}
+                onChange={(val) => setFieldValue("status", val)}
+              >
+                {ORDER_STATUS_OPTIONS.map((status) => (
+                  <Select.Option key={status} value={status}>
+                    {status}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            {values.status === "FAILED" && (
+              <Form.Item
+                label="Failed Reason"
+                help={touched.failedReason && errors.failedReason}
+              >
+                <Select
+                  value={values.failedReason}
+                  onChange={(val) => setFieldValue("failedReason", val)}
+                >
+                  {FAILED_REASON_OPTIONS.map((reason) => (
+                    <Select.Option key={reason} value={reason}>
+                      {reason.replace(/_/g, " ")}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
 
             <FieldArray name="items">
               {({ push, remove }) => (
                 <>
                   {values.items.map((item, idx) => (
-                    <div key={idx} style={{ border: "1px solid #ddd", padding: 12, marginBottom: 12 }}>
+                    <div
+                      key={idx}
+                      style={{
+                        border: "1px solid #ddd",
+                        padding: 12,
+                        marginBottom: 12,
+                      }}
+                    >
                       <Form.Item label="SKU">
                         <Input
                           name={`items[${idx}].sku`}
@@ -185,7 +348,9 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
                         <InputNumber
                           min={0}
                           value={item.weight}
-                          onChange={(val) => setFieldValue(`items[${idx}].weight`, val)}
+                          onChange={(val) =>
+                            setFieldValue(`items[${idx}].weight`, val)
+                          }
                           style={{ width: "100%" }}
                         />
                       </Form.Item>
@@ -193,7 +358,9 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
                         <InputNumber
                           min={1}
                           value={item.quantity}
-                          onChange={(val) => setFieldValue(`items[${idx}].quantity`, val)}
+                          onChange={(val) =>
+                            setFieldValue(`items[${idx}].quantity`, val)
+                          }
                           style={{ width: "100%" }}
                         />
                       </Form.Item>
@@ -201,7 +368,9 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
                         <InputNumber
                           min={0}
                           value={item.unitPrice}
-                          onChange={(val) => setFieldValue(`items[${idx}].unitPrice`, val)}
+                          onChange={(val) =>
+                            setFieldValue(`items[${idx}].unitPrice`, val)
+                          }
                           style={{ width: "100%" }}
                         />
                       </Form.Item>
@@ -214,7 +383,20 @@ export const OrderModal = ({ open, onClose, onSubmit, order }: OrderModalProps) 
                     </div>
                   ))}
 
-                  <Button type="dashed" onClick={() => push({ sku: "", name: "", description: "", weight: 0, quantity: 1, unitPrice: 0 })} block>
+                  <Button
+                    type="dashed"
+                    onClick={() =>
+                      push({
+                        sku: "PROD-001",
+                        name: "",
+                        description: "",
+                        weight: 0,
+                        quantity: 1,
+                        unitPrice: 0,
+                      })
+                    }
+                    block
+                  >
                     + Add Item
                   </Button>
                 </>
