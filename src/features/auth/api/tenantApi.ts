@@ -4,6 +4,7 @@ import type {
   AssignPermissionsPayload,
   CreateSuperAdminUserPayload,
 } from "../../tenants/tenants.types";
+import type { OrderStatus, FailedReason } from "../../tenants/components/OrderModal";
 
 // import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
@@ -153,6 +154,8 @@ export const createOrder = async (orderData: {
   specialInstructions: string;
   priority: "LOW" | "MEDIUM" | "HIGH";
   estimatedDelivery: string; // ISO string
+  status: OrderStatus;
+  failedReason?: FailedReason;
   items: {
     sku: string;
     name: string;
@@ -168,7 +171,8 @@ export const createOrder = async (orderData: {
 
 // Admin: Update an order
 export const updateOrder = async (id: string, data: any) => {
-  return await instance.put(`/orders/${id}`, data);
+  const res = await instance.put(`/orders/${id}`, data);
+  return res.data;
 };
 
 export const updateOrderStatus = async ({

@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { Table, Tag, Typography, Button, Row, Col, Space } from "antd";
+import { Table, Tag, Typography, Button, Row, Col, Space, Spin } from "antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditOutlined } from "@ant-design/icons";
 import { fetchOrdersByCustomer } from "../../auth/api/customerApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
-import {
-  OrderModal,
-  type FailedReason,
-} from "../../tenants/components/OrderModal";
+import { CustomerCreateOrder, type FailedReason, type OrderStatus } from "../components/CustomerCreateOrder";
+import { CustomerUpdateOrder } from "../components/CustomerUpdateOrder";
 
 interface OrderItem {
   sku: string;
@@ -24,22 +22,10 @@ interface Order {
   specialInstructions: string;
   priority: "LOW" | "MEDIUM" | "HIGH";
   estimatedDelivery: string;
-  status:
-    | "PENDING"
-    | "APPROVED"
-    | "ASSIGNED_FOR_PICKUP"
-    | "PICKED_UP"
-    | "RECEIVED_IN_WAREHOUSE"
-    | "STORED_ON_SHELVES"
-    | "READY_FOR_DISPATCH"
-    | "OUT_FOR_DELIVERY"
-    | "DELIVERED"
-    | "FAILED"
-    | "RESCHEDULED"
-    | "CANCELLED"
-    | "RETURNED_TO_OPERATION"
-    | "READY_TO_RETURN_TO_ORIGIN"
-    | "RETURNED_TO_ORIGIN";
+  status: string;
+  totalWeight: string;
+  totalValue: string;
+  packageCount: number;
   failedReason: string | null;
   createdAt: string;
   updatedAt: string;
@@ -48,10 +34,10 @@ interface Order {
 
 export const CustomerOrdersList = () => {
   const queryClient = useQueryClient();
-  const { data: currentUserData } = useCurrentUser();
+  const { data: currentUserData, isLoading: isUserLoading } = useCurrentUser();
   const customerId = currentUserData?.data?.data?.user?.id;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading: isOrdersLoading } = useQuery({
     queryKey: ["customerOrders", customerId],
     queryFn: () => fetchOrdersByCustomer(customerId!),
     enabled: !!customerId,
@@ -59,53 +45,35 @@ export const CustomerOrdersList = () => {
 
   const orders: Order[] = data?.data?.data?.orders || [];
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
-  const handleModalSubmit = () => {
-    queryClient.invalidateQueries({ queryKey: ["customerOrders", customerId] });
-    setModalOpen(false);
-    setEditingOrder(null);
-  };
-
-const getOrderForModal = (order: Order | null) => {
-  if (!order) return undefined;
-
-  return {
+  // Convert Order -> OrderFormValues + id
+  const mapOrderToUpdateForm = (order: Order) => ({
     id: order.id,
-    orderNumber: order.orderNumber || "ORD-",
+    orderNumber: order.orderNumber || "",
     specialInstructions: order.specialInstructions || "",
     priority: order.priority || "MEDIUM",
     estimatedDelivery: order.estimatedDelivery || "",
-    status: order.status || "PENDING",
-    failedReason: order.failedReason
-      ? (order.failedReason as FailedReason)
-      : undefined,
-    items:
-      order.items && order.items.length > 0
-        ? order.items.map((item: any) => ({
-            sku: item.productId || "PROD-", // map productId → sku
-            name: item.name || "",
-            description: item.description || "",
-            weight: Number(item.weight) || 0,
-            quantity: Number(item.quantity) || 1,
-            unitPrice: Number(item.unitPrice) || 0,
-          }))
-        : [
-            {
-              sku: "PROD-",
-              name: "",
-              description: "",
-              weight: 0,
-              quantity: 1,
-              unitPrice: 0,
-            },
-          ],
+    status: order.status as OrderStatus,
+    failedReason: order.failedReason as FailedReason | undefined,
+    items: order.items?.map((item) => ({
+      sku: item.sku || "",
+      name: item.name || "",
+      description: item.description || "",
+      weight: Number(item.weight) || 0,
+      quantity: Number(item.quantity) || 1,
+      unitPrice: Number(item.unitPrice) || 0,
+    })) || [],
+  });
+
+  const handleModalSubmit = () => {
+    queryClient.invalidateQueries({ queryKey: ["customerOrders", customerId] });
+    setCreateModalOpen(false);
+    setUpdateModalOpen(false);
+    setEditingOrder(null);
   };
-};
-
-
-
 
   const columns = [
     { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber" },
@@ -116,23 +84,13 @@ const getOrderForModal = (order: Order | null) => {
       key: "estimatedDelivery",
       render: (date: string) => new Date(date).toLocaleString(),
     },
+    { title: "Weight (kg)", dataIndex: "totalWeight", key: "totalWeight" },
+    { title: "Value ($)", dataIndex: "totalValue", key: "totalValue" },
+    { title: "Packages", dataIndex: "packageCount", key: "packageCount" },
     {
-      title: "Items",
-      key: "items",
-      render: (_: any, record: Order) => (
-        <div>
-          {record.items && record.items.length > 0 ? (
-            record.items.map((item, idx) => (
-              <div key={idx}>
-                <b>{item.name}</b> (SKU: {item.sku}) - {item.quantity} × $
-                {item.unitPrice}
-              </div>
-            ))
-          ) : (
-            <i>No items</i>
-          )}
-        </div>
-      ),
+      title: "Special Instructions",
+      dataIndex: "specialInstructions",
+      key: "specialInstructions",
     },
     {
       title: "Status",
@@ -140,12 +98,26 @@ const getOrderForModal = (order: Order | null) => {
       key: "status",
       render: (status: string, record: Order) => {
         let color = "blue";
-        if (status === "CREATED") color = "purple";
-        if (status === "COMPLETED") color = "green";
-        if (status === "CANCELLED") color = "red";
-        if (status === "PENDING") color = "orange";
-        if (status === "FAILED") color = "volcano";
-        if (status === "DRAFT") color = "geekblue";
+        switch (status) {
+          case "CREATED":
+            color = "purple";
+            break;
+          case "COMPLETED":
+            color = "green";
+            break;
+          case "CANCELLED":
+            color = "red";
+            break;
+          case "PENDING":
+            color = "orange";
+            break;
+          case "FAILED":
+            color = "volcano";
+            break;
+          case "DRAFT":
+            color = "geekblue";
+            break;
+        }
 
         return (
           <div>
@@ -180,7 +152,7 @@ const getOrderForModal = (order: Order | null) => {
             type="link"
             onClick={() => {
               setEditingOrder(record);
-              setModalOpen(true);
+              setUpdateModalOpen(true);
             }}
           >
             <EditOutlined /> Edit
@@ -190,20 +162,22 @@ const getOrderForModal = (order: Order | null) => {
     },
   ];
 
+  if (isUserLoading) {
+    return (
+      <div style={{ padding: 20, textAlign: "center" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: 20 }}>
-      <Row align="middle" justify="space-between">
+    <div style={{ padding: 20, marginTop: 24 }}>
+      <Row align="middle" justify="space-between" style={{ marginBottom: 16 }}>
         <Col>
           <Typography.Title level={3}>Customer Orders</Typography.Title>
         </Col>
         <Col>
-          <Button
-            type="primary"
-            onClick={() => {
-              setEditingOrder(null);
-              setModalOpen(true);
-            }}
-          >
+          <Button type="primary" onClick={() => setCreateModalOpen(true)}>
             Add Order
           </Button>
         </Col>
@@ -213,21 +187,28 @@ const getOrderForModal = (order: Order | null) => {
         rowKey="id"
         columns={columns}
         dataSource={orders}
-        loading={isLoading}
+        loading={isOrdersLoading}
         bordered
         style={{ marginTop: 16 }}
         scroll={{ x: "max-content" }}
       />
 
-      <OrderModal
-        open={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setEditingOrder(null);
-        }}
-        onSubmit={handleModalSubmit}
-        order={getOrderForModal(editingOrder)}
-      />
+      {createModalOpen && (
+        <CustomerCreateOrder
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          onSubmit={handleModalSubmit}
+        />
+      )}
+
+      {updateModalOpen && editingOrder && (
+        <CustomerUpdateOrder
+          open={updateModalOpen}
+          order={mapOrderToUpdateForm(editingOrder)}
+          onClose={() => setUpdateModalOpen(false)}
+          onSubmit={handleModalSubmit}
+        />
+      )}
     </div>
   );
 };

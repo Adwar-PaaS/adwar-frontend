@@ -10,11 +10,10 @@ import {
 import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createOrder, updateOrder } from "../../auth/api/tenantApi";
+import { createOrder } from "../../auth/api/tenantApi";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 
-// Order status values
 export type OrderStatus =
   | "PENDING"
   | "APPROVED"
@@ -32,7 +31,6 @@ export type OrderStatus =
   | "READY_TO_RETURN_TO_ORIGIN"
   | "RETURNED_TO_ORIGIN";
 
-// Failed reason values
 export type FailedReason =
   | "CUSTOMER_NOT_AVAILABLE"
   | "WRONG_ADDRESS"
@@ -47,41 +45,6 @@ export type FailedReason =
   | "VEHICLE_BREAKDOWN"
   | "TRAFFIC_CONGESTION"
   | "OTHER";
-
-interface OrderItem {
-  sku: string; // frontend uses sku
-  name: string;
-  description: string;
-  weight: number;
-  quantity: number;
-  unitPrice: number;
-}
-
-interface OrderFormValues {
-  orderNumber: string;
-  specialInstructions: string;
-  priority: "LOW" | "MEDIUM" | "HIGH";
-  estimatedDelivery: string;
-  status: OrderStatus;
-  failedReason?: FailedReason;
-  items: OrderItem[];
-}
-
-interface OrderModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit?: () => void;
-  order?: { id: string } & Omit<OrderFormValues, "items"> & {
-    items: {
-      productId: string;
-      name: string;
-      description: string;
-      weight: number;
-      quantity: number;
-      unitPrice: number;
-    }[];
-  };
-}
 
 const ORDER_STATUS_OPTIONS: OrderStatus[] = [
   "PENDING",
@@ -145,39 +108,55 @@ const OrderSchema = Yup.object().shape({
     .min(1, "At least one item is required"),
 });
 
-export const OrderModal = ({
+interface OrderItem {
+  sku: string;
+  name: string;
+  description: string;
+  weight: number;
+  quantity: number;
+  unitPrice: number;
+}
+
+interface OrderFormValues {
+  orderNumber: string;
+  specialInstructions: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  estimatedDelivery: string;
+  status: OrderStatus;
+  failedReason?: FailedReason;
+  items: OrderItem[];
+}
+
+interface CustomerCreateOrderProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit?: () => void;
+}
+
+export const CustomerCreateOrder = ({
   open,
   onClose,
   onSubmit,
-  order,
-}: OrderModalProps) => {
+}: CustomerCreateOrderProps) => {
   const queryClient = useQueryClient();
 
   const defaultValues: OrderFormValues = {
-    orderNumber: order?.orderNumber || "ORD-",
-    specialInstructions: order?.specialInstructions || "",
-    priority: order?.priority || "MEDIUM",
-    estimatedDelivery: order?.estimatedDelivery || "",
-    status: order?.status || "PENDING",
-    failedReason: order?.failedReason,
-    items:
-      order?.items?.map((item) => ({
-        sku: item.productId, // map productId → sku for form
-        name: item.name,
-        description: item.description,
-        weight: item.weight,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-      })) || [
-        {
-          sku: "PROD-",
-          name: "",
-          description: "",
-          weight: 0,
-          quantity: 1,
-          unitPrice: 0,
-        },
-      ],
+    orderNumber: "ORD-",
+    specialInstructions: "",
+    priority: "MEDIUM",
+    estimatedDelivery: "",
+    status: "PENDING",
+    failedReason: undefined,
+    items: [
+      {
+        sku: "PROD-",
+        name: "",
+        description: "",
+        weight: 0,
+        quantity: 1,
+        unitPrice: 0,
+      },
+    ],
   };
 
   const createMutation = useMutation({
@@ -193,42 +172,11 @@ export const OrderModal = ({
     },
   });
 
-const updateMutation = useMutation({
-  mutationFn: (payload: { id: string } & OrderFormValues) =>
-    updateOrder(payload.id, {
-      orderNumber: payload.orderNumber,
-      specialInstructions: payload.specialInstructions,
-      priority: payload.priority,
-      estimatedDelivery: payload.estimatedDelivery,
-      status: payload.status,
-      failedReason:
-        payload.status === "FAILED" ? payload.failedReason : undefined,
-      items: payload.items.map((item) => ({
-        sku: item.sku,
-        name: item.name,
-        description: item.description,
-        weight: item.weight,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-      })),
-    }),
-  onSuccess: () => {
-    toast.success("Order updated successfully!");
-    queryClient.invalidateQueries({ queryKey: ["customerOrders"] });
-    if (onSubmit) onSubmit();
-    onClose();
-  },
-  onError: (err: any) => {
-    toast.error(err?.response?.data?.message || "Failed to update order");
-  },
-});
-
-
-  const loading = createMutation.isPending || updateMutation.isPending;
+  const loading = createMutation.isPending;
 
   return (
     <Modal
-      title={order ? "Edit Order" : "Create New Order"}
+      title="Create New Order"
       open={open}
       onCancel={onClose}
       footer={null}
@@ -245,12 +193,7 @@ const updateMutation = useMutation({
             failedReason:
               values.status === "FAILED" ? values.failedReason : undefined,
           };
-
-          if (order) {
-            updateMutation.mutate({ id: order.id, ...payload });
-          } else {
-            createMutation.mutate(payload);
-          }
+          createMutation.mutate(payload);
         }}
       >
         {({
@@ -310,9 +253,7 @@ const updateMutation = useMutation({
               <DatePicker
                 showTime
                 value={
-                  values.estimatedDelivery
-                    ? dayjs(values.estimatedDelivery)
-                    : null
+                  values.estimatedDelivery ? dayjs(values.estimatedDelivery) : null
                 }
                 onChange={(val) =>
                   setFieldValue("estimatedDelivery", val?.toISOString() || "")
@@ -448,7 +389,7 @@ const updateMutation = useMutation({
             </FieldArray>
 
             <Button type="primary" htmlType="submit" block loading={loading}>
-              {order ? "Update Order" : "Create Order"}
+              Create Order
             </Button>
           </Form>
         )}
