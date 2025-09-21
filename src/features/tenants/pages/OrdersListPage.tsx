@@ -7,73 +7,70 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchOrdersForTenant } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { UpdateStatusModal } from "../components/UpdateOrderStatusModal";
-import { AssignWarehouseModal } from "../components/AssignWarehouseModal";
 import { AssignDriverModal } from "../components/AssignDriverModal";
 
 interface Order {
   id: string;
-  sku: string;
-  quantity: number;
-  failedReason: string | null;
-  deliveryLocation: string;
-  merchantLocation: string;
-  description: string;
-  customerName: string;
-  customerPhone: string;
-  status:
-    | "PENDING"
-    | "PROCESSING"
-    | "COMPLETED"
-    | "CANCELLED"
-    | "APPROVED"
-    | "FAILED";
-  warehouseId: string | null;
-  deliveredAt: string | null;
+  orderNumber: string;
+  status: string;
+  priority: string;
+  specialInstructions: string;
+  estimatedDelivery: string;
   createdAt: string;
   updatedAt: string;
+  failedReason: string | null;
+  customer: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+  pickup?: {
+    pickupNumber: string;
+  } | null;
 }
 
 export const OrderListPage = () => {
   const { data: currentUserData } = useCurrentUser();
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
-  const {
-    data,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["orders", tenantId],
     queryFn: () => fetchOrdersForTenant({ tenantId: tenantId! }),
-    enabled: !!tenantId, 
+    enabled: !!tenantId,
   });
 
-  const orders = data?.data?.orders || [];
+  const orders: Order[] = data?.data?.orders || [];
 
   const [modalOpen, setModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [statusOrderId, setStatusOrderId] = useState<string | null>(null);
 
-  const [assignWarehouseOpen, setAssignWarehouseOpen] = useState(false);
   const [assignDriverOpen, setAssignDriverOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const columns = [
     {
-      title: "SKU",
-      dataIndex: "sku",
-      key: "sku",
-      render: (sku: string, record: Order) => (
+      title: "Order Number",
+      dataIndex: "orderNumber",
+      key: "orderNumber",
+      render: (orderNumber: string, record: Order) => (
         <Link to={`${record.id}`} style={{ color: "#1677ff" }}>
-          {sku}
+          {orderNumber}
         </Link>
       ),
     },
-    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-    { title: "Customer", dataIndex: "customerName", key: "customerName" },
-    { title: "Customer Phone", dataIndex: "customerPhone", key: "customerPhone" },
-    { title: "Delivery Location", dataIndex: "deliveryLocation", key: "deliveryLocation" },
-    { title: "Merchant Location", dataIndex: "merchantLocation", key: "merchantLocation" },
-    { title: "Description", dataIndex: "description", key: "description" },
+    { title: "Priority", dataIndex: "priority", key: "priority" },
+    {
+      title: "Pickup Number",
+      key: "pickup",
+      render: (_: any, record: Order) =>
+        record.pickup?.pickupNumber || "N/A",
+    },
+    {
+      title: "Special Instructions",
+      dataIndex: "specialInstructions",
+      key: "specialInstructions",
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -95,6 +92,12 @@ export const OrderListPage = () => {
           </div>
         );
       },
+    },
+    {
+      title: "Estimated Delivery",
+      dataIndex: "estimatedDelivery",
+      key: "estimatedDelivery",
+      render: (date: string) => new Date(date).toLocaleString(),
     },
     {
       title: "Created At",
@@ -122,25 +125,16 @@ export const OrderListPage = () => {
           >
             Update Status
           </Button>
-          <Button
+          {/* <Button
             type="link"
             onClick={() => {
               setSelectedOrder(record);
               setAssignDriverOpen(true);
             }}
-            disabled={!record.warehouseId}
+            disabled={!record.pickup}
           >
             Assign Driver
-          </Button>
-          <Button
-            type="link"
-            onClick={() => {
-              setSelectedOrder(record);
-              setAssignWarehouseOpen(true);
-            }}
-          >
-            Assign Warehouse
-          </Button>
+          </Button> */}
         </Space>
       ),
     },
@@ -155,10 +149,7 @@ export const OrderListPage = () => {
           </Typography.Title>
         </Col>
         <Col>
-          <Button
-            type="primary"
-            onClick={() => setModalOpen(true)}
-          >
+          <Button type="primary" onClick={() => setModalOpen(true)}>
             Add Order
           </Button>
         </Col>
@@ -180,26 +171,16 @@ export const OrderListPage = () => {
       <OrderModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        tenantId={tenantId}
         onSubmit={() => refetch()}
       />
 
       {selectedOrder && tenantId && (
         <>
-          <AssignWarehouseModal
-            open={assignWarehouseOpen}
-            onClose={() => setAssignWarehouseOpen(false)}
-            tenantId={tenantId}
-            orderId={selectedOrder.id}
-            currentStatus={selectedOrder.status}
-            onSuccess={refetch}
-          />
-
-          {selectedOrder.warehouseId && (
+          {selectedOrder.pickup && (
             <AssignDriverModal
               open={assignDriverOpen}
               onClose={() => setAssignDriverOpen(false)}
-              warehouseId={selectedOrder.warehouseId}
+              warehouseId={""} // not in response, adapt if needed
               orderId={selectedOrder.id}
               currentStatus={selectedOrder.status}
               onSuccess={refetch}

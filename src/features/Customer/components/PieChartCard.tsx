@@ -23,7 +23,7 @@ export const PieChartCard = ({ data, colors = DEFAULT_COLORS }: PieChartCardProp
             dataKey="value"
             label
           >
-            {data.map((entry, index) => (
+            {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Pie>

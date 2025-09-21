@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { Button, Card, Descriptions, Spin, Tag, Typography } from "antd";
+import { Button, Card, Spin, Tag, Typography, Table } from "antd";
 import { fetchOrderById } from "../../auth/api/tenantApi";
 import styles from "../../../styles/OrderDetailsPage.module.css";
 import { OrderModal } from "../components/OrderModal";
 import { useState } from "react";
-import { UploadFileModal } from "../components/UploadFileModal"; 
+import { UploadFileModal } from "../components/UploadFileModal";
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -13,7 +13,7 @@ export const OrderDetailsPage = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const {
-    data: order,
+    data,
     isLoading,
     isError,
     refetch,
@@ -22,6 +22,8 @@ export const OrderDetailsPage = () => {
     queryFn: () => fetchOrderById(orderId!),
     enabled: !!orderId,
   });
+
+  const order = data;
 
   const handleUpload = (file: File) => {
     console.log("Uploaded file:", file);
@@ -38,10 +40,53 @@ export const OrderDetailsPage = () => {
       </Typography.Text>
     );
 
+  const columns = [
+    { title: "Field", dataIndex: "field", key: "field" },
+    { title: "Value", dataIndex: "value", key: "value" },
+  ];
+
+  const dataSource = [
+    { key: "1", field: "Order Number", value: order.orderNumber },
+    { key: "2", field: "Reference Number", value: order.referenceNumber || "N/A" },
+    { key: "3", field: "Total Weight", value: order.totalWeight },
+    { key: "4", field: "Total Value", value: order.totalValue },
+    { key: "5", field: "Package Count", value: order.packageCount },
+    { key: "6", field: "Special Instructions", value: order.specialInstructions || "N/A" },
+    {
+      key: "7",
+      field: "Status",
+      value: (
+        <Tag
+          color={
+            order.status === "COMPLETED"
+              ? "green"
+              : order.status === "CANCELLED"
+              ? "red"
+              : order.status === "PENDING"
+              ? "orange"
+              : order.status === "FAILED"
+              ? "volcano"
+              : "blue"
+          }
+        >
+          {order.status}
+        </Tag>
+      ),
+    },
+    { key: "8", field: "Priority", value: order.priority },
+    { key: "9", field: "Estimated Delivery", value: order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleString() : "N/A" },
+    { key: "10", field: "Delivered At", value: order.deliveredAt || "Not delivered yet" },
+    { key: "11", field: "Created At", value: new Date(order.createdAt).toLocaleString() },
+    { key: "12", field: "Updated At", value: new Date(order.updatedAt).toLocaleString() },
+    { key: "13", field: "Customer Name", value: `${order.customer.firstName} ${order.customer.lastName}` },
+    { key: "14", field: "Customer Email", value: order.customer.email },
+    { key: "15", field: "Customer Phone", value: order.customer.phone },
+  ];
+
   return (
     <div className={styles.container}>
       <Card
-        title={`Order Details - ${order.sku}`}
+        title={`Order Details - ${order.orderNumber}`}
         extra={
           <div style={{ display: "flex", gap: "8px" }}>
             <Button type="primary" onClick={() => setIsModalOpen(true)}>
@@ -53,59 +98,18 @@ export const OrderDetailsPage = () => {
           </div>
         }
       >
-        <Descriptions bordered column={1} size="middle">
-          <Descriptions.Item label="SKU">{order.sku}</Descriptions.Item>
-          <Descriptions.Item label="Quantity">
-            {order.quantity}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer Name">
-            {order.customerName}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer Phone">
-            {order.customerPhone}
-          </Descriptions.Item>
-          <Descriptions.Item label="Delivery Location">
-            {order.deliveryLocation}
-          </Descriptions.Item>
-          <Descriptions.Item label="Merchant Location">
-            {order.merchantLocation}
-          </Descriptions.Item>
-          <Descriptions.Item label="Status">
-            <Tag
-              color={
-                order.status === "COMPLETED"
-                  ? "green"
-                  : order.status === "CANCELLED"
-                  ? "red"
-                  : order.status === "PENDING"
-                  ? "orange"
-                  : order.status === "FAILED"
-                  ? "volcano"
-                  : "blue"
-              }
-            >
-              {order.status}
-            </Tag>
-          </Descriptions.Item>
-          <Descriptions.Item label="Warehouse ID">
-            {order.warehouseId || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Delivered At">
-            {order.deliveredAt || "Not delivered yet"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Created At">
-            {new Date(order.createdAt).toLocaleString()}
-          </Descriptions.Item>
-          <Descriptions.Item label="Updated At">
-            {new Date(order.updatedAt).toLocaleString()}
-          </Descriptions.Item>
-        </Descriptions>
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          pagination={false}
+          bordered
+          size="middle"
+        />
       </Card>
 
       <OrderModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        tenantId={order.tenantId}
         order={order}
         onSubmit={() => {
           refetch();
