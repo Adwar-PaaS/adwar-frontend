@@ -55,7 +55,7 @@ export const getRoles = () => instance.get("/roles");
 
 // ADMIN: Create users in system while logged in as tenant admin
 export const createTenantUser = (data: createTenantUserPayload) =>
-  instance.post("/users/tenant", data);
+  instance.post("/users/create-user-tenant", data);
 
 // ADMIN: Get users in tenant admin dashboard while logged in as admin
 export const getTenantUsers = (tenantId: string) =>
@@ -216,6 +216,6 @@ export const fetchWarehouseUsers = async (warehouseId: string) => {
 
 // Admin: Get all branches for a tenant
 export const fetchTenantBranches = async (tenantId: string) => {
-  const response = await instance.get(`/branches/tenant/${tenantId}`);
+  const response = await instance.get(`/tenants/${tenantId}/branches`);
   return response;
 };

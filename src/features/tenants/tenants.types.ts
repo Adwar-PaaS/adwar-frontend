@@ -39,6 +39,22 @@ export interface CreateSuperAdminUserPayload {
   roleName: string;
 }
 
+export interface AddressPayload {
+  label: string;
+  address1: string;
+  address2?: string;
+  district: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  latitude?: number;
+  longitude?: number;
+  type: string;
+  isPrimary: boolean;
+  isDefault: boolean;
+}
+
 export interface createTenantUserPayload {
   email: string;
   password: string;
@@ -47,6 +63,7 @@ export interface createTenantUserPayload {
   phone: string;
   tenantId: string;
   roleId: string;
+  addresses: AddressPayload[];
 }
 
 export interface AssignPermissionsPayload {

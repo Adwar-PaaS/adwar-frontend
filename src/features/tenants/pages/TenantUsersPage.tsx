@@ -59,7 +59,6 @@ export const TenantUsersPage = () => {
     mutationFn: ({ id, values }: { id: string; values: any }) =>
       updateTenantUser(id, values),
     onSuccess: () => {
-      toast.success("User updated successfully");
       queryClient.invalidateQueries({ queryKey: ["tenantUsers", tenantId] });
       setModalOpen(false);
     },
@@ -93,6 +92,23 @@ export const TenantUsersPage = () => {
       password: values.password || "mypassword123",
       tenantId: tenantId,
       roleId: values.roleId,
+       addresses: values.addresses || [
+      {
+        label: "Home",
+        address1: values.address1 || "",
+        address2: values.address2 || "",
+        district: values.district || "",
+        city: values.city || "",
+        state: values.state || "",
+        country: values.country || "EG",
+        postalCode: values.postalCode || "",
+        latitude: 0,
+        longitude: 0,
+        type: "HOME",
+        isPrimary: true,
+        isDefault: true,
+      },
+    ],
     };
 
     if (editingUser) {
@@ -104,6 +120,7 @@ export const TenantUsersPage = () => {
           email: values.email,
           phone: values.phone,
           roleId: values.roleId,
+            addresses: values.addresses,
         },
       });
     } else {
@@ -235,6 +252,7 @@ export const TenantUsersPage = () => {
                 roleId: editingUser.roleId,
                 phone: editingUser.phone,
                 status: editingUser.status,
+                addresses: editingUser.addresses || [],
               }
             : undefined
         }

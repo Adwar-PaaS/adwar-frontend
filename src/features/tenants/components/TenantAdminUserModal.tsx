@@ -23,6 +23,21 @@ interface TenantUserFormValues {
   warehouseId?: string;
   status: string;
   assignWarehouses?: string[];
+  addresses: {
+    label: string;
+    address1: string;
+    address2?: string;
+    district?: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+    latitude?: number;
+    longitude?: number;
+    type: string;
+    isPrimary: boolean;
+    isDefault: boolean;
+  }[];
 }
 
 interface TenantUserFormModalProps {
@@ -55,15 +70,37 @@ export const TenantAdminUserModal = ({
   initialValues,
   isEdit = false,
 }: TenantUserFormModalProps) => {
-  const defaultValues: TenantUserFormValues = initialValues || {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    roleId: "",
-    status: "ACTIVE",
-    assignWarehouses: [],
-  };
+  const defaultValues: TenantUserFormValues = {
+  ...initialValues,
+  addresses:
+    initialValues?.addresses && initialValues.addresses.length > 0
+      ? initialValues.addresses
+      : [
+          {
+            label: "Home",
+            address1: "",
+            address2: "",
+            district: "",
+            city: "",
+            state: "",
+            country: "EG",
+            postalCode: "",
+            latitude: 0,
+            longitude: 0,
+            type: "HOME",
+            isPrimary: true,
+            isDefault: true,
+          },
+        ],
+  firstName: initialValues?.firstName || "",
+  lastName: initialValues?.lastName || "",
+  email: initialValues?.email || "",
+  phone: initialValues?.phone || "",
+  roleId: initialValues?.roleId || "",
+  status: initialValues?.status || "ACTIVE",
+  assignWarehouses: initialValues?.assignWarehouses || [],
+};
+
 
   const { data: rolesData, isLoading: rolesLoading } = useQuery({
     queryKey: ["tenantRoles", tenantId],
@@ -79,7 +116,6 @@ export const TenantAdminUserModal = ({
 
   const roles: Role[] = rolesData || [];
   const branches = data?.data?.data?.branches || [];
-
 
   return (
     <Modal
@@ -166,6 +202,72 @@ export const TenantAdminUserModal = ({
                 value={values.phone}
                 onChange={handleChange}
                 placeholder="Enter phone number"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Address Line 1"
+              validateStatus={
+                touched.addresses?.[0]?.address1 &&
+                (errors.addresses as any)?.[0]?.address1
+                  ? "error"
+                  : ""
+              }
+              help={
+                touched.addresses?.[0]?.address1 &&
+                (errors.addresses as any)?.[0]?.address1
+              }
+            >
+              <Input
+                name="addresses[0].address1"
+                value={values.addresses[0].address1}
+                onChange={handleChange}
+                placeholder="Enter address line 1"
+              />
+            </Form.Item>
+
+            <Form.Item label="Address Line 2">
+              <Input
+                name="addresses[0].address2"
+                value={values.addresses[0].address2}
+                onChange={handleChange}
+                placeholder="Enter address line 2"
+              />
+            </Form.Item>
+
+            <Form.Item label="City">
+              <Input
+                name="addresses[0].city"
+                value={values.addresses[0].city}
+                onChange={handleChange}
+                placeholder="Enter city"
+              />
+            </Form.Item>
+
+            <Form.Item label="State">
+              <Input
+                name="addresses[0].state"
+                value={values.addresses[0].state}
+                onChange={handleChange}
+                placeholder="Enter state"
+              />
+            </Form.Item>
+
+            <Form.Item label="Country">
+              <Input
+                name="addresses[0].country"
+                value={values.addresses[0].country}
+                onChange={handleChange}
+                placeholder="Enter country code (e.g. EG)"
+              />
+            </Form.Item>
+
+            <Form.Item label="Postal Code">
+              <Input
+                name="addresses[0].postalCode"
+                value={values.addresses[0].postalCode}
+                onChange={handleChange}
+                placeholder="Enter postal code"
               />
             </Form.Item>
 
