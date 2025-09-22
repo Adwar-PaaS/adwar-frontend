@@ -21,6 +21,7 @@ import { PickupDetailsPage } from "./features/Operation/pages/PickupDetailsPage"
 import { ApprovedPickupsListPage } from "./features/Operation/pages/ApprovedPickupsListPage";
 import { TenantBranchesList } from "./features/tenants/pages/TenantBranchesList";
 import { CustomerDashboard } from "./features/Customer/pages/CustomerDashboard";
+import TenantDashboard from "./features/tenants/pages/TenantDashboard";
 
 function App() {
   return (
@@ -54,7 +55,7 @@ function App() {
             <Route element={<TenantAdminPanel />}>
               <Route
                 path="dashboard"
-                element={<div>Tenant Admin Dashboard</div>}
+                element={<TenantDashboard/>}
               />
               <Route path="users" element={<TenantUsersPage />} />
               <Route path="orders" element={<OrderListPage />} />
