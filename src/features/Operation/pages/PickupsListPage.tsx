@@ -1,7 +1,8 @@
 import { Table, Tag, Typography, Button } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllPickups } from "../../auth/api/operationApi";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 export interface PickupRequest {
   id: string;
@@ -15,12 +16,16 @@ export interface PickupRequest {
 
 export const PickupsListPage = () => {
   const navigate = useNavigate();
+  const { data: currentUserData } = useCurrentUser();
+
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+
   const { data, isLoading } = useQuery({
-    queryKey: ["pickupsList"],
-    queryFn: fetchAllPickups,
+    queryKey: ["pickupsList", tenantId],
+    queryFn: () => fetchAllPickups(tenantId!),
+    enabled: !!tenantId,
   });
 
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const pickups: PickupRequest[] = data?.data?.requests || [];
 
   const columns = [
@@ -32,7 +37,7 @@ export const PickupsListPage = () => {
         <Button
           type="link"
           onClick={() =>
-            navigate(`/tenant/${tenantSlug}/operation/pickups/${pickupId}`)
+            navigate(`/tenant/${tenantId}/operation/pickups/${pickupId}`)
           }
         >
           {pickupId}

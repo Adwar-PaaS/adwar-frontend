@@ -1,8 +1,8 @@
 import instance from "./axiosInstance";
 
 // Fetch all pickups 
-export const fetchAllPickups = async () => {
-  const response = await instance.get(`/pickups/get-all-requests`);
+export const fetchAllPickups = async (tenandId: string) => {
+  const response = await instance.get(`/tenants/${tenandId}/pickups`);
   return response.data;
 };
 

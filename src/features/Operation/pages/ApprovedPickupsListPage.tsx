@@ -1,6 +1,8 @@
 import { Table, Tag, Typography } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllPickups } from "../../auth/api/operationApi";
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
+
 
 export interface PickupRequest {
   id: string;
@@ -20,9 +22,14 @@ export interface PickupRequest {
 }
 
 export const ApprovedPickupsListPage = () => {
+    const { data: currentUserData } = useCurrentUser();
+
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+
   const { data, isLoading } = useQuery({
-    queryKey: ["approvedPickupsList"],
-    queryFn: fetchAllPickups,
+    queryKey: ["pickupsList", tenantId],
+    queryFn: () => fetchAllPickups(tenantId!),
+    enabled: !!tenantId,
   });
 
   const pickups: PickupRequest[] = data?.data?.requests || [];
