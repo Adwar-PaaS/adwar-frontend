@@ -31,8 +31,8 @@ interface PickupOrder {
 }
 
 export const PickupDetailsPage = () => {
-  const { pickupId } = useParams<{ pickupId: string }>();
-  const queryClient = useQueryClient();
+ const { tenantId, pickupId } = useParams<{ tenantId: string; pickupId: string }>();
+   const queryClient = useQueryClient();
 
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ["pickupOrders", pickupId],
@@ -41,10 +41,11 @@ export const PickupDetailsPage = () => {
   });
 
   const { data: requestsData } = useQuery({
-    queryKey: ["pickupRequests"],
-    queryFn: fetchAllPickups,
+    queryKey: ["pickupRequests", tenantId],
+    queryFn: () => fetchAllPickups(tenantId!),
+    enabled: !!tenantId,
   });
-
+  
   const orders: PickupOrder[] = ordersData?.data?.data?.orders || [];
   const requests: any[] = requestsData?.data?.requests || [];
 
