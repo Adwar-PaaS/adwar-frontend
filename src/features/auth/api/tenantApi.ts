@@ -170,9 +170,20 @@ export const createOrder = async (orderData: {
 };
 
 // Admin: Update an order
-export const updateOrder = async (id: string, data: any) => {
-  const res = await instance.put(`/orders/${id}`, data);
-  return res.data;
+
+interface UpdateOrderPayload {
+  orderNumber: string;
+  specialInstructions: string;
+  priority: "LOW" | "MEDIUM" | "HIGH" | "NORMAL";
+  status: string;
+  estimatedDelivery: string;
+}
+
+export const updateOrder = async (
+  orderId: string,
+  payload: UpdateOrderPayload
+) => {
+  return await instance.put(`/orders/${orderId}`, payload);
 };
 
 export const updateOrderStatus = async ({

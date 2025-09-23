@@ -1,13 +1,5 @@
-import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  InputNumber,
-  DatePicker,
-  Select,
-} from "antd";
-import { Formik, FieldArray } from "formik";
+import { Modal, Form, Input, Button, DatePicker, Select } from "antd";
+import { Formik } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateOrder } from "../../auth/api/tenantApi";
@@ -106,7 +98,9 @@ const OrderSchema = Yup.object().shape({
 });
 
 interface OrderItem {
+  productId: any;
   sku?: string;
+  name: string;
   quantity: number;
   unitPrice: number;
 }
@@ -150,16 +144,9 @@ export const CustomerUpdateOrder: React.FC<CustomerUpdateOrderProps> = ({
         updatePayload.failedReason = payload.failedReason;
       }
 
-      if (payload.items && payload.items.length > 0) {
-        updatePayload.items = payload.items.map((item) => ({
-          ...(item.sku ? { sku: item.sku } : {}),
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-        }));
-      }
-
       return updateOrder(payload.id, updatePayload);
     },
+
     onSuccess: () => {
       toast.success("Order updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["customerOrders"] });
@@ -188,82 +175,127 @@ export const CustomerUpdateOrder: React.FC<CustomerUpdateOrderProps> = ({
       >
         {({ values, handleChange, handleSubmit, errors }) => (
           <Form layout="vertical" onFinish={handleSubmit}>
-            <Form.Item label="Order Number" validateStatus={errors.orderNumber ? "error" : ""} help={errors.orderNumber}>
-              <Input name="orderNumber" value={values.orderNumber} onChange={handleChange} />
+            <Form.Item
+              label="Order Number"
+              validateStatus={errors.orderNumber ? "error" : ""}
+              help={errors.orderNumber}
+            >
+              <Input
+                name="orderNumber"
+                value={values.orderNumber}
+                onChange={handleChange}
+              />
             </Form.Item>
 
-            <Form.Item label="Special Instructions" validateStatus={errors.specialInstructions ? "error" : ""} help={errors.specialInstructions}>
-              <Input.TextArea name="specialInstructions" value={values.specialInstructions} onChange={handleChange} />
+            <Form.Item
+              label="Special Instructions"
+              validateStatus={errors.specialInstructions ? "error" : ""}
+              help={errors.specialInstructions}
+            >
+              <Input.TextArea
+                name="specialInstructions"
+                value={values.specialInstructions}
+                onChange={handleChange}
+              />
             </Form.Item>
 
-            <Form.Item label="Priority" validateStatus={errors.priority ? "error" : ""} help={errors.priority}>
-              <Select value={values.priority} onChange={(val) => {
-                // Use Formik's setFieldValue to update the value
-                // @ts-ignore
-                values.priority = val;
-                handleChange({ target: { name: "priority", value: val } });
-              }}>
+            <Form.Item
+              label="Priority"
+              validateStatus={errors.priority ? "error" : ""}
+              help={errors.priority}
+            >
+              <Select
+                value={values.priority}
+                onChange={(val) => {
+                  // Use Formik's setFieldValue to update the value
+                  // @ts-ignore
+                  values.priority = val;
+                  handleChange({ target: { name: "priority", value: val } });
+                }}
+              >
                 {["LOW", "MEDIUM", "HIGH"].map((p) => (
-                  <Select.Option key={p} value={p}>{p}</Select.Option>
+                  <Select.Option key={p} value={p}>
+                    {p}
+                  </Select.Option>
                 ))}
               </Select>
             </Form.Item>
 
-            <Form.Item label="Estimated Delivery" validateStatus={errors.estimatedDelivery ? "error" : ""} help={errors.estimatedDelivery}>
+            <Form.Item
+              label="Estimated Delivery"
+              validateStatus={errors.estimatedDelivery ? "error" : ""}
+              help={errors.estimatedDelivery}
+            >
               <DatePicker
                 showTime
-                value={values.estimatedDelivery ? dayjs(values.estimatedDelivery) : null}
-                onChange={(date) => handleChange({ target: { name: "estimatedDelivery", value: date?.toISOString() } })}
+                value={
+                  values.estimatedDelivery
+                    ? dayjs(values.estimatedDelivery)
+                    : null
+                }
+                onChange={(date) =>
+                  handleChange({
+                    target: {
+                      name: "estimatedDelivery",
+                      value: date?.toISOString(),
+                    },
+                  })
+                }
               />
             </Form.Item>
 
-            <Form.Item label="Status" validateStatus={errors.status ? "error" : ""} help={errors.status}>
+            <Form.Item
+              label="Status"
+              validateStatus={errors.status ? "error" : ""}
+              help={errors.status}
+            >
               <Select
                 value={values.status}
                 onChange={(val) => {
-                  // Use Formik's setFieldValue to update the value
-                  // @ts-ignore
                   values.status = val;
                   handleChange({ target: { name: "status", value: val } });
                 }}
               >
                 {ORDER_STATUS_OPTIONS.map((status) => (
-                  <Select.Option key={status} value={status}>{status}</Select.Option>
+                  <Select.Option key={status} value={status}>
+                    {status}
+                  </Select.Option>
                 ))}
               </Select>
             </Form.Item>
 
             {values.status === "FAILED" && (
-              <Form.Item label="Failed Reason" validateStatus={errors.failedReason ? "error" : ""} help={errors.failedReason}>
-                <Select value={values.failedReason} onChange={(val) => {
-                  // Use Formik's setFieldValue to update the value
-                  // @ts-ignore
-                  values.failedReason = val;
-                  handleChange({ target: { name: "failedReason", value: val } });
-                }}>
+              <Form.Item
+                label="Failed Reason"
+                validateStatus={errors.failedReason ? "error" : ""}
+                help={errors.failedReason}
+              >
+                <Select
+                  value={values.failedReason}
+                  onChange={(val) => {
+                    // Use Formik's setFieldValue to update the value
+                    // @ts-ignore
+                    values.failedReason = val;
+                    handleChange({
+                      target: { name: "failedReason", value: val },
+                    });
+                  }}
+                >
                   {FAILED_REASON_OPTIONS.map((reason) => (
-                    <Select.Option key={reason} value={reason}>{reason.replace(/_/g, " ")}</Select.Option>
+                    <Select.Option key={reason} value={reason}>
+                      {reason.replace(/_/g, " ")}
+                    </Select.Option>
                   ))}
                 </Select>
               </Form.Item>
             )}
 
-            <FieldArray name="items">
-              {({  }) => (
-                <>
-                  {values.items && values.items.length > 0 && values.items.map((item, index) => (
-                    <div key={index} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                      <Input placeholder="SKU" name={`items.${index}.sku`} value={item.sku} onChange={handleChange} />
-                      <InputNumber placeholder="Quantity" name={`items.${index}.quantity`} value={item.quantity} onChange={(val) => handleChange({ target: { name: `items.${index}.quantity`, value: val } })} />
-                      <InputNumber placeholder="Unit Price" name={`items.${index}.unitPrice`} value={item.unitPrice} onChange={(val) => handleChange({ target: { name: `items.${index}.unitPrice`, value: val } })} />
-                    </div>
-                  ))}
-                </>
-              )}
-            </FieldArray>
-
             <Form.Item>
-              <Button type="primary" htmlType="submit" loading={updateMutation.isPending}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={updateMutation.isPending}
+              >
                 Update Order
               </Button>
             </Form.Item>

@@ -262,39 +262,6 @@ export const CustomerCreateOrder = ({
               />
             </Form.Item>
 
-            {/* Status */}
-            <Form.Item label="Status" help={touched.status && errors.status}>
-              <Select
-                value={values.status}
-                onChange={(val) => setFieldValue("status", val)}
-              >
-                {ORDER_STATUS_OPTIONS.map((status) => (
-                  <Select.Option key={status} value={status}>
-                    {status}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            {/* Failed Reason */}
-            {values.status === "FAILED" && (
-              <Form.Item
-                label="Failed Reason"
-                help={touched.failedReason && errors.failedReason}
-              >
-                <Select
-                  value={values.failedReason}
-                  onChange={(val) => setFieldValue("failedReason", val)}
-                >
-                  {FAILED_REASON_OPTIONS.map((reason) => (
-                    <Select.Option key={reason} value={reason}>
-                      {reason.replace(/_/g, " ")}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            )}
-
             {/* Items */}
             <FieldArray name="items">
               {({ push, remove }) => (
