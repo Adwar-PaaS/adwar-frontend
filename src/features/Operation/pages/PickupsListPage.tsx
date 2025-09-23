@@ -1,15 +1,25 @@
 import { Table, Tag, Typography, Button } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllPickups } from "../../auth/api/operationApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 export interface PickupRequest {
   id: string;
-  pickupId: string;
-  requestedBy: string;
-  respondedBy?: string | null;
-  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "FAILED";
+  pickupNumber: string;
+  status:
+    | "PENDING"
+    | "IN_PROGRESS"
+    | "COMPLETED"
+    | "CANCELLED"
+    | "FAILED"
+    | "APPROVED"
+    | "REJECTED";
+  type: string;
+  notes?: string | null;
+  driverId?: string | null;
+  branchId?: string | null;
+  addressId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,6 +29,7 @@ export const PickupsListPage = () => {
   const { data: currentUserData } = useCurrentUser();
 
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
+  const { tenantSlug } = useParams();
 
   const { data, isLoading } = useQuery({
     queryKey: ["pickupsList", tenantId],
@@ -26,28 +37,27 @@ export const PickupsListPage = () => {
     enabled: !!tenantId,
   });
 
-  const pickups: PickupRequest[] = data?.data?.requests || [];
+  const pickups: PickupRequest[] = data?.data?.pickups || [];
 
   const columns = [
     {
-      title: "Pickup ID",
-      dataIndex: "pickupId",
-      key: "pickupId",
-      render: (pickupId: string) => (
+      title: "Pickup Number",
+      dataIndex: "pickupNumber",
+      key: "pickupNumber",
+      render: (pickupNumber: string, record: PickupRequest) => (
         <Button
           type="link"
-          onClick={() =>
-            navigate(`/tenant/${tenantId}/operation/pickups/${pickupId}`)
+          onClick={
+            () =>  navigate(`/tenant/${tenantSlug}/operation/pickups/${record.id}`)
           }
         >
-          {pickupId}
+          {pickupNumber}
         </Button>
       ),
     },
-    { title: "Requested By", dataIndex: "requestedBy", key: "requestedBy" },
-    { title: "Responded By", dataIndex: "respondedBy", key: "respondedBy" },
+    { title: "Type", dataIndex: "type", key: "type" },
     {
-      title: "Pickup Request Status",
+      title: "Pickup Status",
       dataIndex: "status",
       key: "status",
       render: (status: string) => {

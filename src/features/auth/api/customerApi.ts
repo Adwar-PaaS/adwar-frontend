@@ -16,6 +16,15 @@ export const createPickup = async (orderIds: string[]) => {
   });
 };
 
+// // Customer: sent pickup request and change the status of the pickup
+export const requestPickup = async (
+  pickupId: string,
+  body: { pickupStatus: string; orderStatus: string }
+) => {
+  return await instance.patch(`/pickups/${pickupId}/request`, body);
+};
+
+
 // Customer : Get pickups for a customer
 export const fetchCustomerPickups = async (customerId: string) => {
   return await instance.get(`/customers/${customerId}/pickups`);

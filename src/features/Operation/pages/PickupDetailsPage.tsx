@@ -7,6 +7,7 @@ import {
   rejectPickupRequest,
   fetchAllPickups,
 } from "../../auth/api/operationApi";
+import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
 interface PickupOrder {
   id: string;
@@ -28,11 +29,16 @@ interface PickupOrder {
   createdAt: string;
   updatedAt: string;
   failedReason?: string | null;
+  pickupId: string;
 }
 
 export const PickupDetailsPage = () => {
- const { tenantId, pickupId } = useParams<{ tenantId: string; pickupId: string }>();
-   const queryClient = useQueryClient();
+  const { pickupId } = useParams<{ pickupId: string }>();
+  const queryClient = useQueryClient();
+
+  const { data: currentUserData } = useCurrentUser();
+
+  const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ["pickupOrders", pickupId],
@@ -45,9 +51,40 @@ export const PickupDetailsPage = () => {
     queryFn: () => fetchAllPickups(tenantId!),
     enabled: !!tenantId,
   });
-  
-  const orders: PickupOrder[] = ordersData?.data?.data?.orders || [];
-  const requests: any[] = requestsData?.data?.requests || [];
+
+  const requests: any[] = requestsData?.data?.pickups || [];
+
+  const orders: PickupOrder[] =
+    ordersData?.data?.data?.orders.flatMap((order: any) =>
+      order.items.map((item: any) => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        totalValue: order.totalValue,
+        totalWeight: order.totalWeight,
+        priority: order.priority,
+        status: order.status,
+        failedReason: order.failedReason,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        estimatedDelivery: order.estimatedDelivery,
+
+        // customer info
+        customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+        customerPhone: order.customer.phone,
+
+        // item + product info
+        itemId: item.id,
+        sku: item.product?.sku,
+        productName: item.product?.name,
+        description: item.product?.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        itemTotal: item.total,
+        productWeight: item.product?.weight,
+
+        pickupId: order.pickupId,
+      }))
+    ) || [];
 
   const approveMutation = useMutation({
     mutationFn: (requestId: string) => approvePickupRequest(requestId),
@@ -78,25 +115,26 @@ export const PickupDetailsPage = () => {
   });
 
   const columns = [
+    { title: "Order Number", dataIndex: "orderNumber", key: "orderNumber" },
     { title: "SKU", dataIndex: "sku", key: "sku" },
+    { title: "Product", dataIndex: "productName", key: "productName" },
+    { title: "Description", dataIndex: "description", key: "description" },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+    { title: "Unit Price", dataIndex: "unitPrice", key: "unitPrice" },
+    { title: "Item Total", dataIndex: "itemTotal", key: "itemTotal" },
+    {
+      title: "Product Weight",
+      dataIndex: "productWeight",
+      key: "productWeight",
+    },
+    { title: "Total Order Value", dataIndex: "totalValue", key: "totalValue" },
+    { title: "Priority", dataIndex: "priority", key: "priority" },
     { title: "Customer Name", dataIndex: "customerName", key: "customerName" },
     {
       title: "Customer Phone",
       dataIndex: "customerPhone",
       key: "customerPhone",
     },
-    {
-      title: "Delivery Location",
-      dataIndex: "deliveryLocation",
-      key: "deliveryLocation",
-    },
-    {
-      title: "Merchant Location",
-      dataIndex: "merchantLocation",
-      key: "merchantLocation",
-    },
-    { title: "Description", dataIndex: "description", key: "description" },
     {
       title: "Order Status",
       dataIndex: "status",
@@ -125,13 +163,13 @@ export const PickupDetailsPage = () => {
     {
       title: "Pickup Request Status",
       key: "actions",
-      render: (_: any) => {
-        const request = requests.find((r) => r.pickupId === pickupId);
+      render: (_: any, record: PickupOrder) => {
+        const request = requests.find((r) => r.id === record.pickupId);
 
         if (!request || request.status !== "PENDING") {
           return (
             <Tag color={request?.status === "APPROVED" ? "cyan" : "magenta"}>
-              {request?.status}
+              {request?.status || "-"}
             </Tag>
           );
         }
@@ -157,6 +195,12 @@ export const PickupDetailsPage = () => {
           </Space>
         );
       },
+    },
+    {
+      title: "Estimated Delivery",
+      dataIndex: "estimatedDelivery",
+      key: "estimatedDelivery",
+      render: (date: string) => (date ? new Date(date).toLocaleString() : "-"),
     },
     {
       title: "Created At",

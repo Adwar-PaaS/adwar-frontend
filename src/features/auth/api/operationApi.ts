@@ -14,13 +14,16 @@ export const fetchPickupOrders = async (pickupId: string) => {
 // Approve a pickup request
 export const approvePickupRequest = async (pickupId: string) => {
   return await instance.patch(`/pickups/${pickupId}/respond`, {
-    status: "APPROVED",
+    pickupStatus: "APPROVED",
+    orderStatus: "ASSIGNED_FOR_PICKUP", 
   });
 };
 
 // Reject a pickup request
 export const rejectPickupRequest = async (pickupId: string) => {
   return await instance.patch(`/pickups/${pickupId}/respond`, {
-    status: "REJECTED",
+    pickupStatus: "CANCELLED",
+    orderStatus: "CANCELLED",
   });
 };
+
