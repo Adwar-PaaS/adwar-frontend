@@ -49,24 +49,25 @@ export const CustomerOrdersList = () => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
-  // Convert Order -> OrderFormValues + id
-  const mapOrderToUpdateForm = (order: Order) => ({
-    id: order.id,
-    orderNumber: order.orderNumber || "",
-    specialInstructions: order.specialInstructions || "",
-    priority: order.priority || "MEDIUM",
-    estimatedDelivery: order.estimatedDelivery || "",
-    status: order.status as OrderStatus,
-    failedReason: order.failedReason as FailedReason | undefined,
-    items: order.items?.map((item) => ({
-      sku: item.sku || "",
-      name: item.name || "",
-      description: item.description || "",
-      weight: Number(item.weight) || 0,
-      quantity: Number(item.quantity) || 1,
-      unitPrice: Number(item.unitPrice) || 0,
-    })) || [],
-  });
+const mapOrderToUpdateForm = (order: Order) => ({
+  id: order.id,
+  orderNumber: order.orderNumber || "",
+  specialInstructions: order.specialInstructions || "",
+  priority: order.priority || "MEDIUM",
+  estimatedDelivery: order.estimatedDelivery || "",
+  status: order.status as OrderStatus,
+  failedReason: order.failedReason as FailedReason | undefined,
+  items: order.items?.map((item) => ({
+    productId: (item as any).productId || "",
+    sku: item.sku || "",
+    name: item.name || "",
+    description: item.description || "",
+    weight: Number(item.weight) || 0,
+    quantity: Number(item.quantity) || 1,
+    unitPrice: Number(item.unitPrice) || 0,
+  })) || [],
+});
+
 
   const handleModalSubmit = () => {
     queryClient.invalidateQueries({ queryKey: ["customerOrders", customerId] });

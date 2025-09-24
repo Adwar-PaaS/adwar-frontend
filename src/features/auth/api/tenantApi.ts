@@ -4,7 +4,7 @@ import type {
   AssignPermissionsPayload,
   CreateSuperAdminUserPayload,
 } from "../../tenants/tenants.types";
-import type { OrderStatus, FailedReason } from "../../tenants/components/OrderModal";
+import type { OrderStatus, FailedReason } from "../../tenants/tenants.types";
 
 // import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";

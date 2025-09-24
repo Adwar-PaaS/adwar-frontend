@@ -1,44 +1,54 @@
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
-import { Button, Card, Spin, Tag, Typography, Table } from "antd";
-import { fetchOrderById } from "../../auth/api/tenantApi";
-import styles from "../../../styles/OrderDetailsPage.module.css";
-import { OrderModal } from "../components/OrderModal";
 import { useState } from "react";
-import { UploadFileModal } from "../components/UploadFileModal";
+import { Table, Tag, Typography, Button, Card, Spin } from "antd";
+import { useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchOrderById } from "../../auth/api/tenantApi";
+import { CustomerUpdateOrder, type FailedReason, type OrderStatus } from "../../Customer/components/CustomerUpdateOrder";
+import styles from "../../../styles/OrderDetailsPage.module.css";
 
 export const OrderDetailsPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
+  const { data: order, isLoading, isError, refetch } = useQuery({
     queryKey: ["order", orderId],
     queryFn: () => fetchOrderById(orderId!),
     enabled: !!orderId,
   });
 
-  const order = data;
-
-  const handleUpload = (file: File) => {
-    console.log("Uploaded file:", file);
-  };
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
   if (isLoading)
-    return (
-      <Spin size="large" style={{ display: "block", margin: "20px auto" }} />
-    );
+    return <Spin size="large" style={{ display: "block", margin: "20px auto" }} />;
+
   if (isError || !order)
-    return (
-      <Typography.Text type="danger">
-        Failed to load order details
-      </Typography.Text>
-    );
+    return <Typography.Text type="danger">Failed to load order details</Typography.Text>;
+
+  // Map order to update form values
+  const mapOrderToUpdateForm = (order: any) => ({
+    id: order.id,
+    orderNumber: order.orderNumber || "",
+    specialInstructions: order.specialInstructions || "",
+    priority: order.priority || "MEDIUM",
+    estimatedDelivery: order.estimatedDelivery || "",
+    status: order.status as OrderStatus,
+    failedReason: order.failedReason as FailedReason | undefined,
+    items: order.items?.map((item: any) => ({
+      productId: item.productId || "",
+      sku: item.sku || "",
+      name: item.name || "",
+      description: item.description || "",
+      weight: Number(item.weight) || 0,
+      quantity: Number(item.quantity) || 1,
+      unitPrice: Number(item.unitPrice) || 0,
+    })) || [],
+  });
+
+  const handleModalSubmit = () => {
+    queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+    setUpdateModalOpen(false);
+    refetch();
+  };
 
   const columns = [
     { title: "Field", dataIndex: "field", key: "field" },
@@ -88,14 +98,9 @@ export const OrderDetailsPage = () => {
       <Card
         title={`Order Details - ${order.orderNumber}`}
         extra={
-          <div style={{ display: "flex", gap: "8px" }}>
-            <Button type="primary" onClick={() => setIsModalOpen(true)}>
-              Edit
-            </Button>
-            <Button onClick={() => setIsUploadModalOpen(true)}>
-              Upload File
-            </Button>
-          </div>
+          <Button type="primary" onClick={() => setUpdateModalOpen(true)}>
+            Edit Order
+          </Button>
         }
       >
         <Table
@@ -107,21 +112,14 @@ export const OrderDetailsPage = () => {
         />
       </Card>
 
-      <OrderModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        order={order}
-        onSubmit={() => {
-          refetch();
-          setIsModalOpen(false);
-        }}
-      />
-
-      <UploadFileModal
-        open={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onUpload={handleUpload}
-      />
+      {updateModalOpen && (
+        <CustomerUpdateOrder
+          open={updateModalOpen}
+          order={mapOrderToUpdateForm(order)}
+          onClose={() => setUpdateModalOpen(false)}
+          onSubmit={handleModalSubmit}
+        />
+      )}
     </div>
   );
 };

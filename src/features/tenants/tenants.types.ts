@@ -89,3 +89,39 @@ export interface Order {
   updatedAt: string;
   deletedAt: string | null;
 }
+
+// Order status values
+export type OrderStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "ASSIGNED_FOR_PICKUP"
+  | "PICKED_UP"
+  | "RECEIVED_IN_WAREHOUSE"
+  | "STORED_ON_SHELVES"
+  | "READY_FOR_DISPATCH"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "FAILED"
+  | "RESCHEDULED"
+  | "CANCELLED"
+  | "RETURNED_TO_OPERATION"
+  | "READY_TO_RETURN_TO_ORIGIN"
+  | "RETURNED_TO_ORIGIN";
+
+// Failed reason values
+export type FailedReason =
+  | "CUSTOMER_NOT_AVAILABLE"
+  | "WRONG_ADDRESS"
+  | "NO_ANSWER"
+  | "DAMAGED_PACKAGE"
+  | "OUT_OF_COVERAGE_AREA"
+  | "MOBILE_SWITCHED_OFF"
+  | "CUSTOMER_REFUSED"
+  | "INCOMPLETE_ADDRESS"
+  | "SECURITY_ISSUE"
+  | "WEATHER_CONDITIONS"
+  | "VEHICLE_BREAKDOWN"
+  | "TRAFFIC_CONGESTION"
+  | "OTHER";
+
+

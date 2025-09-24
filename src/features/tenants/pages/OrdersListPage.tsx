@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Button, Table, Space, Row, Col, Typography, Tag, Spin } from "antd";
 import { Link } from "react-router-dom";
 import styles from "../../../styles/OrderListPage.module.css";
-import { OrderModal } from "../components/OrderModal";
+import { CustomerCreateOrder } from "../../Customer/components/CustomerCreateOrder";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrdersForTenant } from "../../auth/api/tenantApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 import { UpdateStatusModal } from "../components/UpdateOrderStatusModal";
-import { AssignDriverModal } from "../components/AssignDriverModal";
 
 interface Order {
   id: string;
@@ -45,8 +44,6 @@ export const OrderListPage = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [statusOrderId, setStatusOrderId] = useState<string | null>(null);
 
-  const [assignDriverOpen, setAssignDriverOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const columns = [
     {
@@ -125,16 +122,6 @@ export const OrderListPage = () => {
           >
             Update Status
           </Button>
-          {/* <Button
-            type="link"
-            onClick={() => {
-              setSelectedOrder(record);
-              setAssignDriverOpen(true);
-            }}
-            disabled={!record.pickup}
-          >
-            Assign Driver
-          </Button> */}
         </Space>
       ),
     },
@@ -168,26 +155,11 @@ export const OrderListPage = () => {
         />
       )}
 
-      <OrderModal
+      <CustomerCreateOrder
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={() => refetch()}
       />
-
-      {selectedOrder && tenantId && (
-        <>
-          {selectedOrder.pickup && (
-            <AssignDriverModal
-              open={assignDriverOpen}
-              onClose={() => setAssignDriverOpen(false)}
-              warehouseId={""} // not in response, adapt if needed
-              orderId={selectedOrder.id}
-              currentStatus={selectedOrder.status}
-              onSuccess={refetch}
-            />
-          )}
-        </>
-      )}
 
       <UpdateStatusModal
         open={statusModalOpen}
