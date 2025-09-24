@@ -12,12 +12,18 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'https://adwar-backend-project-vh53.onrender.com',
+      "/api": {
+        target: "https://adwar-backend-project-vh53.onrender.com",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/api/, ""),
         secure: true,
-      }
-    }
-  }
+      },
+      "/socket.io": {
+        target: "https://adwar-backend-project-vh53.onrender.com",
+        changeOrigin: true,
+        secure: true,
+        ws: true,
+      },
+    },
+  },
 });

@@ -1,35 +1,36 @@
 import { useEffect } from "react";
+import { io, Socket } from "socket.io-client";
+import instance from "../api/axiosInstance";
 
-export const usePickupSocket = (onNewPickup: (pickup: any) => void) => {
+export const usePickupSocket = (
+  onNewPickup: (pickup: any) => void,
+  options?: { namespace?: string; eventName?: string }
+) => {
   useEffect(() => {
-    // Connect to backend WebSocket
-    const socket = new WebSocket("ws://localhost:5173");
+    const baseURL = import.meta.env.DEV ? "" : instance.defaults.baseURL || "";
+    const namespace = options?.namespace || "";
+    const eventName = options?.eventName || "notification";
 
-    socket.onopen = () => {
-      console.log("WebSocket connected");
-      // Subscribe to pickup events (depends on your backend protocol)
-      socket.send(JSON.stringify({ type: "subscribe", channel: "pickups" }));
-    };
+    const socket: Socket = io(`${baseURL}${namespace}`, {
+      transports: ["websocket"],
+      withCredentials: true,
+    });
 
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
+    socket.on("connect", () => {
+      console.log("Socket.IO connected");
+    });
 
-        // backend sends { type: "pickup:new", payload: {...} }
-        if (data.type === "pickup:new") {
-          onNewPickup(data.payload);
-        }
-      } catch (err) {
-        console.error(" Error parsing WS message:", err);
-      }
-    };
+    socket.on("disconnect", (reason) => {
+      console.log("Socket.IO disconnected:", reason);
+    });
 
-    socket.onclose = () => {
-      console.log("WebSocket disconnected");
-    };
+    socket.on(eventName, (data) => {
+      console.log("New pickup notification:", data);
+      onNewPickup(data);
+    });
 
     return () => {
-      socket.close();
+      socket.disconnect();
     };
-  }, [onNewPickup]);
+  }, [onNewPickup, options?.eventName, options?.namespace]);
 };

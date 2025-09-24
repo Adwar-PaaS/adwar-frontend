@@ -8,33 +8,46 @@ export const NotificationsBell = () => {
   const navigate = useNavigate();
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
 
-  const menu = (
-    <div style={{ width: 320, maxHeight: 400, overflowY: "auto" }}>
-      <List
-        dataSource={notifications}
-        renderItem={(item) => (
-          <List.Item
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate(`/tenant/${tenantSlug}/operation/pickups/${item.pickupId}`)}
-          >
-            <div>
-              <b>Pickup #{item.pickupId}</b>  
-              <br />
-              <small>Requested By: {item.requestedBy}</small>
+  const menu = {
+    items: [
+      {
+        key: "notifications",
+        label: (
+          <div style={{ width: 320, maxHeight: 400, overflowY: "auto" }}>
+            <List
+              dataSource={notifications}
+              renderItem={(item) => (
+                <List.Item
+                  style={{ cursor: "pointer" }}
+                  onClick={() =>
+                    navigate(`/tenant/${tenantSlug}/operation/pickups/${item.pickupId}`)
+                  }
+                >
+                  <div>
+                    <b>{item.title}</b>
+                    <br />
+                    <span>{item.message}</span>
+                    <br />
+                    <small style={{ color: "#888" }}>
+                      {new Date(item.createdAt).toLocaleString()}
+                    </small>
+                  </div>
+                </List.Item>
+              )}
+            />
+            <div style={{ textAlign: "center", padding: "8px" }}>
+              <Button size="small" onClick={clearNotifications}>
+                Clear
+              </Button>
             </div>
-          </List.Item>
-        )}
-      />
-      <div style={{ textAlign: "center", padding: "8px" }}>
-        <Button size="small" onClick={clearNotifications}>
-          Clear
-        </Button>
-      </div>
-    </div>
-  );
+          </div>
+        ),
+      },
+    ],
+  };
 
   return (
-    <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+    <Dropdown menu={menu} trigger={["click"]} placement="bottomRight">
       <Badge count={notifications.length} offset={[0, 10]}>
         <BellOutlined style={{ fontSize: 22, cursor: "pointer" }} />
       </Badge>
