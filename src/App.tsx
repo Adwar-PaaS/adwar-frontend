@@ -22,6 +22,7 @@ import { ApprovedPickupsListPage } from "./features/Operation/pages/ApprovedPick
 import { TenantBranchesList } from "./features/tenants/pages/TenantBranchesList";
 import { CustomerDashboard } from "./features/Customer/pages/CustomerDashboard";
 import TenantDashboard from "./features/tenants/pages/TenantDashboard";
+import { OpsDashboard } from "./features/Operation/pages/OpsDashboard";
 
 function App() {
   return (
@@ -83,12 +84,11 @@ function App() {
             <Route element={<OperationsPanel />}>
               <Route
                 path="dashboard"
-                element={<div>Tenant Operations Dashboard</div>}
+                element={<OpsDashboard/>}
               />
               <Route path="pickups" element={<PickupsListPage />} />
               <Route path="pickups/:pickupId" element={<PickupDetailsPage />} />
 
-              {/* Enable Approved Pickups page */}
               <Route
                 path="approved-pickups"
                 element={<ApprovedPickupsListPage />}

@@ -1,4 +1,4 @@
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Typography } from "antd";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   CheckCircleOutlined,
@@ -51,14 +51,7 @@ export const OperationsPanel = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider className={styles.sidebar} width={200}>
-        <div className={styles.logo}>
-          Operations
-          {user && (
-            <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
-              {user.fullName}
-            </div>
-          )}
-        </div>
+        <div className={styles.logo}>Operations</div>
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
@@ -74,15 +67,22 @@ export const OperationsPanel = () => {
         />
       </Sider>
       <Layout>
-         <Header
+        <Header
           style={{
             background: "#fff",
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
+            gap: 16,
             paddingRight: 20,
           }}
         >
+          {user && (
+            <Typography.Text style={{ fontSize: 20 }}>
+              Welcome back,
+              {user.fullName}!
+            </Typography.Text>
+          )}
           <NotificationsBell />
         </Header>
         <Content className={styles.content}>
