@@ -68,11 +68,9 @@ export const PickupDetailsPage = () => {
         updatedAt: order.updatedAt,
         estimatedDelivery: order.estimatedDelivery,
 
-        // customer info
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerPhone: order.customer.phone,
 
-        // item + product info
         itemId: item.id,
         sku: item.product?.sku,
         productName: item.product?.name,
@@ -175,7 +173,7 @@ export const PickupDetailsPage = () => {
         }
 
         return (
-          <Space>
+          <Space align="baseline">
             <Button
               type="primary"
               size="small"

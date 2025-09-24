@@ -3,12 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllPickups } from "../../auth/api/operationApi";
 import { useCurrentUser } from "../../../components/auth/useCurrentUser";
 
-
 export interface PickupRequest {
   id: string;
-  pickupId: string;
-  requestedBy: string;
-  respondedBy?: string | null;
+  pickupNumber: string;
   status:
     | "PENDING"
     | "IN_PROGRESS"
@@ -17,12 +14,13 @@ export interface PickupRequest {
     | "FAILED"
     | "APPROVED"
     | "REJECTED";
+  type: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export const ApprovedPickupsListPage = () => {
-    const { data: currentUserData } = useCurrentUser();
+  const { data: currentUserData } = useCurrentUser();
 
   const tenantId = currentUserData?.data?.data?.user?.tenant?.id;
 
@@ -32,13 +30,12 @@ export const ApprovedPickupsListPage = () => {
     enabled: !!tenantId,
   });
 
-  const pickups: PickupRequest[] = data?.data?.requests || [];
+  const pickups: PickupRequest[] = data?.data?.pickups || [];
   const approvedPickups = pickups.filter((p) => p.status === "APPROVED");
 
   const columns = [
-    { title: "Pickup ID", dataIndex: "pickupId", key: "pickupId" },
-    { title: "Requested By", dataIndex: "requestedBy", key: "requestedBy" },
-    { title: "Responded By", dataIndex: "respondedBy", key: "respondedBy" },
+    { title: "Pickup Number", dataIndex: "pickupNumber", key: "pickupNumber" },
+    { title: "Type", dataIndex: "type", key: "Type" },
     {
       title: "Pickup Request Status",
       dataIndex: "status",
