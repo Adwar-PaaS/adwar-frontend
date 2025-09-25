@@ -6,7 +6,6 @@ import type {
 } from "../../tenants/tenants.types";
 import type { OrderStatus, FailedReason } from "../../tenants/tenants.types";
 
-// import type { createWarehousePayload } from "../../tenants/warehouses.types";
 import instance from "./axiosInstance";
 
 // FormData is needed for file uploads to match backend's FileInterceptor
@@ -92,26 +91,6 @@ export const assignRolePermissions = async ({
 export const fetchTenantRoles = async (tenantId: string) => {
   const response = await instance.get(`/tenants/${tenantId}/roles`);
   return response.data.data.roles;
-};
-
-// Admin: Get Warehouses
-export const getWarehouses = async () => {
-  return instance.get("/warehouses");
-};
-
-// Admin: Create Warehouses
-export const createWarehouse = async (data: any) => {
-  return instance.post("/warehouses", data);
-};
-
-// Admin: Update Warehouses
-export const updateWarehouse = async (warehouseId: string, data: any) => {
-  return instance.put(`/warehouses/${warehouseId}`, data);
-};
-
-// Admin: Get all warehouses for a tenant
-export const fetchTenantWarehouses = async (tenantId: string) => {
-  return instance.get(`/tenants/${tenantId}/warehouses`);
 };
 
 // Admin: Get all orders for all tenants
@@ -203,26 +182,6 @@ export const updateOrderStatus = async ({
 
   const response = await instance.put(`/orders/${orderId}`, body);
   return response.data;
-};
-
-// Admin: Get all drivers for a warehouse
-export const fetchWarehouseDrivers = async (warehouseId: string) => {
-  return instance.get(`/warehouses/${warehouseId}/drivers`);
-};
-
-// Admin: Get a warehouse
-export const fetchWarehouseById = (warehouseId: string) => {
-  return instance.get(`/warehouses/${warehouseId}`);
-};
-
-// Admin: Get all orders for a warehouse
-export const fetchWarehouseOrders = (warehouseId: string) => {
-  return instance.get(`/warehouses/${warehouseId}/orders`);
-};
-
-// Admin: Get all users for a warehouse
-export const fetchWarehouseUsers = async (warehouseId: string) => {
-  return instance.get(`/warehouses/${warehouseId}/users`);
 };
 
 // Admin: Get all branches for a tenant

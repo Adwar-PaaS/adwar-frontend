@@ -22,6 +22,8 @@ const { data, isError } = useQuery({
   queryFn: async () => {
     const tenantRes = await getTenantById(id!);
 
+    console.log(tenantRes)
+
     let users: any[] = [];
     try {
       const usersRes = await getUsersByTenantId(id!);

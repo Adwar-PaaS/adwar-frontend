@@ -27,3 +27,7 @@ export const rejectPickupRequest = async (pickupId: string) => {
   });
 };
 
+// Add branch to approved pickup
+export const updatePickupBranch = async (pickupId: string, branchId: string) => {
+  return await instance.put(`/pickups/${pickupId}`, { branchId });
+};
