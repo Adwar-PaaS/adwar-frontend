@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOrderById } from "../../auth/api/tenantApi";
 import { CustomerUpdateOrder, type FailedReason, type OrderStatus } from "../../Customer/components/CustomerUpdateOrder";
+import OrderItemsTable from "../components/OrderItemsTable";
 import styles from "../../../styles/OrderDetailsPage.module.css";
 
 export const OrderDetailsPage = () => {
@@ -33,15 +34,16 @@ export const OrderDetailsPage = () => {
     estimatedDelivery: order.estimatedDelivery || "",
     status: order.status as OrderStatus,
     failedReason: order.failedReason as FailedReason | undefined,
-    items: order.items?.map((item: any) => ({
-      productId: item.productId || "",
-      sku: item.sku || "",
-      name: item.name || "",
-      description: item.description || "",
-      weight: Number(item.weight) || 0,
-      quantity: Number(item.quantity) || 1,
-      unitPrice: Number(item.unitPrice) || 0,
-    })) || [],
+    items:
+      order.items?.map((item: any) => ({
+        productId: item.productId || "",
+        sku: item.product?.sku || "",
+        name: item.product?.name || "",
+        description: item.product?.description || "",
+        weight: Number(item.product?.weight) || 0,
+        quantity: Number(item.quantity) || 1,
+        unitPrice: Number(item.unitPrice) || 0,
+      })) || [],
   });
 
   const handleModalSubmit = () => {
@@ -84,11 +86,21 @@ export const OrderDetailsPage = () => {
       ),
     },
     { key: "8", field: "Priority", value: order.priority },
-    { key: "9", field: "Estimated Delivery", value: order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleString() : "N/A" },
+    {
+      key: "9",
+      field: "Estimated Delivery",
+      value: order.estimatedDelivery
+        ? new Date(order.estimatedDelivery).toLocaleString()
+        : "N/A",
+    },
     { key: "10", field: "Delivered At", value: order.deliveredAt || "Not delivered yet" },
     { key: "11", field: "Created At", value: new Date(order.createdAt).toLocaleString() },
     { key: "12", field: "Updated At", value: new Date(order.updatedAt).toLocaleString() },
-    { key: "13", field: "Customer Name", value: `${order.customer.firstName} ${order.customer.lastName}` },
+    {
+      key: "13",
+      field: "Customer Name",
+      value: `${order.customer.firstName} ${order.customer.lastName}`,
+    },
     { key: "14", field: "Customer Email", value: order.customer.email },
     { key: "15", field: "Customer Phone", value: order.customer.phone },
   ];
@@ -111,6 +123,12 @@ export const OrderDetailsPage = () => {
           size="middle"
         />
       </Card>
+
+      {order.items && order.items.length > 0 && (
+        <Card>
+          <OrderItemsTable items={order.items} />
+        </Card>
+      )}
 
       {updateModalOpen && (
         <CustomerUpdateOrder

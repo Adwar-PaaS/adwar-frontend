@@ -35,7 +35,6 @@ export const BranchModal: React.FC<BranchModalProps> = ({
         : createBranch({
             ...(payload as CreateBranchPayload),
             tenantId: tenantId!,
-            customerId,
           }),
     onSuccess: () => {
       message.success(`Branch ${branch ? "updated" : "created"} successfully!`);
