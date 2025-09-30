@@ -80,7 +80,7 @@ export const PickupDetailsPage = () => {
         itemTotal: item.total,
         productWeight: item.product?.weight,
 
-        pickupId: order.pickupId,
+        pickupId: order.pickup?.id,
       }))
     ) || [];
 
