@@ -1,5 +1,12 @@
 import { Table, Tag, Button, Space } from "antd";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import dayjs from "dayjs";
+import { EditOutlined } from "@ant-design/icons";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import type { DropResult } from "@hello-pangea/dnd";
+
 import { TenantFormModal } from "../components/TenantFormModal";
 import type { TenantFormValues } from "../tenants.types";
 import {
@@ -7,12 +14,9 @@ import {
   getTenants,
   updateTenant,
 } from "../../auth/api/tenantApi";
-import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../store/hooks";
-import { toast } from "react-toastify";
-import dayjs from "dayjs";
+
 import styles from "../../../styles/TenantList.module.css";
-import { EditOutlined } from "@ant-design/icons";
 
 export const TenantList = () => {
   const navigate = useNavigate();
@@ -20,14 +24,14 @@ export const TenantList = () => {
 
   const [tenants, setTenants] = useState<TenantFormValues[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingTenant, setEditingTenant] = useState<TenantFormValues | null>(
-    null
-  );
+  const [editingTenant, setEditingTenant] = useState<TenantFormValues | null>(null);
+  const [columns, setColumns] = useState<any[]>([]);
+
   const fetchTenants = async () => {
     try {
       const response = await getTenants();
       setTenants(response.data.data.tenants || []);
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch tenants");
       setTenants([]);
     }
@@ -58,22 +62,16 @@ export const TenantList = () => {
       formData.append("email", values.email);
       formData.append("phone", values.phone);
       formData.append("status", values.status);
-
       formData.append("address[address1]", values.address.address1);
       formData.append("address[city]", values.address.city);
       formData.append("address[country]", values.address.country);
-
-      if (file) {
-        formData.append("logoUrl", file);
-      }
+      if (file) formData.append("logoUrl", file);
 
       if (editingTenant) {
         const response = await updateTenant(editingTenant.id!, formData);
         const updatedTenant = response.data.data;
         setTenants((prev) =>
-          prev.map((tenant) =>
-            tenant.id === editingTenant.id ? updatedTenant : tenant
-          )
+          prev.map((t) => (t.id === editingTenant.id ? updatedTenant : t))
         );
         toast.success("Tenant updated successfully");
       } else {
@@ -86,95 +84,141 @@ export const TenantList = () => {
       fetchTenants();
       setModalOpen(false);
       setEditingTenant(null);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save tenant");
     }
   };
 
-  const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (_: string, record: TenantFormValues) => (
-        <Button
-          type="link"
-          onClick={() => navigate(`/tenants/${record.id}`)}
-          className={styles.tenantNameButton}
-        >
-          {record.name}
-        </Button>
-      ),
-    },
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Phone", dataIndex: "phone", key: "phone" },
-
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-      render: (address: any) => {
-        if (!address) return "N/A";
-        return `${address.address1 || ""}, ${address.city || ""}, ${
-          address.country || ""
-        }`.replace(/(,\s*)+$/, "");
-      },
-    },
-    {
-      title: "Logo",
-      dataIndex: "logoUrl",
-      key: "logoUrl",
-      render: (url: string) => (
-        <img
-          src={url || "../logo-placeholder.jpg"}
-          alt="logo"
-          width={40}
-          height={40}
-        />
-      ),
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
-    },
-    {
-      title: "Created By",
-      dataIndex: "creator",
-      key: "createdBy",
-      render: (creator: { firstName?: string; lastName?: string }) =>
-        creator
-          ? `${creator.firstName || ""} ${creator.lastName || ""}`.trim()
-          : "N/A",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => {
-        const isActive = status === "ACTIVE";
-        return (
-          <Tag color={isActive ? "green" : "red"}>
-            {isActive ? "ACTIVE" : "INACTIVE"}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_: any, record: TenantFormValues) => (
-        <Space>
-          <Button type="link" onClick={() => openEditModal(record)}>
-            <EditOutlined />
-            Edit
+  useEffect(() => {
+    const initialColumns = [
+      {
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        width: 200,
+        render: (_: string, record: TenantFormValues) => (
+          <Button
+            type="link"
+            onClick={() => navigate(`/tenants/${record.id}`)}
+            className={styles.tenantNameButton}
+          >
+            {record.name}
           </Button>
-        </Space>
-      ),
-    },
-  ];
+        ),
+      },
+      { title: "Email", dataIndex: "email", key: "email", width: 200 },
+      { title: "Phone", dataIndex: "phone", key: "phone", width: 150 },
+      {
+        title: "Address",
+        dataIndex: "address",
+        key: "address",
+        width: 300,
+        render: (address: any) =>
+          address
+            ? `${address.address1 || ""}, ${address.city || ""}, ${address.country || ""}`.replace(
+                /(,\s*)+$/,
+                ""
+              )
+            : "N/A",
+      },
+      {
+        title: "Logo",
+        dataIndex: "logoUrl",
+        key: "logoUrl",
+        width: 120,
+        render: (url: string) => (
+          <img
+            src={url || "../logo-placeholder.jpg"}
+            alt="logo"
+            width={40}
+            height={40}
+          />
+        ),
+      },
+      {
+        title: "Created At",
+        dataIndex: "createdAt",
+        key: "createdAt",
+        width: 180,
+        render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
+      },
+      {
+        title: "Created By",
+        dataIndex: "creator",
+        key: "createdBy",
+        width: 180,
+        render: (creator: { firstName?: string; lastName?: string }) =>
+          creator ? `${creator.firstName || ""} ${creator.lastName || ""}`.trim() : "N/A",
+      },
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        width: 150,
+        render: (status: string) => (
+          <Tag color={status === "ACTIVE" ? "green" : "red"}>
+            {status === "ACTIVE" ? "ACTIVE" : "INACTIVE"}
+          </Tag>
+        ),
+      },
+      {
+        title: "Actions",
+        key: "actions",
+        width: 120,
+        render: (_: any, record: TenantFormValues) => (
+          <Space>
+            <Button type="link" onClick={() => openEditModal(record)}>
+              <EditOutlined /> Edit
+            </Button>
+          </Space>
+        ),
+      },
+    ];
 
+    setColumns(initialColumns);
+  }, [navigate]);
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const reordered = Array.from(columns);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setColumns(reordered);
+  };
+
+
+  const DraggableHeader = ({ }: { children: React.ReactNode }) => (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId="droppable-columns" direction="horizontal">
+        {(droppableProvided) => (
+          <tr ref={droppableProvided.innerRef} {...droppableProvided.droppableProps}>
+            {columns.map((col, index) => (
+              <Draggable key={col.key} draggableId={col.key.toString()} index={index}>
+                {(provided) => (
+                  <th
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={{
+                      background: "#fafafa",
+                      fontWeight: 600,
+                      cursor: "grab",
+                      whiteSpace: "nowrap",
+                      ...provided.draggableProps.style,
+                    }}
+                  >
+                    {col.title}
+                  </th>
+                )}
+              </Draggable>
+            ))}
+            {droppableProvided.placeholder}
+          </tr>
+        )}
+      </Droppable>
+    </DragDropContext>
+  );
+  
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -187,8 +231,14 @@ export const TenantList = () => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={Array.isArray(tenants) ? tenants : []}
+        dataSource={tenants}
         pagination={{ pageSize: 5 }}
+        scroll={{ x: "max-content" }}
+        components={{
+          header: {
+            row: DraggableHeader,
+          },
+        }}
       />
 
       <TenantFormModal
